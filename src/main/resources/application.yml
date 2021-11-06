@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: sky-drinks
+  datasource:
+    url: jdbc:mysql://localhost:3306/skydrinks?createDatabaseIfNotExist=true
+    username: root
+    password: root
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+server:
+  servlet:
+    context-path: /api/v1
+  error:
+    include-stacktrace: on_param
+
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: DEBUG
