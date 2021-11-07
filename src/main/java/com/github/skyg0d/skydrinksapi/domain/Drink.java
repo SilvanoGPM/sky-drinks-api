@@ -6,6 +6,11 @@ import org.hibernate.Hibernate;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.Size;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -19,8 +24,11 @@ import java.util.Objects;
 @Entity
 public class Drink extends BaseEntity {
 
+    @Size(min = 3, max = 100, message = "O nome da bebida precisa ter de 3 a 100 caracteres.")
+    @NotBlank(message = "O nome da bebida não pode ficar vazio.")
     private String name;
 
+    @Positive(message = "O valor da bebida deve ser positivo.")
     private double price;
 
     private boolean alcoholic;
@@ -28,7 +36,9 @@ public class Drink extends BaseEntity {
     private String additionals;
 
     public List<String> getAdditionals() {
-        return List.of(additionals.split(";"));
+        return additionals == null || additionals.isEmpty()
+                ? Collections.emptyList()
+                : List.of(additionals.split(";"));
     }
 
     @Override
