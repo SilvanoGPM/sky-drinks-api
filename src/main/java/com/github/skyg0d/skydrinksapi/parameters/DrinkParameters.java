@@ -21,7 +21,7 @@ public class DrinkParameters {
 
      private String createdInDateOrBefore;
 
-     private boolean alcoholic;
+     private int alcoholic = -1;
 
      private double price = -1;
 
