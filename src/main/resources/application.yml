@@ -12,11 +12,18 @@ spring:
 server:
   servlet:
     context-path: /api/v1
-  error:
-    include-stacktrace: on_param
+    multipart:
+      enabled: true
+      file-size-threshold: 2KB
+      max-file-size: 2MB
+      max-request-size: 5MB
 
 logging:
   level:
     org:
       hibernate:
         SQL: DEBUG
+
+my:
+  files:
+      upload-dir: ./uploaded-files

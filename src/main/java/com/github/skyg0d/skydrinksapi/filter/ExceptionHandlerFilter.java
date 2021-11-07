@@ -2,8 +2,7 @@ package com.github.skyg0d.skydrinksapi.filter;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.skyg0d.skydrinksapi.exception.ExceptionDetails;
-import org.springframework.core.annotation.Order;
+import com.github.skyg0d.skydrinksapi.exception.details.ExceptionDetails;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;

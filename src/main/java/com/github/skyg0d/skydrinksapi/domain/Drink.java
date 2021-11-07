@@ -6,7 +6,6 @@ import org.hibernate.Hibernate;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
@@ -33,6 +32,7 @@ public class Drink extends BaseEntity {
 
     private boolean alcoholic;
 
+    // TODO: rename to additional
     private String additionals;
 
     public List<String> getAdditionals() {

@@ -1,11 +1,10 @@
-package com.github.skyg0d.skydrinksapi.exception;
+package com.github.skyg0d.skydrinksapi.exception.details;
 
 import lombok.Data;
 import lombok.experimental.SuperBuilder;
 import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Data
 @SuperBuilder
