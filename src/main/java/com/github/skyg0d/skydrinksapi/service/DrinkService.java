@@ -43,11 +43,7 @@ public class DrinkService {
     }
 
     public void replace(DrinkPutRequestBody drinkPutRequestBody) {
-        UUID uuid = UUID.fromString(drinkPutRequestBody.getUuid());
-
-        log.info(uuid);
-
-        findByIdOrElseThrowBadRequestException(uuid);
+        findByIdOrElseThrowBadRequestException(drinkPutRequestBody.getUuid());
 
         drinkRepository.save(mapper.toDrink(drinkPutRequestBody));
     }
