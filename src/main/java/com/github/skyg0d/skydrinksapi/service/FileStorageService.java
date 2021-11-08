@@ -30,9 +30,6 @@ import java.util.stream.Collectors;
 @Service
 public class FileStorageService {
 
-    @Autowired
-    private ServletContext servletContext;
-
     private final FileStorageProperties fileStorageProperties;
     private final Path fileStoragePath;
     private final Path imagesPath;
@@ -66,6 +63,7 @@ public class FileStorageService {
             return Files.walk(this.fileStoragePath)
                     .filter(Files::isRegularFile)
                     .map(path -> path.toAbsolutePath().toString().replace(projectDir, ""))
+                    .sorted()
                     .collect(Collectors.toList());
         } catch (IOException e) {
             throw new FileStorageException("Aconteceu um erro ao tentar listar os arquivos.");

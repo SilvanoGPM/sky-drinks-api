@@ -13,7 +13,7 @@ public class DrinkParameters {
 
      private String name;
 
-     private String additionals;
+     private String additional;
 
      private String createdAt;
 

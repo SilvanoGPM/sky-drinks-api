@@ -11,7 +11,7 @@ public class DrinkSpecification extends AbstractSpecification {
 
     public static Specification<Drink> getSpecification(DrinkParameters drinkParameters) {
         return where(withName(drinkParameters.getName()))
-                .and(where(withAdditionals(drinkParameters.getAdditionals())))
+                .and(where(withAdditional(drinkParameters.getAdditional())))
                 .and(where(withAlcoholic(drinkParameters.getAlcoholic())))
                 .and(where(withPrice(drinkParameters.getPrice())))
                 .and(where(withGreaterThanPrice(drinkParameters.getGreaterThanPrice())))
@@ -29,9 +29,9 @@ public class DrinkSpecification extends AbstractSpecification {
         ));
     }
 
-    public static Specification<Drink> withAdditionals(String additionals) {
-        return getSpec(additionals, (root, query, builder) -> (
-                builder.like(builder.lower(root.get("additionals")), like(additionals))
+    public static Specification<Drink> withAdditional(String additional) {
+        return getSpec(additional, (root, query, builder) -> (
+                builder.like(builder.lower(root.get("additional")), like(additional))
         ));
     }
 

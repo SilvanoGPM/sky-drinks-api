@@ -27,18 +27,19 @@ public class Drink extends BaseEntity {
     @NotBlank(message = "O nome da bebida não pode ficar vazio.")
     private String name;
 
+    private String picture;
+
     @Positive(message = "O valor da bebida deve ser positivo.")
     private double price;
 
     private boolean alcoholic;
 
-    // TODO: rename to additional
-    private String additionals;
+    private String additional;
 
-    public List<String> getAdditionals() {
-        return additionals == null || additionals.isEmpty()
+    public List<String> getAdditional() {
+        return additional == null || additional.isEmpty()
                 ? Collections.emptyList()
-                : List.of(additionals.split(";"));
+                : List.of(additional.split(";"));
     }
 
     @Override
