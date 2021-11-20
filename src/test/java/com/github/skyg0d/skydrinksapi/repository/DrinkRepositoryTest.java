@@ -1,6 +1,7 @@
-package com.github.skyg0d.skydrinksapi.repository.drink;
+package com.github.skyg0d.skydrinksapi.repository;
 
 import com.github.skyg0d.skydrinksapi.domain.Drink;
+import com.github.skyg0d.skydrinksapi.repository.drink.DrinkRepository;
 import com.github.skyg0d.skydrinksapi.util.drink.DrinkCreator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,9 +29,9 @@ class DrinkRepositoryTest {
 
         assertThat(drinkSaved).isNotNull();
 
-        assertThat(drinkSaved.getName()).isNotNull();
-
-        assertThat(drinkSaved.getName()).isEqualTo(drinkSaved.getName());
+        assertThat(drinkSaved.getName())
+                .isNotNull()
+                .isEqualTo(drinkSaved.getName());
     }
 
     @Test
@@ -46,9 +47,9 @@ class DrinkRepositoryTest {
 
         assertThat(drinkUpdated).isNotNull();
 
-        assertThat(drinkUpdated.getName()).isNotNull();
-
-        assertThat(drinkUpdated.getName()).isEqualTo(drinkUpdated.getName());
+        assertThat(drinkUpdated.getName())
+                .isNotNull()
+                .isEqualTo(drinkUpdated.getName());
     }
 
     @Test
