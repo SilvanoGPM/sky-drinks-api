@@ -4,6 +4,7 @@ import com.github.skyg0d.skydrinksapi.domain.Table;
 import com.github.skyg0d.skydrinksapi.exception.BadRequestException;
 import com.github.skyg0d.skydrinksapi.parameters.TableParameters;
 import com.github.skyg0d.skydrinksapi.repository.table.TableRepository;
+import com.github.skyg0d.skydrinksapi.util.UUIDUtil;
 import com.github.skyg0d.skydrinksapi.util.table.TableCreator;
 import com.github.skyg0d.skydrinksapi.util.table.TablePostRequestBodyCreator;
 import com.github.skyg0d.skydrinksapi.util.table.TablePutRequestBodyCreator;
@@ -34,36 +35,43 @@ class TableServiceTest {
     private TableService tableService;
 
     @Mock
-    private TableRepository tableRepository;
+    private TableRepository tableRepositoryMock;
+
+    @Mock
+    private UUIDUtil uuidUtilMock;
 
     @BeforeEach
     void setUp() {
         Page<Table> tablePage = new PageImpl<>(List.of(TableCreator.createValidTable()));
 
         BDDMockito
-                .when(tableRepository.findAll(ArgumentMatchers.any(PageRequest.class)))
+                .when(tableRepositoryMock.findAll(ArgumentMatchers.any(PageRequest.class)))
                 .thenReturn(tablePage);
 
         BDDMockito
-                .when(tableRepository.findById(ArgumentMatchers.any(UUID.class)))
+                .when(tableRepositoryMock.findById(ArgumentMatchers.any(UUID.class)))
                 .thenReturn(Optional.of(TableCreator.createValidTable()));
 
         BDDMockito
-                .when(tableRepository.findByNumber(ArgumentMatchers.anyInt()))
+                .when(tableRepositoryMock.findByNumber(ArgumentMatchers.anyInt()))
                 .thenReturn(Optional.of(TableCreator.createValidTable()));
 
         BDDMockito
-                .when(tableRepository.findAll(ArgumentMatchers.<Specification<Table>>any(), ArgumentMatchers.any(PageRequest.class)))
+                .when(tableRepositoryMock.findAll(ArgumentMatchers.<Specification<Table>>any(), ArgumentMatchers.any(PageRequest.class)))
                 .thenReturn(tablePage);
 
         BDDMockito
-                .when(tableRepository.save(ArgumentMatchers.any(Table.class)))
+                .when(tableRepositoryMock.save(ArgumentMatchers.any(Table.class)))
                 .thenReturn(TableCreator.createValidTable());
 
         BDDMockito
                 .doNothing()
-                .when(tableRepository)
+                .when(tableRepositoryMock)
                 .delete(ArgumentMatchers.any(Table.class));
+
+        BDDMockito
+                .when(uuidUtilMock.getUUID(ArgumentMatchers.anyString()))
+                .thenReturn(null);
     }
 
     @Test
@@ -85,7 +93,7 @@ class TableServiceTest {
     @DisplayName("listAll return empty page when there are no tables")
     void listAll_ReturnListOfTablesInsidePageObject_WhenThereAreNoTables() {
         BDDMockito
-                .when(tableRepository.findAll(ArgumentMatchers.any(PageRequest.class)))
+                .when(tableRepositoryMock.findAll(ArgumentMatchers.any(PageRequest.class)))
                 .thenReturn(Page.empty());
 
         Page<Table> drinkPage = tableService.listAll(PageRequest.of(1, 1));
@@ -148,12 +156,30 @@ class TableServiceTest {
     @DisplayName("replace updates table when successful")
     void replace_UpdatedTable_WhenSuccessful() {
         BDDMockito
-                .when(tableRepository.save(ArgumentMatchers.any(Table.class)))
+                .when(tableRepositoryMock.save(ArgumentMatchers.any(Table.class)))
                 .thenReturn(TableCreator.createValidUpdatedTable());
 
 
         assertThatCode(() -> tableService.replace(TablePutRequestBodyCreator.createTablePutRequestBodyToUpdate()))
                 .doesNotThrowAnyException();
+    }
+
+    @Test
+    @DisplayName("switchOccupied updates table when successful")
+    void switchOccupied_UpdatedTable_WhenSuccessful() {
+        BDDMockito
+                .when(tableRepositoryMock.save(ArgumentMatchers.any(Table.class)))
+                .thenReturn(TableCreator.createValidSwitchedTable());
+
+        Table expectedTable = TableCreator.createValidSwitchedTable();
+
+        String identification = "1";
+
+        Table tableSwitched = tableService.switchOccupied(identification);
+
+        assertThat(tableSwitched).isNotNull();
+
+        assertThat(tableSwitched.isOccupied()).isEqualTo(expectedTable.isOccupied());
     }
 
     @Test
@@ -167,7 +193,7 @@ class TableServiceTest {
     @DisplayName("findByIdOrElseThrowBadRequestException throws BadRequestException when table is not found")
     void findByIdOrElseThrowBadRequestException_ThrowsBadRequestException_WhenTableIsNotFound() {
         BDDMockito
-                .when(tableRepository.findById(ArgumentMatchers.any(UUID.class)))
+                .when(tableRepositoryMock.findById(ArgumentMatchers.any(UUID.class)))
                 .thenReturn(Optional.empty());
 
         assertThatExceptionOfType(BadRequestException.class)
@@ -178,7 +204,7 @@ class TableServiceTest {
     @DisplayName("findByNumberOrElseThrowBadRequestException throws BadRequestException when table is not found")
     void findByNumberOrElseThrowBadRequestException_ThrowsBadRequestException_WhenTableIsNotFound() {
         BDDMockito
-                .when(tableRepository.findByNumber(ArgumentMatchers.anyInt()))
+                .when(tableRepositoryMock.findByNumber(ArgumentMatchers.anyInt()))
                 .thenReturn(Optional.empty());
 
         assertThatExceptionOfType(BadRequestException.class)

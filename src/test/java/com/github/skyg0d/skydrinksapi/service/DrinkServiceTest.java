@@ -34,31 +34,31 @@ class DrinkServiceTest {
     private DrinkService drinkService;
 
     @Mock
-    private DrinkRepository drinkRepository;
+    private DrinkRepository drinkRepositoryMock;
 
     @BeforeEach
     void setUp() {
         Page<Drink> drinkPage = new PageImpl<>(List.of(DrinkCreator.createValidDrink()));
 
         BDDMockito
-                .when(drinkRepository.findAll(ArgumentMatchers.any(PageRequest.class)))
+                .when(drinkRepositoryMock.findAll(ArgumentMatchers.any(PageRequest.class)))
                 .thenReturn(drinkPage);
 
         BDDMockito
-                .when(drinkRepository.findById(ArgumentMatchers.any(UUID.class)))
+                .when(drinkRepositoryMock.findById(ArgumentMatchers.any(UUID.class)))
                 .thenReturn(Optional.of(DrinkCreator.createValidDrink()));
 
         BDDMockito
-                .when(drinkRepository.findAll(ArgumentMatchers.<Specification<Drink>>any(), ArgumentMatchers.any(PageRequest.class)))
+                .when(drinkRepositoryMock.findAll(ArgumentMatchers.<Specification<Drink>>any(), ArgumentMatchers.any(PageRequest.class)))
                 .thenReturn(drinkPage);
 
         BDDMockito
-                .when(drinkRepository.save(ArgumentMatchers.any(Drink.class)))
+                .when(drinkRepositoryMock.save(ArgumentMatchers.any(Drink.class)))
                 .thenReturn(DrinkCreator.createValidDrink());
 
         BDDMockito
                 .doNothing()
-                .when(drinkRepository)
+                .when(drinkRepositoryMock)
                 .delete(ArgumentMatchers.any(Drink.class));
     }
 
@@ -81,7 +81,7 @@ class DrinkServiceTest {
     @DisplayName("listAll return empty page when there are no drinks")
     void listAll_ReturnListOfDrinksInsidePageObject_WhenThereAreNoDrinks() {
         BDDMockito
-                .when(drinkRepository.findAll(ArgumentMatchers.any(PageRequest.class)))
+                .when(drinkRepositoryMock.findAll(ArgumentMatchers.any(PageRequest.class)))
                 .thenReturn(Page.empty());
 
         Page<Drink> drinkPage = drinkService.listAll(PageRequest.of(1, 1));
@@ -132,7 +132,7 @@ class DrinkServiceTest {
     @DisplayName("replace updates drink when successful")
     void replace_UpdatedDrink_WhenSuccessful() {
         BDDMockito
-                .when(drinkRepository.save(ArgumentMatchers.any(Drink.class)))
+                .when(drinkRepositoryMock.save(ArgumentMatchers.any(Drink.class)))
                 .thenReturn(DrinkCreator.createValidUpdatedDrink());
 
 
@@ -151,7 +151,7 @@ class DrinkServiceTest {
     @DisplayName("findByIdOrElseThrowBadRequestException throws BadRequestException when drink is not found")
     void findByIdOrElseThrowBadRequestException_ThrowsBadRequestException_WhenDrinkIsNotFound() {
         BDDMockito
-                .when(drinkRepository.findById(ArgumentMatchers.any(UUID.class)))
+                .when(drinkRepositoryMock.findById(ArgumentMatchers.any(UUID.class)))
                 .thenReturn(Optional.empty());
 
         assertThatExceptionOfType(BadRequestException.class)

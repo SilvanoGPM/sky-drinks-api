@@ -37,4 +37,14 @@ public class TableCreator {
                 .build();
     }
 
+    public static Table createValidSwitchedTable() {
+        return Table
+                .builder()
+                .uuid(uuid)
+                .number(1)
+                .seats(4)
+                .occupied(true)
+                .build();
+    }
+
 }
