@@ -6,7 +6,6 @@ import com.github.skyg0d.skydrinksapi.requests.TablePostRequestBody;
 import com.github.skyg0d.skydrinksapi.requests.TablePutRequestBody;
 import com.github.skyg0d.skydrinksapi.service.TableService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -25,7 +24,7 @@ public class TableController {
 
     @GetMapping
     public ResponseEntity<Page<Table>> list(Pageable pageable) {
-        return ResponseEntity.ok(tableService.list(pageable));
+        return ResponseEntity.ok(tableService.listAll(pageable));
     }
 
     @GetMapping("/search")

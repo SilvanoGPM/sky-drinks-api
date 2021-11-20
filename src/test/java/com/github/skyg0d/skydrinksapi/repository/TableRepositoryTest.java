@@ -69,6 +69,20 @@ class TableRepositoryTest {
     }
 
     @Test
+    @DisplayName("find by number return table when successful")
+    void findByNumber_ReturnsTable_WhenSuccessful() {
+        Table tableToBeSave = TableCreator.createTableToBeSave();
+
+        Table tableSaved = tableRepository.save(tableToBeSave);
+
+        Optional<Table> tableFound = tableRepository.findByNumber(tableSaved.getNumber());
+
+        assertThat(tableFound).isNotNull().isPresent();
+
+        assertThat(tableFound.get().getNumber()).isEqualTo(tableToBeSave.getNumber());
+    }
+
+    @Test
     @DisplayName("save throws ConstraintViolationException when table properties is invalid")
     void save_ThrowsConstraintViolationException_WhenTablePropertiesIsInvalid() {
         Table table = new Table();

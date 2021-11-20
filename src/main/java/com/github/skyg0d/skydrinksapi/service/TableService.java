@@ -24,7 +24,7 @@ public class TableService {
     private final TableMapper mapper = TableMapper.INSTANCE;
     private final UUIDUtil uuidUtil;
 
-    public Page<Table> list(Pageable pageable) {
+    public Page<Table> listAll(Pageable pageable) {
         return tableRepository.findAll(pageable);
     }
 
