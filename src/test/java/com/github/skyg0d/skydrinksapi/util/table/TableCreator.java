@@ -27,7 +27,7 @@ public class TableCreator {
                 .build();
     }
 
-    public static Table createUpdatedTable() {
+    public static Table createValidUpdatedTable() {
         return Table
                 .builder()
                 .uuid(uuid)

@@ -33,7 +33,7 @@ public class ClientRequestCreator {
                 .build();
     }
 
-    public static ClientRequest createUpdatedClientRequest() {
+    public static ClientRequest createValidUpdatedClientRequest() {
         return ClientRequest
                 .builder()
                 .uuid(uuid)

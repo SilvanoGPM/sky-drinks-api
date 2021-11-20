@@ -34,7 +34,7 @@ public class DrinkCreator {
                 .build();
     }
 
-    public static Drink createValidDrinkUpdated() {
+    public static Drink createValidUpdatedDrink() {
         return Drink
                 .builder()
                 .uuid(uuid)

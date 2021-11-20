@@ -21,6 +21,8 @@ import java.util.Objects;
 @Entity
 public class Drink extends BaseEntity {
 
+    public static final String ADDITIONAL_SEPARATOR = ";";
+
     @Size(min = 3, max = 100, message = "O nome da bebida precisa ter de 3 a 100 caracteres.")
     @NotBlank(message = "O nome da bebida não pode ficar vazio.")
     private String name;
@@ -37,7 +39,7 @@ public class Drink extends BaseEntity {
     public List<String> getAdditional() {
         return additional == null || additional.isEmpty()
                 ? Collections.emptyList()
-                : List.of(additional.split(";"));
+                : List.of(additional.split(ADDITIONAL_SEPARATOR));
     }
 
     @Override
