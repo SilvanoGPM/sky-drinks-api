@@ -24,7 +24,7 @@ public class ClientRequestController {
 
     @GetMapping
     public ResponseEntity<Page<ClientRequest>> list(Pageable pageable) {
-        return ResponseEntity.ok(clientRequestService.list(pageable));
+        return ResponseEntity.ok(clientRequestService.listAll(pageable));
     }
 
     @GetMapping("/search")

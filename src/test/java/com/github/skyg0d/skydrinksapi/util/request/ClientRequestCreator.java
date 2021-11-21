@@ -44,4 +44,15 @@ public class ClientRequestCreator {
                 .build();
     }
 
+    public static ClientRequest createClientRequestFinished() {
+        return ClientRequest
+                .builder()
+                .uuid(uuid)
+                .drinks(new ArrayList<>(List.of(DrinkCreator.createValidDrink())))
+                .table(TableCreator.createValidTable())
+                .totalPrice(DrinkCreator.createValidDrink().getPrice())
+                .finished(true)
+                .build();
+    }
+
 }

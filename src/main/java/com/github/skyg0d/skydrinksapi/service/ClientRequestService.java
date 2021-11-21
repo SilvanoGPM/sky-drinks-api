@@ -23,7 +23,7 @@ public class ClientRequestService {
     private final ClientRequestRepository clientRequestRepository;
     private final ClientRequestMapper mapper = ClientRequestMapper.INSTANCE;
 
-    public Page<ClientRequest> list(Pageable pageable) {
+    public Page<ClientRequest> listAll(Pageable pageable) {
         return clientRequestRepository.findAll(pageable);
     }
 

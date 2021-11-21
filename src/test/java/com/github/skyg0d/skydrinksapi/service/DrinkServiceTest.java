@@ -142,7 +142,7 @@ class DrinkServiceTest {
     }
 
     @Test
-    @DisplayName("replace removes drink when successful")
+    @DisplayName("delete removes drink when successful")
     void delete_RemovesDrink_WhenSuccessful() {
         assertThatCode(() -> drinkService.delete(UUID.randomUUID()))
                 .doesNotThrowAnyException();

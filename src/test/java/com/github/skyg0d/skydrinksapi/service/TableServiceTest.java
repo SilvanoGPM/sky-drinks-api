@@ -184,7 +184,7 @@ class TableServiceTest {
     }
 
     @Test
-    @DisplayName("replace removes table when successful")
+    @DisplayName("delete removes table when successful")
     void delete_RemovesTable_WhenSuccessful() {
         assertThatCode(() -> tableService.delete(UUID.randomUUID()))
                 .doesNotThrowAnyException();
