@@ -91,8 +91,8 @@ class ClientRequestServiceTest {
     }
 
     @Test
-    @DisplayName("findByIdOrElseThrowBadRequestException return list of client requests inside page object when successful")
-    void findByIdOrElseThrowBadRequestException_ReturnListOfClientRequestsInsidePageObject_WhenSuccessful() {
+    @DisplayName("findByIdOrElseThrowBadRequestException returns an client request object when successful")
+    void findByIdOrElseThrowBadRequestException_ReturnsClientRequestObject_WhenSuccessful() {
         ClientRequest expectedClientRequest = ClientRequestCreator.createValidClientRequest();
 
         ClientRequest drinkFound = clientRequestService.findByIdOrElseThrowBadRequestException(UUID.randomUUID());

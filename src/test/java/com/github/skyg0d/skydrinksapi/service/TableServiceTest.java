@@ -103,8 +103,8 @@ class TableServiceTest {
     }
 
     @Test
-    @DisplayName("findByIdOrElseThrowBadRequestException return list of tables inside page object when successful")
-    void findByIdOrElseThrowBadRequestException_ReturnListOfTablesInsidePageObject_WhenSuccessful() {
+    @DisplayName("findByIdOrElseThrowBadRequestException returns an table object when successful")
+    void findByIdOrElseThrowBadRequestException_ReturnsAnTableObject_WhenSuccessful() {
         Table expectedTable = TableCreator.createValidTable();
 
         Table drinkFound = tableService.findByIdOrElseThrowBadRequestException(UUID.randomUUID());
@@ -115,8 +115,8 @@ class TableServiceTest {
     }
 
     @Test
-    @DisplayName("findByNumberOrElseThrowBadRequestException return list of tables inside page object when successful")
-    void findByNumberOrElseThrowBadRequestException_ReturnListOfTablesInsidePageObject_WhenSuccessful() {
+    @DisplayName("findByNumberOrElseThrowBadRequestException returns an table object when successful")
+    void findByNumberOrElseThrowBadRequestException_ReturnsAnTableObject_WhenSuccessful() {
         Table expectedTable = TableCreator.createValidTable();
 
         Table drinkFound = tableService.findByNumberOrElseThrowBadRequestException(0);

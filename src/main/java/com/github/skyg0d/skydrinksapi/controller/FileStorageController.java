@@ -1,6 +1,5 @@
 package com.github.skyg0d.skydrinksapi.controller;
 
-import com.github.skyg0d.skydrinksapi.property.FileStorageProperties;
 import com.github.skyg0d.skydrinksapi.responses.FileResponse;
 import com.github.skyg0d.skydrinksapi.service.FileStorageService;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +22,7 @@ public class FileStorageController {
     private final FileStorageService fileStorageService;
 
     @GetMapping
-    public ResponseEntity<Page<String>> list(Pageable pageable) {
+    public ResponseEntity<Page<String>> listAll(Pageable pageable) {
         return ResponseEntity.ok(fileStorageService.listFiles(pageable));
     }
 

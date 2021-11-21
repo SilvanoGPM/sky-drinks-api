@@ -23,7 +23,7 @@ public class ClientRequestController {
     private final ClientRequestService clientRequestService;
 
     @GetMapping
-    public ResponseEntity<Page<ClientRequest>> list(Pageable pageable) {
+    public ResponseEntity<Page<ClientRequest>> listAll(Pageable pageable) {
         return ResponseEntity.ok(clientRequestService.listAll(pageable));
     }
 

@@ -3,37 +3,36 @@ package com.github.skyg0d.skydrinksapi.service;
 import com.github.skyg0d.skydrinksapi.exception.CustomFileNotFoundException;
 import com.github.skyg0d.skydrinksapi.exception.FileStorageException;
 import com.github.skyg0d.skydrinksapi.property.FileStorageProperties;
-import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 @ExtendWith(SpringExtension.class)
 @DisplayName("Tests for FileStorageService")
-@Log4j2
 class FileStorageServiceTest {
 
     private FileStorageService fileStorageService;
+
     @BeforeEach
     void setUp(@TempDir Path uploadDir, @TempDir Path imagedDir) {
         FileStorageProperties properties = new FileStorageProperties();
@@ -142,7 +141,7 @@ class FileStorageServiceTest {
 
     @Test
     @DisplayName("loadFileAsResource returns an resource when successful")
-    void loadFileAsResource_ReturnsAnResource_WhenSuccessful() throws IOException {
+    void loadFileAsResource_ReturnsAnResource_WhenSuccessful() {
         byte[] messageBytes = "mensagem".getBytes();
 
         MockMultipartFile multipartFile = new MockMultipartFile("drink.jpeg", "drink.jpeg", MediaType.IMAGE_JPEG_VALUE, messageBytes);
@@ -199,7 +198,7 @@ class FileStorageServiceTest {
 
     @Test
     @DisplayName("storageImage throws FileStorageException when file is not an image")
-    void storageImage_ThrowsFileStorageException_WhenFileIsNotAnImage() throws IOException {
+    void storageImage_ThrowsFileStorageException_WhenFileIsNotAnImage() {
         MockMultipartFile multipartFile = new MockMultipartFile("drink.txt", "drink.txt", MediaType.TEXT_PLAIN_VALUE, "SkyG0D".getBytes());
 
         assertThatExceptionOfType(FileStorageException.class)
@@ -208,7 +207,7 @@ class FileStorageServiceTest {
 
     @Test
     @DisplayName("loadFileAsResource throws CustomFileNotFoundException when file is not found")
-    void loadFileAsResource_ThrowsCustomFileNotFoundException_WhenFileIsNotFound() throws IOException {
+    void loadFileAsResource_ThrowsCustomFileNotFoundException_WhenFileIsNotFound() {
         assertThatExceptionOfType(CustomFileNotFoundException.class)
                 .isThrownBy(() -> fileStorageService.loadFileAsResource("jwqjfqjg"));
     }

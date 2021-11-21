@@ -23,8 +23,13 @@ public class TableController {
     private final TableService tableService;
 
     @GetMapping
-    public ResponseEntity<Page<Table>> list(Pageable pageable) {
+    public ResponseEntity<Page<Table>> listAll(Pageable pageable) {
         return ResponseEntity.ok(tableService.listAll(pageable));
+    }
+
+    @GetMapping("/{uuid}")
+    public ResponseEntity<Table> findById(@PathVariable UUID uuid) {
+        return ResponseEntity.ok(tableService.findByIdOrElseThrowBadRequestException(uuid));
     }
 
     @GetMapping("/search")
@@ -33,7 +38,7 @@ public class TableController {
     }
 
     @GetMapping("/find-by-number/{number}")
-    public ResponseEntity<Table> findById(@PathVariable int number) {
+    public ResponseEntity<Table> findByNumber(@PathVariable int number) {
         return ResponseEntity.ok(tableService.findByNumberOrElseThrowBadRequestException(number));
     }
 
