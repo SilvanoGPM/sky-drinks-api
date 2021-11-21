@@ -4,7 +4,6 @@ import com.github.skyg0d.skydrinksapi.exception.CustomFileNotFoundException;
 import com.github.skyg0d.skydrinksapi.exception.FileStorageException;
 import com.github.skyg0d.skydrinksapi.property.FileStorageProperties;
 import org.apache.commons.io.IOUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
@@ -15,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.ServletContext;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -96,7 +94,34 @@ public class FileStorageService {
         }
     }
 
-    public Resource loadFileAsResource(String fileName, Path path) {
+    public Resource loadFileAsResource(String fileName) {
+        return loadFileAsResource(fileName, fileStoragePath);
+    }
+
+    public void deleteImage(String fileName) {
+        deleteFile(fileName, imagesPath);
+    }
+
+    public void deleteFile(String fileName) {
+        deleteFile(fileName, fileStoragePath);
+    }
+
+    private void deleteFile(String fileName, Path path) {
+        Path filePath = path.resolve(fileName).normalize();
+        String fileNotFoundMessage = "Arquivo não encontrado: " + fileName;
+
+        try {
+            boolean deleted = Files.deleteIfExists(filePath);
+
+            if (!deleted) {
+                throw new CustomFileNotFoundException(fileNotFoundMessage);
+            }
+        } catch (IOException ex) {
+            throw new CustomFileNotFoundException(fileNotFoundMessage, ex);
+        }
+    }
+
+    private Resource loadFileAsResource(String fileName, Path path) {
         String fileNotFoundMessage = "Arquivo não encontrado: " + fileName;
 
         try {
@@ -113,25 +138,6 @@ public class FileStorageService {
             throw new CustomFileNotFoundException(fileNotFoundMessage, ex);
         }
 
-    }
-
-    public void deleteImage(String fileName) {
-        deleteFile(fileName, imagesPath);
-    }
-
-    public void deleteFile(String fileName, Path path) {
-        Path filePath = path.resolve(fileName).normalize();
-        String fileNotFoundMessage = "Arquivo não encontrado: " + fileName;
-
-        try {
-            boolean deleted = Files.deleteIfExists(filePath);
-
-            if (!deleted) {
-                throw new CustomFileNotFoundException(fileNotFoundMessage);
-            }
-        } catch (IOException ex) {
-            throw new CustomFileNotFoundException(fileNotFoundMessage, ex);
-        }
     }
 
     private String storeFile(MultipartFile file, Path path) {

@@ -141,8 +141,8 @@ class ClientRequestServiceTest {
     }
 
     @Test
-    @DisplayName("finishRequest creates client request when successful")
-    void finishRequest_CreatesClientRequest_WhenSuccessful() {
+    @DisplayName("finishRequest finish client request when successful")
+    void finishRequest_FinishClientRequest_WhenSuccessful() {
         BDDMockito.when(clientRequestRepositoryMock.save(ArgumentMatchers.any(ClientRequest.class)))
                 .thenReturn(ClientRequestCreator.createClientRequestFinished());
 
@@ -176,5 +176,15 @@ class ClientRequestServiceTest {
         assertThatExceptionOfType(BadRequestException.class)
                 .isThrownBy(() -> clientRequestService.findByIdOrElseThrowBadRequestException(UUID.randomUUID()));
     }
-    
+
+    @Test
+    @DisplayName("finishRequest creates client request when successful")
+    void finishRequest_ThrowsBadRequestException_WhenClientRequestAlreadyFinished() {
+        BDDMockito.when(clientRequestRepositoryMock.findById(ArgumentMatchers.any(UUID.class)))
+                .thenReturn(Optional.of(ClientRequestCreator.createClientRequestFinished()));
+
+        assertThatExceptionOfType(BadRequestException.class)
+                .isThrownBy(() -> clientRequestService.finishRequest(ClientRequestCreator.createValidClientRequest().getUuid()));
+    }
+
 }

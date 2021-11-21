@@ -167,7 +167,7 @@ class TableServiceTest {
 
     @Test
     @DisplayName("switchOccupied updates table when successful")
-    void switchOccupied_UpdatedTable_WhenSuccessful() {
+    void switchOccupied_UpdatesTableWithTableNumber_WhenSuccessful() {
         BDDMockito
                 .when(tableRepositoryMock.save(ArgumentMatchers.any(Table.class)))
                 .thenReturn(TableCreator.createValidSwitchedTable());
@@ -175,6 +175,27 @@ class TableServiceTest {
         Table expectedTable = TableCreator.createValidSwitchedTable();
 
         String identification = "1";
+
+        Table tableSwitched = tableService.switchOccupied(identification);
+
+        assertThat(tableSwitched).isNotNull();
+
+        assertThat(tableSwitched.isOccupied()).isEqualTo(expectedTable.isOccupied());
+    }
+
+    @Test
+    @DisplayName("switchOccupied updates table when successful")
+    void switchOccupied_UpdatesTableWithTableUUID_WhenSuccessful() {
+        BDDMockito.when(uuidUtilMock.getUUID(ArgumentMatchers.anyString()))
+                        .thenReturn(UUID.randomUUID());
+
+        BDDMockito
+                .when(tableRepositoryMock.save(ArgumentMatchers.any(Table.class)))
+                .thenReturn(TableCreator.createValidSwitchedTable());
+
+        Table expectedTable = TableCreator.createValidSwitchedTable();
+
+        String identification = UUID.randomUUID().toString();
 
         Table tableSwitched = tableService.switchOccupied(identification);
 

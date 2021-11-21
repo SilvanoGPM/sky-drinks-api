@@ -1,0 +1,223 @@
+package com.github.skyg0d.skydrinksapi.service;
+
+import com.github.skyg0d.skydrinksapi.exception.CustomFileNotFoundException;
+import com.github.skyg0d.skydrinksapi.exception.FileStorageException;
+import com.github.skyg0d.skydrinksapi.property.FileStorageProperties;
+import lombok.extern.log4j.Log4j2;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.*;
+
+@ExtendWith(SpringExtension.class)
+@DisplayName("Tests for FileStorageService")
+@Log4j2
+class FileStorageServiceTest {
+
+    private FileStorageService fileStorageService;
+    @BeforeEach
+    void setUp(@TempDir Path uploadDir, @TempDir Path imagedDir) {
+        FileStorageProperties properties = new FileStorageProperties();
+
+        properties.setUploadDir(uploadDir.toAbsolutePath().toString());
+        properties.setImagesDir(imagedDir.toAbsolutePath().toString());
+
+        this.fileStorageService = new FileStorageService(properties);
+    }
+
+    @Test
+    @DisplayName("storageFile returns name of uploaded file when successful")
+    void storageFile_ReturnsNameOfUploadedFile_WhenSuccessful() {
+        MockMultipartFile multipartFile = new MockMultipartFile("file.txt", "file.txt", MediaType.TEXT_PLAIN_VALUE, "SkyG0D".getBytes());
+
+        String fileName = fileStorageService.storeFile(multipartFile);
+
+        assertThat(fileName)
+                .isNotNull()
+                .isEqualTo(multipartFile.getOriginalFilename());
+    }
+
+    @Test
+    @DisplayName("storageFile returns name of uploaded file with additional number when file already exists")
+    void storageFile_ReturnsNameOfUploadedImageWithAdditionalNumber_WhenFileAlreadyExists() throws IOException {
+        InputStream inputStream1 = new FileInputStream("./test-files/drink.jpeg");
+
+        MockMultipartFile multipartFile1 = new MockMultipartFile("drink.jpeg", "drink.jpeg", MediaType.IMAGE_JPEG_VALUE, inputStream1);
+
+        fileStorageService.storeFile(multipartFile1);
+
+        InputStream inputStream2 = new FileInputStream("./test-files/drink.jpeg");
+
+        MockMultipartFile multipartFile2 = new MockMultipartFile("drink.jpeg", "drink.jpeg", MediaType.IMAGE_JPEG_VALUE, inputStream2);
+
+        String fileName = fileStorageService.storeFile(multipartFile2);
+
+        String[] fileParts = multipartFile2.getOriginalFilename().split("\\.");
+
+        String expectedFileName = String.format("%s_%d.%s", fileParts[0], 1, fileParts[1]);
+
+        assertThat(fileName)
+                .isNotNull()
+                .isEqualTo(expectedFileName);
+    }
+
+    @Test
+    @DisplayName("storageImage returns name of uploaded file when successful")
+    void storageImage_ReturnsNameOfUploadedImage_WhenSuccessful() throws IOException {
+        InputStream inputStream = new FileInputStream("./test-files/drink.jpeg");
+
+        MockMultipartFile multipartFile = new MockMultipartFile("drink.jpeg", "drink.jpeg", MediaType.IMAGE_JPEG_VALUE, inputStream);
+
+        String fileName = fileStorageService.storageImage(multipartFile);
+
+        assertThat(fileName)
+                .isNotNull()
+                .isEqualTo(multipartFile.getOriginalFilename());
+    }
+
+    @Test
+    @DisplayName("listFiles returns list of files path when successful")
+    void listFiles_ReturnsListOfFilesPath_WhenSuccessful() {
+        MockMultipartFile multipartFile = new MockMultipartFile("file.txt", "file.txt", MediaType.TEXT_PLAIN_VALUE, "SkyG0D".getBytes());
+
+        String fileName = fileStorageService.storeFile(multipartFile);
+
+        List<String> filesPath = fileStorageService.listFiles();
+
+        assertThat(filesPath)
+                .isNotEmpty()
+                .hasSize(1)
+                .contains("/" + fileName);
+    }
+
+    @Test
+    @DisplayName("listFiles returns list of files path inside page object when successful")
+    void listFiles_ReturnsListOfFilesPathInsideObjectPage_WhenSuccessful() {
+        MockMultipartFile multipartFile = new MockMultipartFile("file.txt", "file.txt", MediaType.TEXT_PLAIN_VALUE, "SkyG0D".getBytes());
+
+        String fileName = fileStorageService.storeFile(multipartFile);
+
+        Page<String> filesPage = fileStorageService.listFiles(PageRequest.of(1, 1));
+
+        assertThat(filesPage)
+                .isNotEmpty()
+                .hasSize(1)
+                .contains("/" + fileName);
+    }
+
+    @Test
+    @DisplayName("getImage returns bytes of image when successful")
+    void getImage_ReturnsBytesOfImage_WhenSuccessful() throws IOException {
+        byte[] imageBytes = new FileInputStream("./test-files/drink.jpeg").readAllBytes();
+
+        MockMultipartFile multipartFile = new MockMultipartFile("drink.jpeg", "drink.jpeg", MediaType.IMAGE_JPEG_VALUE, imageBytes);
+
+        String fileName = fileStorageService.storeFile(multipartFile);
+
+        byte[] image = fileStorageService.getImage(fileName);
+
+        assertThat(image)
+                .isNotEmpty()
+                .isEqualTo(imageBytes);
+    }
+
+    @Test
+    @DisplayName("loadFileAsResource returns an resource when successful")
+    void loadFileAsResource_ReturnsAnResource_WhenSuccessful() throws IOException {
+        byte[] messageBytes = "mensagem".getBytes();
+
+        MockMultipartFile multipartFile = new MockMultipartFile("drink.jpeg", "drink.jpeg", MediaType.IMAGE_JPEG_VALUE, messageBytes);
+
+        String fileName = fileStorageService.storeFile(multipartFile);
+
+        Resource resource = fileStorageService.loadFileAsResource(fileName);
+
+        assertThat(resource).isNotNull();
+
+        assertThat(resource.getFilename())
+                .isNotNull()
+                .isEqualTo(fileName);
+    }
+
+    @Test
+    @DisplayName("deleteFile removes file when successful")
+    void deleteFile_RemovesFile_WhenSuccessful() {
+        MockMultipartFile multipartFile = new MockMultipartFile("file.txt", "file.txt", MediaType.TEXT_PLAIN_VALUE, "SkyG0D".getBytes());
+
+        String fileName = fileStorageService.storeFile(multipartFile);
+
+        fileStorageService.deleteFile(fileName);
+
+        List<String> files = fileStorageService.listFiles();
+
+        assertThat(files).isEmpty();
+    }
+
+    @Test
+    @DisplayName("deleteImage removes image when successful")
+    void deleteImage_RemovesImage_WhenSuccessful() throws IOException {
+        byte[] imageBytes = new FileInputStream("./test-files/drink.jpeg").readAllBytes();
+
+        MockMultipartFile multipartFile = new MockMultipartFile("drink.jpeg", "drink.jpeg", MediaType.IMAGE_JPEG_VALUE, imageBytes);
+
+        String fileName = fileStorageService.storeFile(multipartFile);
+
+        fileStorageService.deleteImage(fileName);
+
+        List<String> files = fileStorageService.listFiles();
+
+        assertThat(files).isEmpty();
+    }
+
+    @Test
+    @DisplayName("storageFile throws FileStorageException when file path contains unsupported chars sequences")
+    void storageFile_ThrowsFileStorageException_WhenFilePathContainsUnsupportedCharsSequences() {
+        MockMultipartFile multipartFile = new MockMultipartFile("../file.txt", "../file.txt", MediaType.TEXT_PLAIN_VALUE, "SkyG0D".getBytes());
+
+        assertThatExceptionOfType(FileStorageException.class)
+                .isThrownBy(() -> fileStorageService.storeFile(multipartFile));
+    }
+
+    @Test
+    @DisplayName("storageImage throws FileStorageException when file is not an image")
+    void storageImage_ThrowsFileStorageException_WhenFileIsNotAnImage() throws IOException {
+        MockMultipartFile multipartFile = new MockMultipartFile("drink.txt", "drink.txt", MediaType.TEXT_PLAIN_VALUE, "SkyG0D".getBytes());
+
+        assertThatExceptionOfType(FileStorageException.class)
+                .isThrownBy(() -> fileStorageService.storageImage(multipartFile));
+    }
+
+    @Test
+    @DisplayName("loadFileAsResource throws CustomFileNotFoundException when file is not found")
+    void loadFileAsResource_ThrowsCustomFileNotFoundException_WhenFileIsNotFound() throws IOException {
+        assertThatExceptionOfType(CustomFileNotFoundException.class)
+                .isThrownBy(() -> fileStorageService.loadFileAsResource("jwqjfqjg"));
+    }
+
+    @Test
+    @DisplayName("deleteFile throws CustomFileNotFoundException when file is not found")
+    void deleteFile_ThrowsCustomFileNotFoundException_WhenFileIsNotFound() {
+        assertThatExceptionOfType(CustomFileNotFoundException.class)
+                .isThrownBy(() -> fileStorageService.deleteFile("jwqjfqjg"));
+    }
+
+}
