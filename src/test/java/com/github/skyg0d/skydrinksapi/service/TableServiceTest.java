@@ -29,6 +29,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
+@DisplayName("Tests for TableService")
 class TableServiceTest {
 
     @InjectMocks
