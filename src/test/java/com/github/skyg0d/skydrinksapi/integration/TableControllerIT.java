@@ -138,7 +138,7 @@ class TableControllerIT {
     @Test
     @DisplayName("findByNumber returns 400 BadRequest when table not exists")
     void findByNumber_Returns400BadRequest_WhenTableNotExists() {
-        ResponseEntity<Drink> entity = testRestTemplate.getForEntity("/tables/find-by-number/{number}", Drink.class, -1);
+        ResponseEntity<Table> entity = testRestTemplate.getForEntity("/tables/find-by-number/{number}", Table.class, -1);
 
         assertThat(entity).isNotNull();
 
@@ -194,14 +194,11 @@ class TableControllerIT {
 
         assertThat(entity).isNotNull();
 
-        assertThat(entity.getBody()).isNotNull();
-
         assertThat(entity.getStatusCode())
                 .isNotNull()
                 .isEqualTo(HttpStatus.OK);
 
-        assertThat(entity.getBody())
-                .isEmpty();
+        assertThat(entity.getBody()).isEmpty();
     }
 
     @Test

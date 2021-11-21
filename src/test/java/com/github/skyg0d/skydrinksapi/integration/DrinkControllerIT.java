@@ -164,10 +164,8 @@ class DrinkControllerIT {
                 .isNotNull()
                 .isEqualTo(HttpStatus.OK);
 
-        assertThat(entity.getBody()).isNotNull();
+        assertThat(entity.getBody()).isEmpty();
 
-        assertThat(entity.getBody().toList())
-                .isEmpty();
     }
 
     @Test
