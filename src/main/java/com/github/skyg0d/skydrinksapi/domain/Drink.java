@@ -7,6 +7,7 @@ import org.hibernate.Hibernate;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.validation.constraints.*;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -36,10 +37,10 @@ public class Drink extends BaseEntity {
 
     private String additional;
 
-    public List<String> getAdditional() {
+    public List<String> getAdditionalList() {
         return additional == null || additional.isEmpty()
-                ? Collections.emptyList()
-                : List.of(additional.split(ADDITIONAL_SEPARATOR));
+                ? new ArrayList<>(Collections.emptyList())
+                : new ArrayList<>(List.of(additional.split(ADDITIONAL_SEPARATOR)));
     }
 
     @Override

@@ -3,10 +3,10 @@ package com.github.skyg0d.skydrinksapi;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
+//@SpringBootTest
 class SkyDrinksApiApplicationTests {
 
-	@Test
+//	@Test
 	void contextLoads() {
 	}
 
