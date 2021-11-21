@@ -100,7 +100,7 @@ class TableControllerTest {
 
     @Test
     @DisplayName("listAll return empty page when there are no tables")
-    void listAll_ReturnListOfTablesInsidePageObject_WhenThereAreNoTables() {
+    void listAll_ReturnEmptyPage_WhenThereAreNoTables() {
         BDDMockito
                 .when(tableServiceMock.listAll(ArgumentMatchers.any(PageRequest.class)))
                 .thenReturn(Page.empty());
@@ -195,7 +195,7 @@ class TableControllerTest {
 
     @Test
     @DisplayName("replace updates table when successful")
-    void replace_UpdatedTable_WhenSuccessful() {
+    void replace_UpdatesTable_WhenSuccessful() {
         ResponseEntity<Void> entity = tableController.replace(TablePutRequestBodyCreator.createTablePutRequestBodyToUpdate());
 
         assertThat(entity).isNotNull();
@@ -206,7 +206,7 @@ class TableControllerTest {
     }
 
     @Test
-    @DisplayName("switchOccupied updates table when successful")
+    @DisplayName("switchOccupied updates table with table number when successful")
     void switchOccupied_UpdatesTableWithTableNumber_WhenSuccessful() {
         Table expectedTable = TableCreator.createValidSwitchedTable();
 
@@ -216,13 +216,17 @@ class TableControllerTest {
 
         assertThat(entity).isNotNull();
 
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.OK);
+
         assertThat(entity.getBody()).isNotNull();
 
         assertThat(entity.getBody().isOccupied()).isEqualTo(expectedTable.isOccupied());
     }
 
     @Test
-    @DisplayName("switchOccupied updates table when successful")
+    @DisplayName("switchOccupied updates table with table UUID when successful")
     void switchOccupied_UpdatesTableWithTableUUID_WhenSuccessful() {
         Table expectedTable = TableCreator.createValidSwitchedTable();
 
@@ -231,6 +235,10 @@ class TableControllerTest {
         ResponseEntity<Table> entity = tableController.switchOccupied(identification);
 
         assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.OK);
 
         assertThat(entity.getBody()).isNotNull();
 

@@ -144,6 +144,33 @@ class DrinkControllerIT {
     }
 
     @Test
+    @DisplayName("search return empty page object when does not match")
+    void search_ReturnEmptyPage_WhenDoesNotMatch() {
+        drinkRepository.save(DrinkCreator.createDrinkToBeSave());
+
+        String url = String.format("/drinks/search?name=%s", "fqfqfqgqg");
+
+        ResponseEntity<PageableResponse<Drink>> entity = testRestTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<>() {
+                }
+        );
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.OK);
+
+        assertThat(entity.getBody()).isNotNull();
+
+        assertThat(entity.getBody().toList())
+                .isEmpty();
+    }
+
+    @Test
     @DisplayName("save creates drink when successful")
     void save_CreatesDrink_WhenSuccessful() {
         DrinkPostRequestBody drinkValid = DrinkPostRequestBodyCreator.createDrinkPostRequestBodyToBeSave();
