@@ -24,7 +24,7 @@ public class DrinkController {
 
     private final DrinkService drinkService;
 
-    @GetMapping
+    @GetMapping("/admin")
     public ResponseEntity<Page<Drink>> listAll(Pageable pageable) {
         return ResponseEntity.ok(drinkService.listAll(pageable));
     }
