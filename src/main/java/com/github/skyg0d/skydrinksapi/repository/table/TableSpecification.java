@@ -1,8 +1,6 @@
 package com.github.skyg0d.skydrinksapi.repository.table;
 
-import com.github.skyg0d.skydrinksapi.domain.Drink;
 import com.github.skyg0d.skydrinksapi.domain.Table;
-import com.github.skyg0d.skydrinksapi.parameters.DrinkParameters;
 import com.github.skyg0d.skydrinksapi.parameters.TableParameters;
 import com.github.skyg0d.skydrinksapi.repository.AbstractSpecification;
 import org.springframework.data.jpa.domain.Specification;

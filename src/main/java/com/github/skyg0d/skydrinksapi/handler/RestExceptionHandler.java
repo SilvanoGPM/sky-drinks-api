@@ -1,9 +1,6 @@
 package com.github.skyg0d.skydrinksapi.handler;
 
-import com.github.skyg0d.skydrinksapi.exception.BadRequestException;
-import com.github.skyg0d.skydrinksapi.exception.CustomFileNotFoundException;
-import com.github.skyg0d.skydrinksapi.exception.FileStorageException;
-import com.github.skyg0d.skydrinksapi.exception.UserCannotModifyClientRequestException;
+import com.github.skyg0d.skydrinksapi.exception.*;
 import com.github.skyg0d.skydrinksapi.exception.details.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -85,6 +82,22 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                 .details(exception.getMessage())
                 .request(exception.getRequest())
                 .triedUser(exception.getTriedUser())
+                .timestamp(LocalDateTime.now().toString())
+                .status(status.value())
+                .build();
+
+        return new ResponseEntity<>(exceptionDetails, status);
+    }
+
+    @ExceptionHandler(EmailAlreadyExistsException.class)
+    public ResponseEntity<EmailAlreadyExistsExceptionDetails> handleEmailAlreadyExistsException(EmailAlreadyExistsException exception) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+
+        EmailAlreadyExistsExceptionDetails exceptionDetails = EmailAlreadyExistsExceptionDetails
+                .builder()
+                .title("Exceção do tipo BadRequestException aconteceu, consulte a documentação.")
+                .developerMessage(exception.getClass().getName())
+                .details(exception.getMessage())
                 .timestamp(LocalDateTime.now().toString())
                 .status(status.value())
                 .build();
