@@ -75,6 +75,10 @@ public class ClientRequestController {
     }
 
     private ApplicationUser getUser(Principal principal) {
+        if (principal == null) {
+            throw new BadRequestException("Aconteceu um erro ao tentar encontrar o usuário!");
+        }
+
         ApplicationUser applicationUser = (ApplicationUser) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
 
         return applicationUserRepository

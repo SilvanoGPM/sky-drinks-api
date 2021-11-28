@@ -15,6 +15,18 @@ public class ClientRequestParameters {
 
     private UUID drinkUUID;
 
+    private String drinkName;
+
+    private String drinkDescription;
+
+    private UUID userUUID;
+
+    private String userName;
+
+    private String userEmail;
+
+    private String userCpf;
+
     private String tableUUID = "";
 
     private String createdAt;

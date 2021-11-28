@@ -5,8 +5,8 @@ import lombok.experimental.SuperBuilder;
 
 @SuperBuilder
 @Getter
-public class EmailAlreadyExistsExceptionDetails extends ExceptionDetails {
+public class UserUniqueFieldExistsDetails extends ExceptionDetails {
 
-    private String email;
+    private String unique;
 
 }

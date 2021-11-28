@@ -5,6 +5,7 @@ import com.github.skyg0d.skydrinksapi.domain.ClientRequest;
 import com.github.skyg0d.skydrinksapi.domain.Drink;
 import com.github.skyg0d.skydrinksapi.enums.Roles;
 import com.github.skyg0d.skydrinksapi.exception.BadRequestException;
+import com.github.skyg0d.skydrinksapi.exception.UserCannotCompleteClientRequestException;
 import com.github.skyg0d.skydrinksapi.exception.UserCannotModifyClientRequestException;
 import com.github.skyg0d.skydrinksapi.mapper.ClientRequestMapper;
 import com.github.skyg0d.skydrinksapi.parameters.ClientRequestParameters;
@@ -17,19 +18,21 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Log4j2
 public class ClientRequestService {
 
     private final ClientRequestRepository clientRequestRepository;
+    private final DrinkService drinkService;
     private final ClientRequestMapper mapper = ClientRequestMapper.INSTANCE;
 
     public Page<ClientRequest> listAll(Pageable pageable) {
@@ -51,6 +54,16 @@ public class ClientRequestService {
     }
 
     public ClientRequest save(ClientRequestPostRequestBody clientRequestPostRequestBody, ApplicationUser user) {
+        boolean containsAlcoholicDrink = clientRequestPostRequestBody.getDrinks().stream().anyMatch((drink) -> (
+                drinkService.findByIdOrElseThrowBadRequestException(drink.getUuid()).isAlcoholic()
+        ));
+
+        long userAge = ChronoUnit.YEARS.between(user.getBirthDay(), LocalDateTime.now());
+
+        if (containsAlcoholicDrink && userAge < 18) {
+            throw new UserCannotCompleteClientRequestException("O usuário está tentando comprar bebidas alcoólicas, porém ele é menor de idade.", "Menor de idade");
+        }
+
         ClientRequest request = mapper.toClientRequest(clientRequestPostRequestBody);
 
         request.setUser(user);

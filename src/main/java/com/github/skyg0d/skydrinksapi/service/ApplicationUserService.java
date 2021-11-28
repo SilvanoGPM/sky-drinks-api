@@ -2,7 +2,7 @@ package com.github.skyg0d.skydrinksapi.service;
 
 import com.github.skyg0d.skydrinksapi.domain.ApplicationUser;
 import com.github.skyg0d.skydrinksapi.exception.BadRequestException;
-import com.github.skyg0d.skydrinksapi.exception.EmailAlreadyExistsException;
+import com.github.skyg0d.skydrinksapi.exception.UserUniqueFieldExistsException;
 import com.github.skyg0d.skydrinksapi.mapper.ApplicationUserMapper;
 import com.github.skyg0d.skydrinksapi.parameters.ApplicationUserParameters;
 import com.github.skyg0d.skydrinksapi.repository.user.ApplicationUserRepository;
@@ -51,10 +51,22 @@ public class ApplicationUserService {
     }
 
     public ApplicationUser save(ApplicationUserPostRequestBody applicationUserPostRequestBody) {
-        Optional<ApplicationUser> userFound = applicationUserRepository.findByEmail(applicationUserPostRequestBody.getEmail());
+        String email = applicationUserPostRequestBody.getEmail();
 
-        if (userFound.isPresent()) {
-            throw new EmailAlreadyExistsException(applicationUserPostRequestBody.getEmail());
+        Optional<ApplicationUser> emailFound = applicationUserRepository.findByEmail(email);
+
+        if (emailFound.isPresent()) {
+            String message = String.format("Usuário com email: \"%s\" já existe", email);
+            throw new UserUniqueFieldExistsException(message, "Email: " + email);
+        }
+
+        String cpf = applicationUserPostRequestBody.getCpf();
+
+        Optional<ApplicationUser> cpfFound = applicationUserRepository.findByCpf(cpf);
+
+        if (cpfFound.isPresent()) {
+            String message = String.format("Usuário com cpf: \"%s\" já existe", cpf);
+            throw new UserUniqueFieldExistsException(message, "Cpf: " + cpf);
         }
 
         return applicationUserRepository.save(mapper.toApplicationUser(applicationUserPostRequestBody));

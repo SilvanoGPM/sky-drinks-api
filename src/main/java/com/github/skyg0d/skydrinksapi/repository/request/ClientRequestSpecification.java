@@ -17,6 +17,12 @@ public class ClientRequestSpecification extends AbstractSpecification {
     public static Specification<ClientRequest> getSpecification(ClientRequestParameters parameters) {
         return where(withFinished(parameters.getFinished()))
                 .and(where(withDrinkUUID(parameters.getDrinkUUID())))
+                .and(where(withDrinkName(parameters.getDrinkName())))
+                .and(where(withDrinkDescription(parameters.getDrinkDescription())))
+                .and(where(withUserUUID(parameters.getUserUUID())))
+                .and(where(withUserName(parameters.getUserName())))
+                .and(where(withUserEmail(parameters.getUserEmail())))
+                .and(where(withUserCpf(parameters.getUserCpf())))
                 .and(where(withTableUUID(parameters.getTableUUID())))
                 .and(where(withTotalPrice(parameters.getTotalPrice())))
                 .and(where(withGreaterThanTotalPrice(parameters.getGreaterThanTotalPrice())))
@@ -31,6 +37,42 @@ public class ClientRequestSpecification extends AbstractSpecification {
     public static Specification<ClientRequest> withDrinkUUID(UUID uuid) {
         return getSpec(uuid, (root, query, builder) -> (
                 builder.equal(root.join("drinks").get("uuid"), uuid)
+        ));
+    }
+
+    public static Specification<ClientRequest> withDrinkName(String name) {
+        return getSpec(name, (root, query, builder) -> (
+                builder.like(builder.lower(root.join("drinks").get("name")), like(name))
+        ));
+    }
+
+    public static Specification<ClientRequest> withDrinkDescription(String description) {
+        return getSpec(description, (root, query, builder) -> (
+                builder.like(builder.lower(root.join("drinks").get("description")), like(description))
+        ));
+    }
+
+    public static Specification<ClientRequest> withUserUUID(UUID uuid) {
+        return getSpec(uuid, (root, query, builder) -> (
+                builder.equal(root.join("user").get("uuid"), uuid)
+        ));
+    }
+
+    public static Specification<ClientRequest> withUserName(String name) {
+        return getSpec(name, (root, query, builder) -> (
+                builder.like(builder.lower(root.join("user").get("name")), like(name))
+        ));
+    }
+
+    public static Specification<ClientRequest> withUserEmail(String email) {
+        return getSpec(email, (root, query, builder) -> (
+                builder.equal(builder.lower(root.join("user").get("email")), email.toLowerCase())
+        ));
+    }
+
+    public static Specification<ClientRequest> withUserCpf(String cpf) {
+        return getSpec(cpf, (root, query, builder) -> (
+                builder.equal(builder.lower(root.join("user").get("cpf")), cpf.toLowerCase())
         ));
     }
 

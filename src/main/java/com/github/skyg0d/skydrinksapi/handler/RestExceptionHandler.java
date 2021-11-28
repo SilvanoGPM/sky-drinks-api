@@ -2,6 +2,7 @@ package com.github.skyg0d.skydrinksapi.handler;
 
 import com.github.skyg0d.skydrinksapi.exception.*;
 import com.github.skyg0d.skydrinksapi.exception.details.*;
+import com.nimbusds.jose.JOSEException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -89,11 +90,11 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(exceptionDetails, status);
     }
 
-    @ExceptionHandler(EmailAlreadyExistsException.class)
-    public ResponseEntity<EmailAlreadyExistsExceptionDetails> handleEmailAlreadyExistsException(EmailAlreadyExistsException exception) {
+    @ExceptionHandler(UserUniqueFieldExistsException.class)
+    public ResponseEntity<UserUniqueFieldExistsDetails> handleEmailAlreadyExistsException(UserUniqueFieldExistsException exception) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
 
-        EmailAlreadyExistsExceptionDetails exceptionDetails = EmailAlreadyExistsExceptionDetails
+        UserUniqueFieldExistsDetails exceptionDetails = UserUniqueFieldExistsDetails
                 .builder()
                 .title("Exceção do tipo BadRequestException aconteceu, consulte a documentação.")
                 .developerMessage(exception.getClass().getName())
@@ -104,6 +105,40 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
         return new ResponseEntity<>(exceptionDetails, status);
     }
+
+    @ExceptionHandler(JOSEException.class)
+    public ResponseEntity<ExceptionDetails> handleJOSEException(JOSEException ex) {
+        HttpStatus status = HttpStatus.UNAUTHORIZED;
+
+        ExceptionDetails exceptionDetails = ExceptionDetails
+                .builder()
+                .title("Aconteceu um erro com o token.")
+                .details(ex.getMessage())
+                .developerMessage(ex.getClass().getName())
+                .status(status.value())
+                .timestamp(LocalDateTime.now().toString())
+                .build();
+
+        return new ResponseEntity<>(exceptionDetails, status);
+    }
+
+    @ExceptionHandler(UserCannotCompleteClientRequestException.class)
+    public ResponseEntity<UserCannotCompleteClientRequestExceptionDetails> handleUserCannotCompleteClientRequestException(UserCannotCompleteClientRequestException ex) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+
+        UserCannotCompleteClientRequestExceptionDetails exceptionDetails = UserCannotCompleteClientRequestExceptionDetails
+                .builder()
+                .title("Não foi possível completar o pedido!")
+                .details(ex.getMessage())
+                .developerMessage(ex.getClass().getName())
+                .status(status.value())
+                .timestamp(LocalDateTime.now().toString())
+                .reason(ex.getReason())
+                .build();
+
+        return new ResponseEntity<>(exceptionDetails, status);
+    }
+
 
     @Override
     protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers, HttpStatus status, WebRequest request) {
