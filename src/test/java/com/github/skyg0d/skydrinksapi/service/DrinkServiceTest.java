@@ -70,9 +70,8 @@ class DrinkServiceTest {
 
         Page<Drink> drinkPage = drinkService.listAll(PageRequest.of(1, 1));
 
-        assertThat(drinkPage).isNotNull();
-
-        assertThat(drinkPage.toList())
+        assertThat(drinkPage)
+                .isNotNull()
                 .isNotEmpty()
                 .hasSize(1)
                 .contains(expectedDrink);
@@ -91,8 +90,8 @@ class DrinkServiceTest {
     }
 
     @Test
-    @DisplayName("findByIdOrElseThrowBadRequestException return list of drinks inside page object when successful")
-    void findByIdOrElseThrowBadRequestException_ReturnListOfDrinksInsidePageObject_WhenSuccessful() {
+    @DisplayName("findByIdOrElseThrowBadRequestException return drink when successful")
+    void findByIdOrElseThrowBadRequestException_ReturnDrink_WhenSuccessful() {
         Drink expectedDrink = DrinkCreator.createValidDrink();
 
         Drink drinkFound = drinkService.findByIdOrElseThrowBadRequestException(UUID.randomUUID());

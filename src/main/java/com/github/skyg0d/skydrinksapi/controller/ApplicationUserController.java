@@ -56,7 +56,7 @@ public class ApplicationUserController {
     }
 
     @PutMapping("/admin-or-user")
-    public ResponseEntity<Void> delete(@Valid @RequestBody ApplicationUserPutRequestBody applicationUserPutRequestBody, Principal principal) {
+    public ResponseEntity<Void> replace(@Valid @RequestBody ApplicationUserPutRequestBody applicationUserPutRequestBody, Principal principal) {
         applicationUserService.replace(applicationUserPutRequestBody, authUtil.getUser(principal));
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

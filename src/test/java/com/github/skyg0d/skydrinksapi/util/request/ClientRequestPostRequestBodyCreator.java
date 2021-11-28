@@ -6,7 +6,7 @@ import com.github.skyg0d.skydrinksapi.requests.ClientRequestPutRequestBody;
 
 public class ClientRequestPostRequestBodyCreator {
 
-    public static ClientRequestPostRequestBody createClienteRequestPostRequestBodyToBeSave() {
+    public static ClientRequestPostRequestBody createClientRequestPostRequestBodyToBeSave() {
         ClientRequest request = ClientRequestCreator.createClientRequestToBeSave();
 
         return ClientRequestPostRequestBody

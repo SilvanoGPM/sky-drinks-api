@@ -164,7 +164,7 @@ class ClientRequestControllerTest {
 
         ClientRequest expectedClientRequest = ClientRequestCreator.createValidClientRequest();
 
-        ResponseEntity<ClientRequest> entity = clientRequestController.save(ClientRequestPostRequestBodyCreator.createClienteRequestPostRequestBodyToBeSave(), principalMock);
+        ResponseEntity<ClientRequest> entity = clientRequestController.save(ClientRequestPostRequestBodyCreator.createClientRequestPostRequestBodyToBeSave(), principalMock);
 
         assertThat(entity).isNotNull();
 
@@ -190,7 +190,7 @@ class ClientRequestControllerTest {
 
         Principal principalMock = Mockito.mock(Principal.class);
 
-        ResponseEntity<ClientRequest> entity = clientRequestController.save(ClientRequestPostRequestBodyCreator.createClienteRequestPostRequestBodyToBeSave(), principalMock);
+        ResponseEntity<ClientRequest> entity = clientRequestController.save(ClientRequestPostRequestBodyCreator.createClientRequestPostRequestBodyToBeSave(), principalMock);
 
         assertThat(entity).isNotNull();
 

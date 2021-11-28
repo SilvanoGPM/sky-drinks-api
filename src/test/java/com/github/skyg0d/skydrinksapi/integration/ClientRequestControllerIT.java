@@ -186,7 +186,7 @@ class ClientRequestControllerIT {
 
         Table tableSaved = tableRepository.save(TableCreator.createTableToBeSave());
 
-        ClientRequestPostRequestBody clientRequestValid = ClientRequestPostRequestBodyCreator.createClienteRequestPostRequestBodyToBeSave();
+        ClientRequestPostRequestBody clientRequestValid = ClientRequestPostRequestBodyCreator.createClientRequestPostRequestBodyToBeSave();
 
         clientRequestValid.setDrinks(new ArrayList<>(List.of(drinkSaved)));
 

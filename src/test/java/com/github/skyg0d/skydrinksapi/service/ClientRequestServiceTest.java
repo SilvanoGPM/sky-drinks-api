@@ -156,7 +156,7 @@ class ClientRequestServiceTest {
                 .when(drinkServiceMock.findByIdOrElseThrowBadRequestException(ArgumentMatchers.any(UUID.class)))
                 .thenReturn(expectedClientRequest.getDrinks().get(0));
 
-        ClientRequest drinkSaved = clientRequestService.save(ClientRequestPostRequestBodyCreator.createClienteRequestPostRequestBodyToBeSave(), expectedClientRequest.getUser());
+        ClientRequest drinkSaved = clientRequestService.save(ClientRequestPostRequestBodyCreator.createClientRequestPostRequestBodyToBeSave(), expectedClientRequest.getUser());
 
         assertThat(drinkSaved)
                 .isNotNull()
@@ -233,7 +233,7 @@ class ClientRequestServiceTest {
                 .thenReturn(alcoholicDrink);
 
         assertThatExceptionOfType(UserCannotCompleteClientRequestException.class)
-                .isThrownBy(() -> clientRequestService.save(ClientRequestPostRequestBodyCreator.createClienteRequestPostRequestBodyToBeSave(), user));
+                .isThrownBy(() -> clientRequestService.save(ClientRequestPostRequestBodyCreator.createClientRequestPostRequestBodyToBeSave(), user));
     }
 
     @Test
