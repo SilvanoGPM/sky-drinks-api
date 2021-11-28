@@ -13,14 +13,19 @@ public class ExceptionDetails {
     protected String title;
     protected String details;
     protected String developerMessage;
-    protected LocalDateTime timestamp;
     protected int status;
+    protected String timestamp;
 
     public static ExceptionDetails createExceptionDetails(Exception ex, HttpStatus status) {
+        return createExceptionDetails(ex, status, "Ocorreu um erro no servidor.");
+    }
+
+    public static ExceptionDetails createExceptionDetails(Exception ex, HttpStatus status, String exTitle) {
         Throwable cause = ex.getCause();
-        String title  = cause != null
+
+        String title = cause != null
                 ? cause.getMessage()
-                : "Ocorreu um erro no servidor.";
+                : exTitle;
 
         return ExceptionDetails
                 .builder()
@@ -28,7 +33,7 @@ public class ExceptionDetails {
                 .title(title)
                 .details(ex.getMessage())
                 .developerMessage(ex.getClass().getName())
-                .timestamp(LocalDateTime.now())
+                .timestamp(LocalDateTime.now().toString())
                 .build();
     }
 

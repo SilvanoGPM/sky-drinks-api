@@ -10,7 +10,7 @@ import javax.validation.constraints.Positive;
 
 @Getter
 @Setter
-@ToString
+@ToString(callSuper = true)
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor

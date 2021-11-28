@@ -1,5 +1,6 @@
 package com.github.skyg0d.skydrinksapi.requests;
 
+import com.github.skyg0d.skydrinksapi.domain.ApplicationUser;
 import com.github.skyg0d.skydrinksapi.domain.Drink;
 import com.github.skyg0d.skydrinksapi.domain.Table;
 import lombok.AllArgsConstructor;
@@ -24,6 +25,9 @@ public class ClientRequestPutRequestBody {
 
     @NotNull(message = "Um pedido precisa conter drinks.")
     private List<Drink> drinks;
+
+    @NotNull(message = "Um pedido precisa conter um usuário.")
+    private ApplicationUser user;
 
     private Table table;
 

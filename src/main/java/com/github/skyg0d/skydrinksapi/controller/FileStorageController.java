@@ -31,12 +31,12 @@ public class FileStorageController {
         return ResponseEntity.ok(fileStorageService.listFiles());
     }
 
-    @GetMapping(value = "/images/{fileName:.+}", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE})
+    @GetMapping(value = "/barmen/{fileName:.+}", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE})
     public ResponseEntity<byte[]> getImage(@PathVariable String fileName) {
         return ResponseEntity.ok(fileStorageService.getImage(fileName));
     }
 
-    @PostMapping("/images")
+    @PostMapping("/barmen/images")
     public ResponseEntity<FileResponse> uploadImage(@RequestParam MultipartFile file) {
         String fileName = fileStorageService.storageImage(file);
 
@@ -56,7 +56,7 @@ public class FileStorageController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @DeleteMapping("/images/{fileName:.+}")
+    @DeleteMapping("/barmen/images/{fileName:.+}")
     public ResponseEntity<Void> deleteImage(@PathVariable String fileName) {
         fileStorageService.deleteImage(fileName);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

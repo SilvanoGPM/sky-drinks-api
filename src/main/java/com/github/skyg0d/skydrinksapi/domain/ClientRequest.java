@@ -10,7 +10,7 @@ import java.util.List;
 
 @Getter
 @Setter
-@ToString
+@ToString(callSuper = true)
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -27,6 +27,11 @@ public class ClientRequest extends BaseEntity {
             inverseJoinColumns = @JoinColumn(name = "drink_id")
     )
     private List<Drink> drinks;
+
+    @NotNull(message = "Um pedido precisa conter um usuário.")
+    @ManyToOne
+    @JoinColumn(name = "user_uuid")
+    private ApplicationUser user;
 
     @ManyToOne
     @JoinColumn(name = "table_uuid")

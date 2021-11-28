@@ -24,7 +24,7 @@ public class DrinkController {
 
     private final DrinkService drinkService;
 
-    @GetMapping("/admin")
+    @GetMapping
     public ResponseEntity<Page<Drink>> listAll(Pageable pageable) {
         return ResponseEntity.ok(drinkService.listAll(pageable));
     }
@@ -39,18 +39,18 @@ public class DrinkController {
         return ResponseEntity.ok(drinkService.search(drinkParameters, pageable));
     }
 
-    @PostMapping
+    @PostMapping("/barmen")
     public ResponseEntity<Drink> save(@RequestBody @Valid DrinkPostRequestBody drinkPostRequestBody) {
         return new ResponseEntity<>(drinkService.save(drinkPostRequestBody), HttpStatus.CREATED);
     }
 
-    @PutMapping
+    @PutMapping("/barmen")
     public ResponseEntity<Void> replace(@RequestBody @Valid DrinkPutRequestBody drinkPutRequestBody) {
         drinkService.replace(drinkPutRequestBody);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @DeleteMapping("/{uuid}")
+    @DeleteMapping("/barmen/{uuid}")
     public ResponseEntity<Void> delete(@PathVariable UUID uuid) {
         drinkService.delete(uuid);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

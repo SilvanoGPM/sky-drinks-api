@@ -3,6 +3,7 @@ package com.github.skyg0d.skydrinksapi.handler;
 import com.github.skyg0d.skydrinksapi.exception.BadRequestException;
 import com.github.skyg0d.skydrinksapi.exception.CustomFileNotFoundException;
 import com.github.skyg0d.skydrinksapi.exception.FileStorageException;
+import com.github.skyg0d.skydrinksapi.exception.UserCannotModifyClientRequestException;
 import com.github.skyg0d.skydrinksapi.exception.details.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -38,7 +39,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                 .title("Exceção do tipo CustomFileNotFoundException aconteceu, consulte a documentação.")
                 .details(ex.getMessage())
                 .developerMessage(ex.getClass().getName())
-                .timestamp(LocalDateTime.now())
+                .timestamp(LocalDateTime.now().toString())
                 .build();
 
         return new ResponseEntity<>(exceptionDetails, HttpStatus.BAD_REQUEST);
@@ -51,7 +52,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                 .title("Exceção do tipo FileStorageException aconteceu, consulte a documentação.")
                 .details(ex.getMessage())
                 .developerMessage(ex.getClass().getName())
-                .timestamp(LocalDateTime.now())
+                .timestamp(LocalDateTime.now().toString())
                 .build();
 
         return new ResponseEntity<>(exceptionDetails, HttpStatus.BAD_REQUEST);
@@ -59,16 +60,36 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<BadRequestExceptionDetails> handleBadRequestException(BadRequestException exception) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+
         BadRequestExceptionDetails exceptionDetails = BadRequestExceptionDetails
                 .builder()
                 .title("Exceção do tipo BadRequestException aconteceu, consulte a documentação.")
                 .developerMessage(exception.getClass().getName())
                 .details(exception.getMessage())
-                .timestamp(LocalDateTime.now())
-                .status(exception.getRawStatusCode())
+                .timestamp(LocalDateTime.now().toString())
+                .status(status.value())
                 .build();
 
-        return new ResponseEntity<>(exceptionDetails, exception.getStatus());
+        return new ResponseEntity<>(exceptionDetails, status);
+    }
+
+    @ExceptionHandler(UserCannotModifyClientRequestException.class)
+    public ResponseEntity<UserCannotModifyClientRequestExceptionDetails> handleUserCannotModifyClientRequestException(UserCannotModifyClientRequestException exception) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+
+        UserCannotModifyClientRequestExceptionDetails exceptionDetails = UserCannotModifyClientRequestExceptionDetails
+                .builder()
+                .title("Este usuário não pode modificar o drink desejado!")
+                .developerMessage(exception.getClass().getName())
+                .details(exception.getMessage())
+                .request(exception.getRequest())
+                .triedUser(exception.getTriedUser())
+                .timestamp(LocalDateTime.now().toString())
+                .status(status.value())
+                .build();
+
+        return new ResponseEntity<>(exceptionDetails, status);
     }
 
     @Override
@@ -90,7 +111,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                 .title("Confira os campos do objeto enviado.")
                 .developerMessage(ex.getClass().getName())
                 .details("Aconteceu um erro de validação em uma das propriedades do objeto, por favor entre com valores corretos")
-                .timestamp(LocalDateTime.now())
+                .timestamp(LocalDateTime.now().toString())
                 .status(status.value())
                 .fieldErrors(fieldsErrors)
                 .build();

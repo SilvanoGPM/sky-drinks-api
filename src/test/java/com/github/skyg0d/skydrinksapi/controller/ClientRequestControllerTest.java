@@ -1,5 +1,6 @@
 package com.github.skyg0d.skydrinksapi.controller;
 
+import com.github.skyg0d.skydrinksapi.domain.ApplicationUser;
 import com.github.skyg0d.skydrinksapi.domain.ClientRequest;
 import com.github.skyg0d.skydrinksapi.parameters.ClientRequestParameters;
 import com.github.skyg0d.skydrinksapi.requests.ClientRequestPostRequestBody;
@@ -12,10 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentMatchers;
-import org.mockito.BDDMockito;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -23,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 
@@ -51,26 +50,26 @@ class ClientRequestControllerTest {
                 .thenReturn(ClientRequestCreator.createValidClientRequest());
 
         BDDMockito
-                .when(clientRequestServiceMock.search(ArgumentMatchers.any(ClientRequestParameters.class), ArgumentMatchers.any(PageRequest.class)))
+                .when(clientRequestServiceMock.search(ArgumentMatchers.any(ClientRequestParameters.class), ArgumentMatchers.any(PageRequest.class), ArgumentMatchers.any(ApplicationUser.class)))
                 .thenReturn(drinkPage);
 
         BDDMockito
-                .when(clientRequestServiceMock.save(ArgumentMatchers.any(ClientRequestPostRequestBody.class)))
+                .when(clientRequestServiceMock.save(ArgumentMatchers.any(ClientRequestPostRequestBody.class), ArgumentMatchers.any(ApplicationUser.class)))
                 .thenReturn(ClientRequestCreator.createValidClientRequest());
 
         BDDMockito
                 .doNothing()
                 .when(clientRequestServiceMock)
-                .replace(ArgumentMatchers.any(ClientRequestPutRequestBody.class));
+                .replace(ArgumentMatchers.any(ClientRequestPutRequestBody.class), ArgumentMatchers.any(ApplicationUser.class));
 
         BDDMockito
-                .when(clientRequestServiceMock.finishRequest(ArgumentMatchers.any(UUID.class)))
+                .when(clientRequestServiceMock.finishRequest(ArgumentMatchers.any(UUID.class), ArgumentMatchers.any(ApplicationUser.class)))
                 .thenReturn(ClientRequestCreator.createClientRequestFinished());
 
         BDDMockito
                 .doNothing()
                 .when(clientRequestServiceMock)
-                .delete(ArgumentMatchers.any(UUID.class));
+                .delete(ArgumentMatchers.any(UUID.class), ArgumentMatchers.any(ApplicationUser.class));
     }
 
     @Test
@@ -131,9 +130,11 @@ class ClientRequestControllerTest {
     @Test
     @DisplayName("search return list of client requests inside page object when successful")
     void search_ReturnListOfClientRequestsInsidePageObject_WhenSuccessful() {
+        Principal principalMock = Mockito.mock(Principal.class);
+
         ClientRequest expectedClientRequest = ClientRequestCreator.createValidClientRequest();
 
-        ResponseEntity<Page<ClientRequest>> entity = clientRequestController.search(new ClientRequestParameters(), PageRequest.of(1, 1));
+        ResponseEntity<Page<ClientRequest>> entity = clientRequestController.search(new ClientRequestParameters(), PageRequest.of(1, 1), principalMock);
 
         assertThat(entity).isNotNull();
 
@@ -152,7 +153,8 @@ class ClientRequestControllerTest {
     void save_CreatesClientRequest_WhenSuccessful() {
         ClientRequest expectedClientRequest = ClientRequestCreator.createValidClientRequest();
 
-        ResponseEntity<ClientRequest> entity = clientRequestController.save(ClientRequestPostRequestBodyCreator.createClienteRequestPostRequestBodyToBeSave());
+        // TODO: Arrumar o Principal.
+        ResponseEntity<ClientRequest> entity = clientRequestController.save(ClientRequestPostRequestBodyCreator.createClienteRequestPostRequestBodyToBeSave(), null);
 
         assertThat(entity).isNotNull();
 
@@ -168,7 +170,9 @@ class ClientRequestControllerTest {
     @Test
     @DisplayName("replace updates client request when successful")
     void replace_UpdatedClientRequest_WhenSuccessful() {
-        ResponseEntity<Void> entity = clientRequestController.replace(ClientRequestPutRequestBodyCreator.createClientRequestPutRequestBodyCreatorToBeUpdate());
+
+        // TODO: Arrumar usuário
+        ResponseEntity<Void> entity = clientRequestController.replace(ClientRequestPutRequestBodyCreator.createClientRequestPutRequestBodyCreatorToBeUpdate(), null);
 
         assertThat(entity).isNotNull();
 
@@ -182,7 +186,8 @@ class ClientRequestControllerTest {
     void finishRequest_FinishClientRequest_WhenSuccessful() {
         ClientRequest expectedClientRequest = ClientRequestCreator.createClientRequestFinished();
 
-        ResponseEntity<ClientRequest> entity = clientRequestController.finishRequest(ClientRequestCreator.createValidClientRequest().getUuid());
+        // TODO: Arrumar usuário
+        ResponseEntity<ClientRequest> entity = clientRequestController.finishRequest(ClientRequestCreator.createValidClientRequest().getUuid(), null);
 
         assertThat(entity).isNotNull();
 
@@ -202,7 +207,9 @@ class ClientRequestControllerTest {
     @Test
     @DisplayName("delete removes client request when successful")
     void delete_RemovesClientRequest_WhenSuccessful() {
-        ResponseEntity<Void> entity = clientRequestController.delete(UUID.randomUUID());
+
+        // TODO: Arrumar usuário
+        ResponseEntity<Void> entity = clientRequestController.delete(UUID.randomUUID(), null);
 
         assertThat(entity).isNotNull();
 

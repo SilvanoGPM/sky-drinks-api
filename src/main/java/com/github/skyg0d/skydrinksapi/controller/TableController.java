@@ -22,43 +22,43 @@ public class TableController {
 
     private final TableService tableService;
 
-    @GetMapping
+    @GetMapping("/waiter")
     public ResponseEntity<Page<Table>> listAll(Pageable pageable) {
         return ResponseEntity.ok(tableService.listAll(pageable));
     }
 
-    @GetMapping("/{uuid}")
+    @GetMapping("/waiter/{uuid}")
     public ResponseEntity<Table> findById(@PathVariable UUID uuid) {
         return ResponseEntity.ok(tableService.findByIdOrElseThrowBadRequestException(uuid));
     }
 
-    @GetMapping("/search")
+    @GetMapping("/waiter/search")
     public ResponseEntity<Page<Table>> search(TableParameters tableParameters, Pageable pageable) {
         return ResponseEntity.ok(tableService.search(tableParameters, pageable));
     }
 
-    @GetMapping("/find-by-number/{number}")
+    @GetMapping("/waiter/find-by-number/{number}")
     public ResponseEntity<Table> findByNumber(@PathVariable int number) {
         return ResponseEntity.ok(tableService.findByNumberOrElseThrowBadRequestException(number));
     }
 
-    @PostMapping
+    @PostMapping("/waiter")
     public ResponseEntity<Table> save(@RequestBody @Valid TablePostRequestBody tablePostRequestBody) {
         return new ResponseEntity<>(tableService.save(tablePostRequestBody), HttpStatus.CREATED);
     }
 
-    @PutMapping
+    @PutMapping("/waiter")
     public ResponseEntity<Void> replace(@RequestBody @Valid TablePutRequestBody tablePutRequestBody) {
         tableService.replace(tablePutRequestBody);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PatchMapping("/switch-occupied/{identification}")
+    @PatchMapping("/waiter/switch-occupied/{identification}")
     public ResponseEntity<Table> switchOccupied(@PathVariable String identification) {
         return ResponseEntity.ok(tableService.switchOccupied(identification));
     }
 
-    @DeleteMapping("/{uuid}")
+    @DeleteMapping("/waiter/{uuid}")
     public ResponseEntity<Void> delete(@PathVariable UUID uuid) {
         tableService.delete(uuid);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

@@ -107,7 +107,8 @@ class ClientRequestServiceTest {
     void search_ReturnListOfClientRequestsInsidePageObject_WhenSuccessful() {
         ClientRequest expectedClientRequest = ClientRequestCreator.createValidClientRequest();
 
-        Page<ClientRequest> drinkPage = clientRequestService.search(new ClientRequestParameters(), PageRequest.of(1, 1));
+        // TODO: Arrumar User
+        Page<ClientRequest> drinkPage = clientRequestService.search(new ClientRequestParameters(), PageRequest.of(1, 1), null);
 
         assertThat(drinkPage).isNotNull();
 
@@ -122,7 +123,8 @@ class ClientRequestServiceTest {
     void save_CreatesClientRequest_WhenSuccessful() {
         ClientRequest expectedClientRequest = ClientRequestCreator.createValidClientRequest();
 
-        ClientRequest drinkSaved = clientRequestService.save(ClientRequestPostRequestBodyCreator.createClienteRequestPostRequestBodyToBeSave());
+        // TODO: Arrumar Principal.
+        ClientRequest drinkSaved = clientRequestService.save(ClientRequestPostRequestBodyCreator.createClienteRequestPostRequestBodyToBeSave(), null);
 
         assertThat(drinkSaved)
                 .isNotNull()
@@ -136,7 +138,8 @@ class ClientRequestServiceTest {
                 .when(clientRequestRepositoryMock.save(ArgumentMatchers.any(ClientRequest.class)))
                 .thenReturn(ClientRequestCreator.createValidUpdatedClientRequest());
 
-        assertThatCode(() -> clientRequestService.replace(ClientRequestPutRequestBodyCreator.createClientRequestPutRequestBodyCreatorToBeUpdate()))
+        // TODO: Arrumar user.
+        assertThatCode(() -> clientRequestService.replace(ClientRequestPutRequestBodyCreator.createClientRequestPutRequestBodyCreatorToBeUpdate(), null))
                 .doesNotThrowAnyException();
     }
 
@@ -148,7 +151,8 @@ class ClientRequestServiceTest {
 
         ClientRequest expectedClientRequest = ClientRequestCreator.createClientRequestFinished();
 
-        ClientRequest drinkFinished = clientRequestService.finishRequest(ClientRequestCreator.createValidClientRequest().getUuid());
+        // TODO: Arrumar user.
+        ClientRequest drinkFinished = clientRequestService.finishRequest(ClientRequestCreator.createValidClientRequest().getUuid(), null);
 
         assertThat(drinkFinished)
                 .isNotNull()
@@ -162,7 +166,8 @@ class ClientRequestServiceTest {
     @Test
     @DisplayName("delete removes client request when successful")
     void delete_RemovesClientRequest_WhenSuccessful() {
-        assertThatCode(() -> clientRequestService.delete(UUID.randomUUID()))
+        // TODO: Arrumar user.
+        assertThatCode(() -> clientRequestService.delete(UUID.randomUUID(), null))
                 .doesNotThrowAnyException();
     }
 
@@ -184,7 +189,8 @@ class ClientRequestServiceTest {
                 .thenReturn(Optional.of(ClientRequestCreator.createClientRequestFinished()));
 
         assertThatExceptionOfType(BadRequestException.class)
-                .isThrownBy(() -> clientRequestService.finishRequest(ClientRequestCreator.createValidClientRequest().getUuid()));
+                // TODO: Arrumar user.
+                .isThrownBy(() -> clientRequestService.finishRequest(ClientRequestCreator.createValidClientRequest().getUuid(), null));
     }
 
 }

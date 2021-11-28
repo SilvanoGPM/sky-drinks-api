@@ -18,8 +18,6 @@ public class JwtConfigurationProperties {
 
     private String privateKey = "5fr9ZwnObBDO9eObLrADJrhUfcHyGtYB";
 
-    private String type = "encrypted";
-
     @NestedConfigurationProperty
     private Header header = new Header();
 

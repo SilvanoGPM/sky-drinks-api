@@ -66,7 +66,6 @@ public class TokenCreator {
         return signedJWT;
     }
 
-
     public String encryptToken(SignedJWT signedJWT) throws JOSEException {
         log.info("Iniciando a encriptação do token");
 

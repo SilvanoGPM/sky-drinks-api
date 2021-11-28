@@ -1,5 +1,7 @@
 package com.github.skyg0d.skydrinksapi.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -11,7 +13,7 @@ import javax.validation.constraints.Size;
 
 @Getter
 @Setter
-@ToString
+@ToString(callSuper = true)
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -29,6 +31,7 @@ public class ApplicationUser extends BaseEntity {
 
     @NotBlank(message = "A senha do usuário não pode ficar vazia.")
     @ToString.Exclude
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
     @NotBlank(message = "A função do usuário não pode ficar vazia.")
