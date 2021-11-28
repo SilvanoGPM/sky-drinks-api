@@ -139,6 +139,21 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(exceptionDetails, status);
     }
 
+    @ExceptionHandler(ActionNotAllowedException.class)
+    public ResponseEntity<ActionNotAllowedExceptionDetails> handleActionNotAllowedException(ActionNotAllowedException ex) {
+        HttpStatus status = HttpStatus.FORBIDDEN;
+
+        ActionNotAllowedExceptionDetails exceptionDetails = ActionNotAllowedExceptionDetails
+                .builder()
+                .title("Ação não permitida!")
+                .details(ex.getMessage())
+                .developerMessage(ex.getClass().getName())
+                .status(status.value())
+                .timestamp(LocalDateTime.now().toString())
+                .build();
+
+        return new ResponseEntity<>(exceptionDetails, status);
+    }
 
     @Override
     protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers, HttpStatus status, WebRequest request) {

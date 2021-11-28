@@ -5,6 +5,7 @@ import com.github.skyg0d.skydrinksapi.parameters.ApplicationUserParameters;
 import com.github.skyg0d.skydrinksapi.requests.ApplicationUserPostRequestBody;
 import com.github.skyg0d.skydrinksapi.requests.ApplicationUserPutRequestBody;
 import com.github.skyg0d.skydrinksapi.service.ApplicationUserService;
+import com.github.skyg0d.skydrinksapi.util.AuthUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.UUID;
 
 @RestController
@@ -21,6 +23,7 @@ import java.util.UUID;
 public class ApplicationUserController {
 
     private final ApplicationUserService applicationUserService;
+    private final AuthUtil authUtil;
 
     @GetMapping
     public ResponseEntity<Page<ApplicationUser>> listAll(Pageable pageable) {
@@ -52,15 +55,15 @@ public class ApplicationUserController {
         return new ResponseEntity<>(applicationUserService.save(applicationUserPostRequestBody), HttpStatus.CREATED);
     }
 
-    @PutMapping("/admin")
-    public ResponseEntity<Void> delete(@Valid @RequestBody ApplicationUserPutRequestBody applicationUserPutRequestBody) {
-        applicationUserService.replace(applicationUserPutRequestBody);
+    @PutMapping("/admin-or-user")
+    public ResponseEntity<Void> delete(@Valid @RequestBody ApplicationUserPutRequestBody applicationUserPutRequestBody, Principal principal) {
+        applicationUserService.replace(applicationUserPutRequestBody, authUtil.getUser(principal));
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @DeleteMapping("/admin/{uuid}")
-    public ResponseEntity<Void> delete(@PathVariable UUID uuid) {
-        applicationUserService.delete(uuid);
+    @DeleteMapping("/admin-or-user/{uuid}")
+    public ResponseEntity<Void> delete(@PathVariable UUID uuid, Principal principal) {
+        applicationUserService.delete(uuid, authUtil.getUser(principal));
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

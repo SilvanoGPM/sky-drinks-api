@@ -61,6 +61,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(jwtConfigurationProperties.getLoginUrl()).permitAll()
                 .antMatchers("/**/admin/**").hasRole(Roles.ADMIN.getName())
+                .antMatchers("/**/admin-or-user/**").hasAnyRole(Roles.ADMIN.getName(), Roles.USER.getName())
                 .antMatchers("/**/user/**").hasRole(Roles.USER.getName())
                 .antMatchers("/**/waiter/**").hasRole(Roles.WAITER.getName())
                 .antMatchers("/**/waiter-or-user/**").hasAnyRole(Roles.WAITER.getName(), Roles.USER.getName())

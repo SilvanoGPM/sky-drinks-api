@@ -3,19 +3,17 @@ package com.github.skyg0d.skydrinksapi.controller;
 import com.github.skyg0d.skydrinksapi.domain.ApplicationUser;
 import com.github.skyg0d.skydrinksapi.domain.ClientRequest;
 import com.github.skyg0d.skydrinksapi.enums.Roles;
-import com.github.skyg0d.skydrinksapi.exception.BadRequestException;
 import com.github.skyg0d.skydrinksapi.parameters.ClientRequestParameters;
-import com.github.skyg0d.skydrinksapi.repository.user.ApplicationUserRepository;
 import com.github.skyg0d.skydrinksapi.requests.ClientRequestPostRequestBody;
 import com.github.skyg0d.skydrinksapi.requests.ClientRequestPutRequestBody;
 import com.github.skyg0d.skydrinksapi.service.ClientRequestService;
+import com.github.skyg0d.skydrinksapi.util.AuthUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -29,7 +27,7 @@ import java.util.UUID;
 public class ClientRequestController {
 
     private final ClientRequestService clientRequestService;
-    private final ApplicationUserRepository applicationUserRepository;
+    private final AuthUtil authUtil;
 
     @GetMapping("/waiter")
     public ResponseEntity<Page<ClientRequest>> listAll(Pageable pageable) {
@@ -38,7 +36,7 @@ public class ClientRequestController {
 
     @GetMapping("/search")
     public ResponseEntity<Page<ClientRequest>> search(ClientRequestParameters parameters, Pageable pageable, Principal principal) {
-        return ResponseEntity.ok(clientRequestService.search(parameters, pageable, getUser(principal)));
+        return ResponseEntity.ok(clientRequestService.search(parameters, pageable, authUtil.getUser(principal)));
     }
 
     @GetMapping("/{uuid}")
@@ -48,7 +46,7 @@ public class ClientRequestController {
 
     @PostMapping("/user")
     public ResponseEntity<ClientRequest> save(@RequestBody @Valid ClientRequestPostRequestBody clientRequestPostRequestBody, Principal principal) {
-        ApplicationUser user = getUser(principal);
+        ApplicationUser user = authUtil.getUser(principal);
 
         if (!user.getRole().contains(Roles.USER.getName())) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -59,31 +57,20 @@ public class ClientRequestController {
 
     @PutMapping("/waiter-or-user")
     public ResponseEntity<Void> replace(@RequestBody @Valid ClientRequestPutRequestBody clientRequestPutRequestBody, Principal principal) {
-        clientRequestService.replace(clientRequestPutRequestBody, getUser(principal));
+        clientRequestService.replace(clientRequestPutRequestBody, authUtil.getUser(principal));
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @PatchMapping("/waiter-or-user/{uuid}")
     public ResponseEntity<ClientRequest> finishRequest(@PathVariable UUID uuid, Principal principal) {
-        return ResponseEntity.ok(clientRequestService.finishRequest(uuid, getUser(principal)));
+        return ResponseEntity.ok(clientRequestService.finishRequest(uuid, authUtil.getUser(principal)));
     }
 
     @DeleteMapping("/waiter-or-user/{uuid}")
     public ResponseEntity<Void> delete(@PathVariable UUID uuid, Principal principal) {
-        clientRequestService.delete(uuid, getUser(principal));
+        clientRequestService.delete(uuid, authUtil.getUser(principal));
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    private ApplicationUser getUser(Principal principal) {
-        if (principal == null) {
-            throw new BadRequestException("Aconteceu um erro ao tentar encontrar o usuário!");
-        }
-
-        ApplicationUser applicationUser = (ApplicationUser) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
-
-        return applicationUserRepository
-                .findByEmail(applicationUser.getEmail())
-                .orElseThrow(() -> new BadRequestException("Email do usuário não foi encontrado. . ."));
-    }
 
 }
