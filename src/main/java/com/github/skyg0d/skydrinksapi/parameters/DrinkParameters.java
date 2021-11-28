@@ -13,6 +13,8 @@ public class DrinkParameters {
 
      private String name;
 
+     private String description;
+
      private String additional;
 
      private String createdAt;

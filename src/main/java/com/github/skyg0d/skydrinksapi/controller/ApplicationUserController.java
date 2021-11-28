@@ -42,6 +42,11 @@ public class ApplicationUserController {
         return ResponseEntity.ok(applicationUserService.findByEmail(email));
     }
 
+    @GetMapping("/find-by-cpf/{cpf}")
+    public ResponseEntity<ApplicationUser> findByCpf(@PathVariable String cpf) {
+        return ResponseEntity.ok(applicationUserService.findByCpf(cpf));
+    }
+
     @PostMapping("/admin")
     public ResponseEntity<ApplicationUser> save(@Valid @RequestBody ApplicationUserPostRequestBody applicationUserPostRequestBody) {
         return new ResponseEntity<>(applicationUserService.save(applicationUserPostRequestBody), HttpStatus.CREATED);

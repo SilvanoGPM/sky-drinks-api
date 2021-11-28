@@ -21,6 +21,8 @@ public class DrinkPostRequestBody {
 
     private String picture;
 
+    private String description;
+
     @Positive(message = "O valor da bebida deve ser positivo.")
     private double price;
 

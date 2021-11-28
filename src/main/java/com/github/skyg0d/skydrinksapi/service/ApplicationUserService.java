@@ -44,6 +44,12 @@ public class ApplicationUserService {
                 .orElseThrow(() -> new BadRequestException(String.format("Usuário com email: \"%s\" não foi encontrado!", email)));
     }
 
+    public ApplicationUser findByCpf(String cpf) {
+        return applicationUserRepository
+                .findByCpf(cpf)
+                .orElseThrow(() -> new BadRequestException(String.format("Usuário com cpf: \"%s\" não foi encontrado!", cpf)));
+    }
+
     public ApplicationUser save(ApplicationUserPostRequestBody applicationUserPostRequestBody) {
         Optional<ApplicationUser> userFound = applicationUserRepository.findByEmail(applicationUserPostRequestBody.getEmail());
 

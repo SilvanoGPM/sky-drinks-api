@@ -21,4 +21,10 @@ public class ApplicationUserParameters {
 
     private String createdInDateOrBefore;
 
+    private String birthAt;
+
+    private String birthInDateOrAfter;
+
+    private String birthInDateOrBefore;
+
 }

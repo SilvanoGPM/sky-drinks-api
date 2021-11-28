@@ -4,6 +4,7 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.Hibernate;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.validation.constraints.*;
@@ -29,6 +30,9 @@ public class Drink extends BaseEntity {
     private String name;
 
     private String picture;
+
+    @Column(columnDefinition = "TEXT")
+    private String description;
 
     @Positive(message = "O valor da bebida deve ser positivo.")
     private double price;

@@ -7,7 +7,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 public class PasswordGenerator {
 
     public static void main(String[] args) {
-        String toEnconde = args.length > 0 ? args[0] : "SkyG0D";
+        String toEnconde = args.length > 0 ? args[0] : "admin";
 
         String password = new BCryptPasswordEncoder().encode(toEnconde);
 

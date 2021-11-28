@@ -5,6 +5,8 @@ import com.github.skyg0d.skydrinksapi.parameters.ApplicationUserParameters;
 import com.github.skyg0d.skydrinksapi.repository.AbstractSpecification;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.time.LocalDate;
+
 import static org.springframework.data.jpa.domain.Specification.where;
 
 public class ApplicationUserSpecification extends AbstractSpecification {
@@ -12,6 +14,9 @@ public class ApplicationUserSpecification extends AbstractSpecification {
     public static Specification<ApplicationUser> getSpecification(ApplicationUserParameters applicationUserParameters) {
         return where(withName(applicationUserParameters.getName()))
                 .and(where(withRole(applicationUserParameters.getRole())))
+                .and(where(withBirthAt(applicationUserParameters.getBirthAt())))
+                .and(where(withBirthInDateOrAfter(applicationUserParameters.getBirthInDateOrAfter())))
+                .and(where(withBirthInDateOrBefore(applicationUserParameters.getBirthInDateOrBefore())))
                 .and(where(withCreatedAt(applicationUserParameters.getCreatedAt())))
                 .and(where(withCreatedInDateOrAfter(applicationUserParameters.getCreatedInDateOrAfter())))
                 .and(where(withCreatedInDateOrBefore(applicationUserParameters.getCreatedInDateOrBefore())));
@@ -26,6 +31,24 @@ public class ApplicationUserSpecification extends AbstractSpecification {
     public static Specification<ApplicationUser> withRole(String role) {
         return getSpec(role, (root, query, builder) -> (
                 builder.like(builder.lower(root.get("role")), like(role))
+        ));
+    }
+
+    protected static Specification<ApplicationUser> withBirthAt(String birth) {
+        return getSpec(birth, (root, query, builder) -> (
+                builder.equal(root.get("birthDay"), LocalDate.parse(birth))
+        ));
+    }
+
+    protected static Specification<ApplicationUser> withBirthInDateOrAfter(String birth) {
+        return getSpec(birth, (root, query, builder) -> (
+                builder.greaterThanOrEqualTo(root.get("birthDay"), LocalDate.parse(birth))
+        ));
+    }
+
+    protected static Specification<ApplicationUser> withBirthInDateOrBefore(String birth) {
+        return getSpec(birth, (root, query, builder) -> (
+                builder.lessThanOrEqualTo(root.get("birthDay"), LocalDate.parse(birth))
         ));
     }
 
