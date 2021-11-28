@@ -11,6 +11,7 @@ public class DrinkPostRequestBodyCreator {
         return DrinkPostRequestBody
                 .builder()
                 .name(drink.getName())
+                .description(drink.getDescription())
                 .additional(String.join(Drink.ADDITIONAL_SEPARATOR, drink.getAdditionalList()))
                 .alcoholic(drink.isAlcoholic())
                 .price(drink.getPrice())

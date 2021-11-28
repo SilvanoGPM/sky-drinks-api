@@ -6,9 +6,11 @@ import com.github.skyg0d.skydrinksapi.parameters.ClientRequestParameters;
 import com.github.skyg0d.skydrinksapi.requests.ClientRequestPostRequestBody;
 import com.github.skyg0d.skydrinksapi.requests.ClientRequestPutRequestBody;
 import com.github.skyg0d.skydrinksapi.service.ClientRequestService;
+import com.github.skyg0d.skydrinksapi.util.AuthUtil;
 import com.github.skyg0d.skydrinksapi.util.request.ClientRequestCreator;
 import com.github.skyg0d.skydrinksapi.util.request.ClientRequestPostRequestBodyCreator;
 import com.github.skyg0d.skydrinksapi.util.request.ClientRequestPutRequestBodyCreator;
+import com.github.skyg0d.skydrinksapi.util.user.ApplicationUserCreator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,9 +39,16 @@ class ClientRequestControllerTest {
     @Mock
     private ClientRequestService clientRequestServiceMock;
 
+    @Mock
+    private AuthUtil authUtilMock;
+
     @BeforeEach
     void setUp() {
         Page<ClientRequest> drinkPage = new PageImpl<>(List.of(ClientRequestCreator.createValidClientRequest()));
+
+        BDDMockito
+                .when(authUtilMock.getUser(ArgumentMatchers.any()))
+                .thenReturn(ApplicationUserCreator.createValidApplicationUser());
 
         BDDMockito
                 .when(clientRequestServiceMock.listAll(ArgumentMatchers.any(PageRequest.class)))
@@ -151,10 +160,11 @@ class ClientRequestControllerTest {
     @Test
     @DisplayName("save creates client request when successful")
     void save_CreatesClientRequest_WhenSuccessful() {
+        Principal principalMock = Mockito.mock(Principal.class);
+
         ClientRequest expectedClientRequest = ClientRequestCreator.createValidClientRequest();
 
-        // TODO: Arrumar o Principal.
-        ResponseEntity<ClientRequest> entity = clientRequestController.save(ClientRequestPostRequestBodyCreator.createClienteRequestPostRequestBodyToBeSave(), null);
+        ResponseEntity<ClientRequest> entity = clientRequestController.save(ClientRequestPostRequestBodyCreator.createClienteRequestPostRequestBodyToBeSave(), principalMock);
 
         assertThat(entity).isNotNull();
 
@@ -168,11 +178,34 @@ class ClientRequestControllerTest {
     }
 
     @Test
+    @DisplayName("save returns 400 BadRequest when user not contains ROLE_USER")
+    void save_Returns400BadRequest_WhenUserNotContainsROLE_USER() {
+        ApplicationUser barmenUser = ApplicationUserCreator.createValidApplicationUser();
+
+        barmenUser.setRole("BARMEN");
+
+        BDDMockito
+                .when(authUtilMock.getUser(ArgumentMatchers.any(Principal.class)))
+                .thenReturn(barmenUser);
+
+        Principal principalMock = Mockito.mock(Principal.class);
+
+        ResponseEntity<ClientRequest> entity = clientRequestController.save(ClientRequestPostRequestBodyCreator.createClienteRequestPostRequestBodyToBeSave(), principalMock);
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+
+    @Test
     @DisplayName("replace updates client request when successful")
     void replace_UpdatedClientRequest_WhenSuccessful() {
+        Principal principalMock = Mockito.mock(Principal.class);
 
-        // TODO: Arrumar usuário
-        ResponseEntity<Void> entity = clientRequestController.replace(ClientRequestPutRequestBodyCreator.createClientRequestPutRequestBodyCreatorToBeUpdate(), null);
+        ResponseEntity<Void> entity = clientRequestController.replace(ClientRequestPutRequestBodyCreator.createClientRequestPutRequestBodyCreatorToBeUpdate(), principalMock);
 
         assertThat(entity).isNotNull();
 
@@ -184,10 +217,11 @@ class ClientRequestControllerTest {
     @Test
     @DisplayName("finishRequest finish client request when successful")
     void finishRequest_FinishClientRequest_WhenSuccessful() {
+        Principal principalMock = Mockito.mock(Principal.class);
+
         ClientRequest expectedClientRequest = ClientRequestCreator.createClientRequestFinished();
 
-        // TODO: Arrumar usuário
-        ResponseEntity<ClientRequest> entity = clientRequestController.finishRequest(ClientRequestCreator.createValidClientRequest().getUuid(), null);
+        ResponseEntity<ClientRequest> entity = clientRequestController.finishRequest(ClientRequestCreator.createValidClientRequest().getUuid(), principalMock);
 
         assertThat(entity).isNotNull();
 
@@ -207,9 +241,9 @@ class ClientRequestControllerTest {
     @Test
     @DisplayName("delete removes client request when successful")
     void delete_RemovesClientRequest_WhenSuccessful() {
+        Principal principalMock = Mockito.mock(Principal.class);
 
-        // TODO: Arrumar usuário
-        ResponseEntity<Void> entity = clientRequestController.delete(UUID.randomUUID(), null);
+        ResponseEntity<Void> entity = clientRequestController.delete(UUID.randomUUID(), principalMock);
 
         assertThat(entity).isNotNull();
 

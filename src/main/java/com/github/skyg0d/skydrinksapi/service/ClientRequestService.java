@@ -74,7 +74,7 @@ public class ClientRequestService {
     public void replace(ClientRequestPutRequestBody clientRequestPutRequestBody, ApplicationUser user) {
         ClientRequest request = findByIdOrElseThrowBadRequestException(clientRequestPutRequestBody.getUuid());
 
-        userCanModifyRequestOrElseThrow(user, request);
+        userCanModifyRequestOrElseThrowUserCannotModifyClientRequestException(user, request);
 
         clientRequestRepository.save(mapper.toClientRequest(clientRequestPutRequestBody));
     }
@@ -86,7 +86,7 @@ public class ClientRequestService {
             throw new BadRequestException(String.format("Pedido com id %s já foi finalizado!", uuid));
         }
 
-        userCanModifyRequestOrElseThrow(user, request);
+        userCanModifyRequestOrElseThrowUserCannotModifyClientRequestException(user, request);
 
         request.setFinished(true);
 
@@ -104,12 +104,12 @@ public class ClientRequestService {
     public void delete(UUID uuid, ApplicationUser user) {
         ClientRequest request = findByIdOrElseThrowBadRequestException(uuid);
 
-        userCanModifyRequestOrElseThrow(user, request);
+        userCanModifyRequestOrElseThrowUserCannotModifyClientRequestException(user, request);
 
         clientRequestRepository.delete(request);
     }
 
-    private void userCanModifyRequestOrElseThrow(ApplicationUser user, ClientRequest request) {
+    private void userCanModifyRequestOrElseThrowUserCannotModifyClientRequestException(ApplicationUser user, ClientRequest request) {
         if (!requestBelongsToUser(request, user) && !userIsWaiter(user)) {
             String message = String.format("O usuário %s não possuí permissão suficiente para modificar o pedido de id: %s", user.getName(), request.getUuid());
             throw new UserCannotModifyClientRequestException(message, user, request);

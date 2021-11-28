@@ -11,6 +11,7 @@ public class ClientRequestPutRequestBodyCreator {
         return ClientRequestPutRequestBody
                 .builder()
                 .uuid(request.getUuid())
+                .user(request.getUser())
                 .drinks(request.getDrinks())
                 .table(request.getTable())
                 .finished(request.isFinished())

@@ -1,12 +1,18 @@
 package com.github.skyg0d.skydrinksapi.service;
 
+import com.github.skyg0d.skydrinksapi.domain.ApplicationUser;
 import com.github.skyg0d.skydrinksapi.domain.ClientRequest;
+import com.github.skyg0d.skydrinksapi.domain.Drink;
 import com.github.skyg0d.skydrinksapi.exception.BadRequestException;
+import com.github.skyg0d.skydrinksapi.exception.UserCannotCompleteClientRequestException;
+import com.github.skyg0d.skydrinksapi.exception.UserCannotModifyClientRequestException;
 import com.github.skyg0d.skydrinksapi.parameters.ClientRequestParameters;
 import com.github.skyg0d.skydrinksapi.repository.request.ClientRequestRepository;
+import com.github.skyg0d.skydrinksapi.requests.ClientRequestPutRequestBody;
 import com.github.skyg0d.skydrinksapi.util.request.ClientRequestCreator;
 import com.github.skyg0d.skydrinksapi.util.request.ClientRequestPostRequestBodyCreator;
 import com.github.skyg0d.skydrinksapi.util.request.ClientRequestPutRequestBodyCreator;
+import com.github.skyg0d.skydrinksapi.util.user.ApplicationUserCreator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,6 +27,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -36,6 +43,9 @@ class ClientRequestServiceTest {
     
     @Mock
     private ClientRequestRepository clientRequestRepositoryMock;
+
+    @Mock
+    private DrinkService drinkServiceMock;
 
     @BeforeEach
     void setUp() {
@@ -107,8 +117,7 @@ class ClientRequestServiceTest {
     void search_ReturnListOfClientRequestsInsidePageObject_WhenSuccessful() {
         ClientRequest expectedClientRequest = ClientRequestCreator.createValidClientRequest();
 
-        // TODO: Arrumar User
-        Page<ClientRequest> drinkPage = clientRequestService.search(new ClientRequestParameters(), PageRequest.of(1, 1), null);
+        Page<ClientRequest> drinkPage = clientRequestService.search(new ClientRequestParameters(), PageRequest.of(1, 1), expectedClientRequest.getUser());
 
         assertThat(drinkPage).isNotNull();
 
@@ -119,12 +128,35 @@ class ClientRequestServiceTest {
     }
 
     @Test
+    @DisplayName("search return list of client requests inside page object when user is a waiter")
+    void search_ReturnListOfClientRequestsInsidePageObject_WhenUserIsAWaiter() {
+        ClientRequest expectedClientRequest = ClientRequestCreator.createValidClientRequest();
+
+        ApplicationUser user = expectedClientRequest.getUser();
+
+        user.setRole("WAITER");
+
+        Page<ClientRequest> drinkPage = clientRequestService.search(new ClientRequestParameters(), PageRequest.of(1, 1), user);
+
+        assertThat(drinkPage).isNotNull();
+
+        assertThat(drinkPage.toList())
+                .isNotEmpty()
+                .hasSize(1)
+                .contains(expectedClientRequest);
+    }
+
+
+    @Test
     @DisplayName("save creates client request when successful")
     void save_CreatesClientRequest_WhenSuccessful() {
         ClientRequest expectedClientRequest = ClientRequestCreator.createValidClientRequest();
 
-        // TODO: Arrumar Principal.
-        ClientRequest drinkSaved = clientRequestService.save(ClientRequestPostRequestBodyCreator.createClienteRequestPostRequestBodyToBeSave(), null);
+        BDDMockito
+                .when(drinkServiceMock.findByIdOrElseThrowBadRequestException(ArgumentMatchers.any(UUID.class)))
+                .thenReturn(expectedClientRequest.getDrinks().get(0));
+
+        ClientRequest drinkSaved = clientRequestService.save(ClientRequestPostRequestBodyCreator.createClienteRequestPostRequestBodyToBeSave(), expectedClientRequest.getUser());
 
         assertThat(drinkSaved)
                 .isNotNull()
@@ -138,8 +170,9 @@ class ClientRequestServiceTest {
                 .when(clientRequestRepositoryMock.save(ArgumentMatchers.any(ClientRequest.class)))
                 .thenReturn(ClientRequestCreator.createValidUpdatedClientRequest());
 
-        // TODO: Arrumar user.
-        assertThatCode(() -> clientRequestService.replace(ClientRequestPutRequestBodyCreator.createClientRequestPutRequestBodyCreatorToBeUpdate(), null))
+        ClientRequestPutRequestBody requestToUpdate = ClientRequestPutRequestBodyCreator.createClientRequestPutRequestBodyCreatorToBeUpdate();
+
+        assertThatCode(() -> clientRequestService.replace(requestToUpdate, requestToUpdate.getUser()))
                 .doesNotThrowAnyException();
     }
 
@@ -151,8 +184,9 @@ class ClientRequestServiceTest {
 
         ClientRequest expectedClientRequest = ClientRequestCreator.createClientRequestFinished();
 
-        // TODO: Arrumar user.
-        ClientRequest drinkFinished = clientRequestService.finishRequest(ClientRequestCreator.createValidClientRequest().getUuid(), null);
+        ClientRequest requestValid = ClientRequestCreator.createValidClientRequest();
+
+        ClientRequest drinkFinished = clientRequestService.finishRequest(requestValid.getUuid(), requestValid.getUser());
 
         assertThat(drinkFinished)
                 .isNotNull()
@@ -166,8 +200,7 @@ class ClientRequestServiceTest {
     @Test
     @DisplayName("delete removes client request when successful")
     void delete_RemovesClientRequest_WhenSuccessful() {
-        // TODO: Arrumar user.
-        assertThatCode(() -> clientRequestService.delete(UUID.randomUUID(), null))
+        assertThatCode(() -> clientRequestService.delete(UUID.randomUUID(), ApplicationUserCreator.createValidApplicationUser()))
                 .doesNotThrowAnyException();
     }
 
@@ -183,14 +216,80 @@ class ClientRequestServiceTest {
     }
 
     @Test
-    @DisplayName("finishRequest creates client request when successful")
+    @DisplayName("save throws UserCannotCompleteClientRequestException when drinks contains alcoholic and user is minor")
+    void save_ThrowsUserCannotCompleteClientRequestException_WhenDrinksContainsAlcoholicAndUserIsMinor() {
+        ClientRequest expectedClientRequest = ClientRequestCreator.createValidClientRequest();
+
+        ApplicationUser user = expectedClientRequest.getUser();
+
+        user.setBirthDay(LocalDate.now());
+
+        Drink alcoholicDrink = expectedClientRequest.getDrinks().get(0);
+
+        alcoholicDrink.setAlcoholic(true);
+
+        BDDMockito
+                .when(drinkServiceMock.findByIdOrElseThrowBadRequestException(ArgumentMatchers.any(UUID.class)))
+                .thenReturn(alcoholicDrink);
+
+        assertThatExceptionOfType(UserCannotCompleteClientRequestException.class)
+                .isThrownBy(() -> clientRequestService.save(ClientRequestPostRequestBodyCreator.createClienteRequestPostRequestBodyToBeSave(), user));
+    }
+
+    @Test
+    @DisplayName("replace throws UserCannotModifyClientRequestException when user do not have access")
+    void replace_ThrowsUserCannotModifyClientRequestException_WhenUserDoNotHaveAccess() {
+        BDDMockito
+                .when(clientRequestRepositoryMock.save(ArgumentMatchers.any(ClientRequest.class)))
+                .thenReturn(ClientRequestCreator.createValidUpdatedClientRequest());
+
+        ApplicationUser someUser = ClientRequestCreator.createValidUpdatedClientRequest().getUser();
+
+        someUser.setUuid(UUID.randomUUID());
+
+        ClientRequestPutRequestBody requestToUpdate = ClientRequestPutRequestBodyCreator.createClientRequestPutRequestBodyCreatorToBeUpdate();
+
+        assertThatExceptionOfType(UserCannotModifyClientRequestException.class)
+                .isThrownBy(() -> clientRequestService.replace(requestToUpdate, someUser));
+    }
+
+    @Test
+    @DisplayName("finishRequest throws BadRequestException when client request already finished")
     void finishRequest_ThrowsBadRequestException_WhenClientRequestAlreadyFinished() {
         BDDMockito.when(clientRequestRepositoryMock.findById(ArgumentMatchers.any(UUID.class)))
                 .thenReturn(Optional.of(ClientRequestCreator.createClientRequestFinished()));
 
+        ClientRequest requestValid = ClientRequestCreator.createValidClientRequest();
+
         assertThatExceptionOfType(BadRequestException.class)
-                // TODO: Arrumar user.
-                .isThrownBy(() -> clientRequestService.finishRequest(ClientRequestCreator.createValidClientRequest().getUuid(), null));
+                .isThrownBy(() -> clientRequestService.finishRequest(requestValid.getUuid(), requestValid.getUser()));
+    }
+
+    @Test
+    @DisplayName("finishRequest throws UserCannotModifyClientRequestException when user do not have access")
+    void finishRequest_ThrowsUserCannotModifyClientRequestException_WhenUserDoNotHaveAccess() {
+        BDDMockito.when(clientRequestRepositoryMock.save(ArgumentMatchers.any(ClientRequest.class)))
+                .thenReturn(ClientRequestCreator.createClientRequestFinished());
+
+        ClientRequest requestValid = ClientRequestCreator.createValidClientRequest();
+
+        ApplicationUser someUser = requestValid.getUser();
+
+        someUser.setUuid(UUID.randomUUID());
+
+        assertThatExceptionOfType(UserCannotModifyClientRequestException.class)
+                .isThrownBy(() -> clientRequestService.finishRequest(requestValid.getUuid(), someUser));
+    }
+
+    @Test
+    @DisplayName("delete throws UserCannotModifyClientRequestException when user do not have access")
+    void delete_ThrowsUserCannotModifyClientRequestException_WhenUserDoNotHaveAccess() {
+        ApplicationUser someUser = ClientRequestCreator.createValidUpdatedClientRequest().getUser();
+
+        someUser.setUuid(UUID.randomUUID());
+
+        assertThatExceptionOfType(UserCannotModifyClientRequestException.class)
+                .isThrownBy(() -> clientRequestService.delete(UUID.randomUUID(), someUser));
     }
 
 }
