@@ -7,19 +7,18 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Log4j2
 public class SecurityContextUtil {
 
-    private SecurityContextUtil(){}
+    private SecurityContextUtil() {
+    }
 
     public static void setSecurityContext(SignedJWT signedJWT) {
         try {
@@ -30,7 +29,7 @@ public class SecurityContextUtil {
                 throw new JOSEException("Email está faltando no JWT");
             }
 
-            if(!new Date().before(claims.getExpirationTime())){
+            if (!new Date().before(claims.getExpirationTime())) {
                 throw new JOSEException("Token expirou!");
             }
 

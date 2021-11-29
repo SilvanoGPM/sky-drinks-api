@@ -31,6 +31,8 @@ import java.util.stream.Collectors;
 @Log4j2
 public class ClientRequestService {
 
+    private static final int MINORITY = 18;
+
     private final ClientRequestRepository clientRequestRepository;
     private final DrinkService drinkService;
     private final ClientRequestMapper mapper = ClientRequestMapper.INSTANCE;
@@ -42,7 +44,7 @@ public class ClientRequestService {
     public Page<ClientRequest> search(ClientRequestParameters parameters, Pageable pageable, ApplicationUser user) {
         Page<ClientRequest> requests = clientRequestRepository.findAll(ClientRequestSpecification.getSpecification(parameters), pageable);
 
-        return userIsWaiter(user)
+        return userIsStaff(user)
                 ? requests
                 : filterRequestsByUser(requests, user, pageable);
     }
@@ -60,7 +62,7 @@ public class ClientRequestService {
 
         long userAge = ChronoUnit.YEARS.between(user.getBirthDay(), LocalDateTime.now());
 
-        if (containsAlcoholicDrink && userAge < 18) {
+        if (containsAlcoholicDrink && userAge < MINORITY) {
             throw new UserCannotCompleteClientRequestException("O usuário está tentando comprar bebidas alcoólicas, porém ele é menor de idade.", "Menor de idade");
         }
 
@@ -110,14 +112,14 @@ public class ClientRequestService {
     }
 
     private void userCanModifyRequestOrElseThrowUserCannotModifyClientRequestException(ApplicationUser user, ClientRequest request) {
-        if (!requestBelongsToUser(request, user) && !userIsWaiter(user)) {
+        if (!requestBelongsToUser(request, user) && !userIsStaff(user)) {
             String message = String.format("O usuário %s não possuí permissão suficiente para modificar o pedido de id: %s", user.getName(), request.getUuid());
             throw new UserCannotModifyClientRequestException(message, user, request);
         }
     }
 
-    private boolean userIsWaiter(ApplicationUser user) {
-        return user.getRole().contains(Roles.WAITER.getName());
+    private boolean userIsStaff(ApplicationUser user) {
+        return !user.getRole().contains(Roles.USER.getName());
     }
 
     private boolean requestBelongsToUser(ClientRequest request, ApplicationUser user) {

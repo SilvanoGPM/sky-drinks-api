@@ -4,6 +4,7 @@ import com.github.skyg0d.skydrinksapi.domain.Drink;
 import com.github.skyg0d.skydrinksapi.repository.drink.DrinkRepository;
 import com.github.skyg0d.skydrinksapi.requests.DrinkPostRequestBody;
 import com.github.skyg0d.skydrinksapi.requests.DrinkPutRequestBody;
+import com.github.skyg0d.skydrinksapi.util.TokenUtil;
 import com.github.skyg0d.skydrinksapi.util.drink.DrinkCreator;
 import com.github.skyg0d.skydrinksapi.util.drink.DrinkPostRequestBodyCreator;
 import com.github.skyg0d.skydrinksapi.util.drink.DrinkPutRequestBodyCreator;
@@ -15,7 +16,6 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +36,9 @@ class DrinkControllerIT {
 
     @Autowired
     private DrinkRepository drinkRepository;
+
+    @Autowired
+    private TokenUtil tokenUtil;
 
     @Test
     @DisplayName("listAll return list of drinks inside page object when successful")
@@ -174,8 +177,8 @@ class DrinkControllerIT {
         DrinkPostRequestBody drinkValid = DrinkPostRequestBodyCreator.createDrinkPostRequestBodyToBeSave();
 
         ResponseEntity<Drink> entity = testRestTemplate.postForEntity(
-                "/drinks",
-                drinkValid,
+                "/drinks/barmen",
+                tokenUtil.createBarmenAuthEntity(drinkValid),
                 Drink.class
         );
 
@@ -195,6 +198,24 @@ class DrinkControllerIT {
     }
 
     @Test
+    @DisplayName("save returns 403 Forbidden when user does not have ROLE_BARMEN")
+    void save_Returns403Forbidden_WhenUserDoesNotHaveROLE_BARMEN() {
+        DrinkPostRequestBody drinkValid = DrinkPostRequestBodyCreator.createDrinkPostRequestBodyToBeSave();
+
+        ResponseEntity<Drink> entity = testRestTemplate.postForEntity(
+                "/drinks/barmen",
+                tokenUtil.createUserAuthEntity(drinkValid),
+                Drink.class
+        );
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.FORBIDDEN);
+    }
+
+    @Test
     @DisplayName("replace updates drink when successful")
     void replace_UpdatedDrink_WhenSuccessful() {
         Drink drinkSaved = drinkRepository.save(DrinkCreator.createDrinkToBeSave());
@@ -204,9 +225,9 @@ class DrinkControllerIT {
         drinkToUpdate.setUuid(drinkSaved.getUuid());
 
         ResponseEntity<Void> entity = testRestTemplate.exchange(
-                "/drinks",
+                "/drinks/barmen",
                 HttpMethod.PUT,
-                new HttpEntity<>(drinkToUpdate),
+                tokenUtil.createBarmenAuthEntity(drinkToUpdate),
                 Void.class
         );
 
@@ -223,9 +244,9 @@ class DrinkControllerIT {
         DrinkPutRequestBody drinkToUpdate = DrinkPutRequestBodyCreator.createDrinkPutRequestBodyToBeUpdate();
 
         ResponseEntity<Void> entity = testRestTemplate.exchange(
-                "/drinks",
+                "/drinks/barmen",
                 HttpMethod.PUT,
-                new HttpEntity<>(drinkToUpdate),
+                tokenUtil.createBarmenAuthEntity(drinkToUpdate),
                 Void.class
         );
 
@@ -237,14 +258,37 @@ class DrinkControllerIT {
     }
 
     @Test
+    @DisplayName("replace returns 403 Forbidden when user does not have ROLE_BARMEN")
+    void replace_Returns403Forbidden_WhenUserDoesNotHaveROLE_BARMEN() {
+        Drink drinkSaved = drinkRepository.save(DrinkCreator.createDrinkToBeSave());
+
+        DrinkPutRequestBody drinkToUpdate = DrinkPutRequestBodyCreator.createDrinkPutRequestBodyToBeUpdate();
+
+        drinkToUpdate.setUuid(drinkSaved.getUuid());
+
+        ResponseEntity<Void> entity = testRestTemplate.exchange(
+                "/drinks/barmen",
+                HttpMethod.PUT,
+                tokenUtil.createUserAuthEntity(drinkToUpdate),
+                Void.class
+        );
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.FORBIDDEN);
+    }
+
+    @Test
     @DisplayName("delete removes drink when successful")
     void delete_RemovesDrink_WhenSuccessful() {
         Drink drinkSaved = drinkRepository.save(DrinkCreator.createDrinkToBeSave());
 
         ResponseEntity<Void> entity = testRestTemplate.exchange(
-                "/drinks/{uuid}",
+                "/drinks/barmen/{uuid}",
                 HttpMethod.DELETE,
-                null,
+                tokenUtil.createBarmenAuthEntity(null),
                 Void.class,
                 drinkSaved.getUuid()
         );
@@ -260,9 +304,9 @@ class DrinkControllerIT {
     @DisplayName("delete returns 400 BadRequest when drink not exists")
     void delete_Returns400BadRequest_WhenDrinkNotExists() {
         ResponseEntity<Void> entity = testRestTemplate.exchange(
-                "/drinks/{uuid}",
+                "/drinks/barmen/{uuid}",
                 HttpMethod.DELETE,
-                null,
+                tokenUtil.createBarmenAuthEntity(null),
                 Void.class,
                 UUID.randomUUID()
         );
@@ -272,6 +316,26 @@ class DrinkControllerIT {
         assertThat(entity.getStatusCode())
                 .isNotNull()
                 .isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    @DisplayName("delete returns 403 Forbidden when user does not have ROLE_BARMEN")
+    void delete_Returns403Forbidden_WhenUserDoesNotHaveROLE_BARMEN() {
+        Drink drinkSaved = drinkRepository.save(DrinkCreator.createDrinkToBeSave());
+
+        ResponseEntity<Void> entity = testRestTemplate.exchange(
+                "/drinks/barmen/{uuid}",
+                HttpMethod.DELETE,
+                tokenUtil.createUserAuthEntity(null),
+                Void.class,
+                drinkSaved.getUuid()
+        );
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.FORBIDDEN);
     }
 
 }

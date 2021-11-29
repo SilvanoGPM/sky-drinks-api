@@ -1,10 +1,10 @@
 package com.github.skyg0d.skydrinksapi.integration;
 
-import com.github.skyg0d.skydrinksapi.domain.Drink;
 import com.github.skyg0d.skydrinksapi.domain.Table;
 import com.github.skyg0d.skydrinksapi.repository.table.TableRepository;
 import com.github.skyg0d.skydrinksapi.requests.TablePostRequestBody;
 import com.github.skyg0d.skydrinksapi.requests.TablePutRequestBody;
+import com.github.skyg0d.skydrinksapi.util.TokenUtil;
 import com.github.skyg0d.skydrinksapi.util.table.TableCreator;
 import com.github.skyg0d.skydrinksapi.util.table.TablePostRequestBodyCreator;
 import com.github.skyg0d.skydrinksapi.util.table.TablePutRequestBodyCreator;
@@ -16,7 +16,6 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,15 +37,18 @@ class TableControllerIT {
     @Autowired
     private TableRepository tableRepository;
 
+    @Autowired
+    private TokenUtil tokenUtil;
+
     @Test
     @DisplayName("listAll return list of tables inside page object when successful")
     void listAll_ReturnListOfTablesInsidePageObject_WhenSuccessful() {
         Table tableSaved = tableRepository.save(TableCreator.createTableToBeSave());
 
         ResponseEntity<PageableResponse<Table>> entity = testRestTemplate.exchange(
-                "/tables",
+                "/tables/waiter",
                 HttpMethod.GET,
-                null,
+                tokenUtil.createWaiterAuthEntity(null),
                 new ParameterizedTypeReference<>() {
                 }
         );
@@ -69,9 +71,9 @@ class TableControllerIT {
     @DisplayName("listAll return empty page when there are no tables")
     void listAll_ReturnEmptyPage_WhenThereAreNoTables() {
         ResponseEntity<PageableResponse<Table>> entity = testRestTemplate.exchange(
-                "/tables",
+                "/tables/waiter",
                 HttpMethod.GET,
-                null,
+                tokenUtil.createWaiterAuthEntity(null),
                 new ParameterizedTypeReference<>() {
                 }
         );
@@ -88,11 +90,34 @@ class TableControllerIT {
     }
 
     @Test
+    @DisplayName("listAll returns 403 Forbidden when user does not have ROLE_WAITER")
+    void listAll_Returns403Forbidden_WhenUserDoesNotHaveROLE_WAITER() {
+        ResponseEntity<Void> entity = testRestTemplate.exchange(
+                "/tables/waiter",
+                HttpMethod.GET,
+                tokenUtil.createUserAuthEntity(null),
+                Void.class
+        );
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.FORBIDDEN);
+    }
+
+    @Test
     @DisplayName("findById returns an table object when successful")
     void findById_ReturnsAnTableObject_WhenSuccessful() {
         Table tableSaved = tableRepository.save(TableCreator.createTableToBeSave());
 
-        ResponseEntity<Table> entity = testRestTemplate.getForEntity("/tables/{uuid}", Table.class, tableSaved.getUuid());
+        ResponseEntity<Table> entity = testRestTemplate.exchange(
+                "/tables/waiter/{uuid}",
+                HttpMethod.GET,
+                tokenUtil.createWaiterAuthEntity(null),
+                Table.class,
+                tableSaved.getUuid()
+        );
 
         assertThat(entity).isNotNull();
 
@@ -108,7 +133,13 @@ class TableControllerIT {
     @Test
     @DisplayName("findById returns 400 BadRequest when table not exists")
     void findById_Returns400BadRequest_WhenTableNotExists() {
-        ResponseEntity<Drink> entity = testRestTemplate.getForEntity("/tables/{uuid}", Drink.class, UUID.randomUUID());
+        ResponseEntity<Table> entity = testRestTemplate.exchange(
+                "/tables/waiter/{uuid}",
+                HttpMethod.GET,
+                tokenUtil.createWaiterAuthEntity(null),
+                Table.class,
+                UUID.randomUUID()
+        );
 
         assertThat(entity).isNotNull();
 
@@ -118,11 +149,35 @@ class TableControllerIT {
     }
 
     @Test
+    @DisplayName("findById returns 403 Forbidden when user does not have ROLE_WAITER")
+    void findById_Returns403Forbidden_WhenUserDoesNotHaveROLE_WAITER() {
+        ResponseEntity<Table> entity = testRestTemplate.exchange(
+                "/tables/waiter/{uuid}",
+                HttpMethod.GET,
+                tokenUtil.createUserAuthEntity(null),
+                Table.class,
+                UUID.randomUUID()
+        );
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.FORBIDDEN);
+    }
+
+    @Test
     @DisplayName("findByNumber returns an table object when successful")
     void findByNumber_ReturnsAnTableObject_WhenSuccessful() {
         Table tableSaved = tableRepository.save(TableCreator.createTableToBeSave());
 
-        ResponseEntity<Table> entity = testRestTemplate.getForEntity("/tables/find-by-number/{number}", Table.class, tableSaved.getNumber());
+        ResponseEntity<Table> entity = testRestTemplate.exchange(
+                "/tables/waiter/find-by-number/{number}",
+                HttpMethod.GET,
+                tokenUtil.createWaiterAuthEntity(null),
+                Table.class,
+                tableSaved.getNumber()
+        );
 
         assertThat(entity).isNotNull();
 
@@ -138,7 +193,13 @@ class TableControllerIT {
     @Test
     @DisplayName("findByNumber returns 400 BadRequest when table not exists")
     void findByNumber_Returns400BadRequest_WhenTableNotExists() {
-        ResponseEntity<Table> entity = testRestTemplate.getForEntity("/tables/find-by-number/{number}", Table.class, -1);
+        ResponseEntity<Table> entity = testRestTemplate.exchange(
+                "/tables/waiter/find-by-number/{number}",
+                HttpMethod.GET,
+                tokenUtil.createWaiterAuthEntity(null),
+                Table.class,
+                -1
+        );
 
         assertThat(entity).isNotNull();
 
@@ -147,18 +208,35 @@ class TableControllerIT {
                 .isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
+    @Test
+    @DisplayName("findByNumber returns 403 Forbidden when user does not have ROLE_WAITER")
+    void findByNumber_Returns403Forbidden_WhenUserDoesNotHaveROLE_WAITER() {
+        ResponseEntity<Void> entity = testRestTemplate.exchange(
+                "/tables/waiter/find-by-number/{number}",
+                HttpMethod.GET,
+                tokenUtil.createUserAuthEntity(null),
+                Void.class,
+                -1
+        );
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.FORBIDDEN);
+    }
 
     @Test
     @DisplayName("search return list of tables inside page object when successful")
     void search_ReturnListOfTablesInsidePageObject_WhenSuccessful() {
         Table tableSaved = tableRepository.save(TableCreator.createTableToBeSave());
 
-        String url = String.format("/tables/search?seats=%d", tableSaved.getSeats());
+        String url = String.format("/tables/waiter/search?seats=%d", tableSaved.getSeats());
 
         ResponseEntity<PageableResponse<Table>> entity = testRestTemplate.exchange(
                 url,
                 HttpMethod.GET,
-                null,
+                tokenUtil.createWaiterAuthEntity(null),
                 new ParameterizedTypeReference<>() {
                 }
         );
@@ -182,12 +260,12 @@ class TableControllerIT {
     void search_ReturnEmptyPage_WhenDoesNotMatch() {
         tableRepository.save(TableCreator.createTableToBeSave());
 
-        String url = String.format("/tables/search?seats=%d", 12);
+        String url = String.format("/tables/waiter/search?seats=%d", 12);
 
         ResponseEntity<PageableResponse<Table>> entity = testRestTemplate.exchange(
                 url,
                 HttpMethod.GET,
-                null,
+                tokenUtil.createWaiterAuthEntity(null),
                 new ParameterizedTypeReference<>() {
                 }
         );
@@ -202,13 +280,32 @@ class TableControllerIT {
     }
 
     @Test
+    @DisplayName("search returns 403 Forbidden when user does not have ROLE_WAITER")
+    void search_Returns403Forbidden_WhenUserDoesNotHaveROLE_WAITER() {
+        String url = String.format("/tables/waiter/search?seats=%d", 12);
+
+        ResponseEntity<Void> entity = testRestTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                tokenUtil.createUserAuthEntity(null),
+                Void.class
+        );
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.FORBIDDEN);
+    }
+
+    @Test
     @DisplayName("save creates table when successful")
     void save_CreatesTable_WhenSuccessful() {
         TablePostRequestBody tableValid = TablePostRequestBodyCreator.createTablePostRequestBodyToBeSave();
 
         ResponseEntity<Table> entity = testRestTemplate.postForEntity(
-                "/tables",
-                tableValid,
+                "/tables/waiter",
+                tokenUtil.createWaiterAuthEntity(tableValid),
                 Table.class
         );
 
@@ -226,6 +323,24 @@ class TableControllerIT {
     }
 
     @Test
+    @DisplayName("save returns 403 Forbidden when user does not have ROLE_WAITER")
+    void save_Returns403Forbidden_WhenUserDoesNotHaveROLE_WAITER() {
+        TablePostRequestBody tableValid = TablePostRequestBodyCreator.createTablePostRequestBodyToBeSave();
+
+        ResponseEntity<Table> entity = testRestTemplate.postForEntity(
+                "/tables/waiter",
+                tokenUtil.createUserAuthEntity(tableValid),
+                Table.class
+        );
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.FORBIDDEN);
+    }
+
+    @Test
     @DisplayName("replace updates table when successful")
     void replace_UpdatesTable_WhenSuccessful() {
         Table tableSaved = tableRepository.save(TableCreator.createTableToBeSave());
@@ -235,9 +350,9 @@ class TableControllerIT {
         tableToUpdate.setUuid(tableSaved.getUuid());
 
         ResponseEntity<Void> entity = testRestTemplate.exchange(
-                "/tables",
+                "/tables/waiter",
                 HttpMethod.PUT,
-                new HttpEntity<>(tableToUpdate),
+                tokenUtil.createWaiterAuthEntity(tableToUpdate),
                 Void.class
         );
 
@@ -254,9 +369,9 @@ class TableControllerIT {
         TablePutRequestBody tableToUpdate = TablePutRequestBodyCreator.createTablePutRequestBodyToUpdate();
 
         ResponseEntity<Void> entity = testRestTemplate.exchange(
-                "/tables",
+                "/tables/waiter",
                 HttpMethod.PUT,
-                new HttpEntity<>(tableToUpdate),
+                tokenUtil.createWaiterAuthEntity(tableToUpdate),
                 Void.class
         );
 
@@ -267,6 +382,24 @@ class TableControllerIT {
                 .isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
+    @Test
+    @DisplayName("replace returns 403 Forbidden when user does not have ROLE_WAITER")
+    void replace_Returns403Forbidden_WhenUserDoesNotHaveROLE_WAITER() {
+        TablePutRequestBody tableToUpdate = TablePutRequestBodyCreator.createTablePutRequestBodyToUpdate();
+
+        ResponseEntity<Void> entity = testRestTemplate.exchange(
+                "/tables/waiter",
+                HttpMethod.PUT,
+                tokenUtil.createUserAuthEntity(tableToUpdate),
+                Void.class
+        );
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.FORBIDDEN);
+    }
 
     @Test
     @DisplayName("switchOccupied updates table with table number when successful")
@@ -274,9 +407,9 @@ class TableControllerIT {
         Table tableSaved = tableRepository.save(TableCreator.createTableToBeSave());
 
         ResponseEntity<Table> entity = testRestTemplate.exchange(
-                "/tables/switch-occupied/{identification}",
+                "/tables/waiter/switch-occupied/{identification}",
                 HttpMethod.PATCH,
-                null,
+                tokenUtil.createWaiterAuthEntity(null),
                 Table.class,
                 tableSaved.getNumber()
         );
@@ -298,9 +431,9 @@ class TableControllerIT {
         Table tableSaved = tableRepository.save(TableCreator.createTableToBeSave());
 
         ResponseEntity<Table> entity = testRestTemplate.exchange(
-                "/tables/switch-occupied/{identification}",
+                "/tables/waiter/switch-occupied/{identification}",
                 HttpMethod.PATCH,
-                null,
+                tokenUtil.createWaiterAuthEntity(null),
                 Table.class,
                 tableSaved.getUuid()
         );
@@ -320,9 +453,9 @@ class TableControllerIT {
     @DisplayName("switchOccupied returns 400 BadRequest when table not exists")
     void switchOccupied_Returns400BadRequest_WhenTableNotExists() {
         ResponseEntity<Table> entity = testRestTemplate.exchange(
-                "/tables/switch-occupied/{identification}",
+                "/tables/waiter/switch-occupied/{identification}",
                 HttpMethod.PATCH,
-                null,
+                tokenUtil.createWaiterAuthEntity(null),
                 Table.class,
                 1
         );
@@ -335,14 +468,32 @@ class TableControllerIT {
     }
 
     @Test
+    @DisplayName("switchOccupied returns 403 Forbidden when user does not have ROLE_WAITER")
+    void switchOccupied_Returns403Forbidden_WhenUserDoesNotHaveROLE_WAITER() {
+        ResponseEntity<Table> entity = testRestTemplate.exchange(
+                "/tables/waiter/switch-occupied/{identification}",
+                HttpMethod.PATCH,
+                tokenUtil.createUserAuthEntity(null),
+                Table.class,
+                1
+        );
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.FORBIDDEN);
+    }
+
+    @Test
     @DisplayName("delete removes table when successful")
     void delete_RemovesTable_WhenSuccessful() {
         Table tableSaved = tableRepository.save(TableCreator.createTableToBeSave());
 
         ResponseEntity<Void> entity = testRestTemplate.exchange(
-                "/tables/{uuid}",
+                "/tables/waiter/{uuid}",
                 HttpMethod.DELETE,
-                null,
+                tokenUtil.createWaiterAuthEntity(null),
                 Void.class,
                 tableSaved.getUuid()
         );
@@ -358,9 +509,9 @@ class TableControllerIT {
     @DisplayName("delete returns 400 BadRequest when table not exists")
     void delete_Returns400BadRequest_WhenTableNotExists() {
         ResponseEntity<Void> entity = testRestTemplate.exchange(
-                "/tables/{uuid}",
+                "/tables/waiter/{uuid}",
                 HttpMethod.DELETE,
-                null,
+                tokenUtil.createWaiterAuthEntity(null),
                 Void.class,
                 UUID.randomUUID()
         );
@@ -371,5 +522,24 @@ class TableControllerIT {
                 .isNotNull()
                 .isEqualTo(HttpStatus.BAD_REQUEST);
     }
+
+    @Test
+    @DisplayName("delete returns 403 Forbidden when user does not have ROLE_WAITER")
+    void delete_Returns403Forbidden_WhenUserDoesNotHaveROLE_WAITER() {
+        ResponseEntity<Void> entity = testRestTemplate.exchange(
+                "/tables/waiter/{uuid}",
+                HttpMethod.DELETE,
+                tokenUtil.createUserAuthEntity(null),
+                Void.class,
+                UUID.randomUUID()
+        );
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.FORBIDDEN);
+    }
+
 
 }

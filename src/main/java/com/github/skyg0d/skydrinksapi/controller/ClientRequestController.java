@@ -29,12 +29,12 @@ public class ClientRequestController {
     private final ClientRequestService clientRequestService;
     private final AuthUtil authUtil;
 
-    @GetMapping("/waiter")
+    @GetMapping("/waiter-or-barmen")
     public ResponseEntity<Page<ClientRequest>> listAll(Pageable pageable) {
         return ResponseEntity.ok(clientRequestService.listAll(pageable));
     }
 
-    @GetMapping("/search")
+    @GetMapping("/all/search")
     public ResponseEntity<Page<ClientRequest>> search(ClientRequestParameters parameters, Pageable pageable, Principal principal) {
         return ResponseEntity.ok(clientRequestService.search(parameters, pageable, authUtil.getUser(principal)));
     }
@@ -46,27 +46,21 @@ public class ClientRequestController {
 
     @PostMapping("/user")
     public ResponseEntity<ClientRequest> save(@RequestBody @Valid ClientRequestPostRequestBody clientRequestPostRequestBody, Principal principal) {
-        ApplicationUser user = authUtil.getUser(principal);
-
-        if (!user.getRole().contains(Roles.USER.getName())) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-
-        return new ResponseEntity<>(clientRequestService.save(clientRequestPostRequestBody, user), HttpStatus.CREATED);
+        return new ResponseEntity<>(clientRequestService.save(clientRequestPostRequestBody, authUtil.getUser(principal)), HttpStatus.CREATED);
     }
 
-    @PutMapping("/waiter-or-user")
+    @PutMapping("/all")
     public ResponseEntity<Void> replace(@RequestBody @Valid ClientRequestPutRequestBody clientRequestPutRequestBody, Principal principal) {
         clientRequestService.replace(clientRequestPutRequestBody, authUtil.getUser(principal));
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PatchMapping("/waiter-or-user/{uuid}")
+    @PatchMapping("/all/{uuid}")
     public ResponseEntity<ClientRequest> finishRequest(@PathVariable UUID uuid, Principal principal) {
         return ResponseEntity.ok(clientRequestService.finishRequest(uuid, authUtil.getUser(principal)));
     }
 
-    @DeleteMapping("/waiter-or-user/{uuid}")
+    @DeleteMapping("/all/{uuid}")
     public ResponseEntity<Void> delete(@PathVariable UUID uuid, Principal principal) {
         clientRequestService.delete(uuid, authUtil.getUser(principal));
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

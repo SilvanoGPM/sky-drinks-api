@@ -61,11 +61,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(jwtConfigurationProperties.getLoginUrl()).permitAll()
                 .antMatchers("/**/admin/**").hasRole(Roles.ADMIN.getName())
+                .antMatchers("/**/user/**").hasAnyRole(Roles.USER.getName(), Roles.ADMIN.getName())
+                .antMatchers("/**/waiter/**").hasAnyRole(Roles.WAITER.getName(), Roles.ADMIN.getName())
+                .antMatchers("/**/barmen/**").hasAnyRole(Roles.BARMEN.getName(), Roles.ADMIN.getName())
+                .antMatchers("/**/waiter-or-barmen/**").hasAnyRole(Roles.WAITER.getName(), Roles.BARMEN.getName(), Roles.ADMIN.getName())
                 .antMatchers("/**/admin-or-user/**").hasAnyRole(Roles.ADMIN.getName(), Roles.USER.getName())
-                .antMatchers("/**/user/**").hasRole(Roles.USER.getName())
-                .antMatchers("/**/waiter/**").hasRole(Roles.WAITER.getName())
-                .antMatchers("/**/waiter-or-user/**").hasAnyRole(Roles.WAITER.getName(), Roles.USER.getName())
-                .antMatchers("/**/barmen/**").hasRole(Roles.BARMEN.getName())
+                .antMatchers("/**/all/**").hasAnyRole(Roles.ADMIN.getName(), Roles.USER.getName(), Roles.WAITER.getName(), Roles.BARMEN.getName())
                 .antMatchers("/**").permitAll();
     }
 

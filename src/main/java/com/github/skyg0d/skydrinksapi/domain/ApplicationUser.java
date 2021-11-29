@@ -34,7 +34,6 @@ public class ApplicationUser extends BaseEntity {
 
     @NotBlank(message = "O email do usuário não pode ficar vazio.")
     @Email(message = "O email não é válido.")
-    @Column(unique = true)
     private String email;
 
     @NotBlank(message = "A senha do usuário não pode ficar vazia.")
@@ -51,7 +50,6 @@ public class ApplicationUser extends BaseEntity {
 
     @NotNull(message = "O CPF do usuário não pode ficar vazio.")
     @CPF(message = "O CPF do usuário não é valido!")
-    @Column(unique = true)
     private String cpf;
 
     public ApplicationUser(@NotNull ApplicationUser applicationUser) {
