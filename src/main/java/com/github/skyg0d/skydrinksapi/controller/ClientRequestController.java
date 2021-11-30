@@ -46,7 +46,13 @@ public class ClientRequestController {
 
     @PostMapping("/user")
     public ResponseEntity<ClientRequest> save(@RequestBody @Valid ClientRequestPostRequestBody clientRequestPostRequestBody, Principal principal) {
-        return new ResponseEntity<>(clientRequestService.save(clientRequestPostRequestBody, authUtil.getUser(principal)), HttpStatus.CREATED);
+        ApplicationUser user = authUtil.getUser(principal);
+
+        if (!user.getRole().contains(Roles.USER.getName())) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity<>(clientRequestService.save(clientRequestPostRequestBody, user), HttpStatus.CREATED);
     }
 
     @PutMapping("/all")

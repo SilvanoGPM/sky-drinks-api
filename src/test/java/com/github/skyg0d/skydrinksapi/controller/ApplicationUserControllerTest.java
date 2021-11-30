@@ -100,7 +100,7 @@ class ApplicationUserControllerTest {
 
     @Test
     @DisplayName("listAll return empty page when there are no application users")
-    void listAll_ReturnListOfDrinksInsidePageObject_WhenThereAreNoApplicationUsers() {
+    void listAll_ReturnEmptyPage_WhenThereAreNoApplicationUsers() {
         BDDMockito
                 .when(applicationUserServiceMock.listAll(ArgumentMatchers.any(PageRequest.class)))
                 .thenReturn(Page.empty());
@@ -134,6 +134,25 @@ class ApplicationUserControllerTest {
                 .isNotEmpty()
                 .hasSize(1)
                 .contains(expectedApplicationUser);
+    }
+
+
+    @Test
+    @DisplayName("findById return application user when successful")
+    void findById_ReturnApplicationUser_WhenSuccessful() {
+        ApplicationUser expectedApplicationUser = ApplicationUserCreator.createValidApplicationUser();
+
+        ResponseEntity<ApplicationUser> entity = applicationUserController.findById(UUID.randomUUID());
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.OK);
+
+        assertThat(entity.getBody())
+                .isNotNull()
+                .isEqualTo(expectedApplicationUser);
     }
 
     @Test
@@ -173,26 +192,8 @@ class ApplicationUserControllerTest {
     }
 
     @Test
-    @DisplayName("findByIdOrElseThrowBadRequestException return application user when successful")
-    void findByIdOrElseThrowBadRequestException_ReturnApplicationUser_WhenSuccessful() {
-        ApplicationUser expectedApplicationUser = ApplicationUserCreator.createValidApplicationUser();
-
-        ResponseEntity<ApplicationUser> entity = applicationUserController.findById(UUID.randomUUID());
-
-        assertThat(entity).isNotNull();
-
-        assertThat(entity.getStatusCode())
-                .isNotNull()
-                .isEqualTo(HttpStatus.OK);
-
-        assertThat(entity.getBody())
-                .isNotNull()
-                .isEqualTo(expectedApplicationUser);
-    }
-
-    @Test
-    @DisplayName("save creates drink when successful")
-    void save_CreatesDrink_WhenSuccessful() {
+    @DisplayName("save creates application user when successful")
+    void save_CreatesApplicationUser_WhenSuccessful() {
         ApplicationUser expectedApplicationUser = ApplicationUserCreator.createValidApplicationUser();
 
         ResponseEntity<ApplicationUser> entity = applicationUserController.save(ApplicationUserPostRequestBodyCreator.createApplicationUserPostRequestBodyToBeSave());
@@ -211,8 +212,8 @@ class ApplicationUserControllerTest {
     }
 
     @Test
-    @DisplayName("replace updates drink when successful")
-    void replace_UpdatedDrink_WhenSuccessful() {
+    @DisplayName("replace updates application user when successful")
+    void replace_UpdatedApplicationUser_WhenSuccessful() {
         Principal principalMock = Mockito.mock(Principal.class);
 
         ResponseEntity<Void> entity = applicationUserController.replace(ApplicationUserPutRequestBodyCreator.createApplicationUserPutRequestBodyToBeSave(), principalMock);
@@ -225,8 +226,8 @@ class ApplicationUserControllerTest {
     }
 
     @Test
-    @DisplayName("delete removes drink when successful")
-    void delete_RemovesDrink_WhenSuccessful() {
+    @DisplayName("delete removes application user when successful")
+    void delete_RemovesApplicationUser_WhenSuccessful() {
         Principal principalMock = Mockito.mock(Principal.class);
 
         ResponseEntity<Void> entity = applicationUserController.delete(UUID.randomUUID(), principalMock);

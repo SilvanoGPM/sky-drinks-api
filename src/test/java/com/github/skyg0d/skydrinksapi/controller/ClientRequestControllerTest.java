@@ -199,7 +199,6 @@ class ClientRequestControllerTest {
                 .isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
-
     @Test
     @DisplayName("replace updates client request when successful")
     void replace_UpdatedClientRequest_WhenSuccessful() {

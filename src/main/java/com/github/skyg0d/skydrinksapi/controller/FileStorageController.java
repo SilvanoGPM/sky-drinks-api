@@ -26,12 +26,12 @@ public class FileStorageController {
         return ResponseEntity.ok(fileStorageService.listFiles(pageable));
     }
 
-    @GetMapping("/all")
+    @GetMapping("/list")
     public ResponseEntity<List<String>> listAll() {
         return ResponseEntity.ok(fileStorageService.listFiles());
     }
 
-    @GetMapping(value = "/barmen/{fileName:.+}", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE})
+    @GetMapping(value = "/{fileName:.+}", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE})
     public ResponseEntity<byte[]> getImage(@PathVariable String fileName) {
         return ResponseEntity.ok(fileStorageService.getImage(fileName));
     }

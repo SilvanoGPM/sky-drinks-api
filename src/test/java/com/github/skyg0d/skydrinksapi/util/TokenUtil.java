@@ -27,7 +27,7 @@ public class TokenUtil {
                 .builder()
                 .name("Admin")
                 .role("ADMIN")
-                .cpf("084.483.910-80")
+                .cpf("409.695.886-74")
                 .email("admin@mail.com")
                 .password("$2a$10$3eqv7nOc.CFIcOa7zpkwV.h/Jt4h0io6qAha8X/4zOeeexRi6afn2")
                 .birthDay(LocalDate.of(2000, 10, 9))

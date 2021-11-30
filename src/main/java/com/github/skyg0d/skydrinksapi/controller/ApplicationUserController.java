@@ -55,13 +55,13 @@ public class ApplicationUserController {
         return new ResponseEntity<>(applicationUserService.save(applicationUserPostRequestBody), HttpStatus.CREATED);
     }
 
-    @PutMapping("/admin-or-user")
+    @PutMapping("/user")
     public ResponseEntity<Void> replace(@Valid @RequestBody ApplicationUserPutRequestBody applicationUserPutRequestBody, Principal principal) {
         applicationUserService.replace(applicationUserPutRequestBody, authUtil.getUser(principal));
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @DeleteMapping("/admin-or-user/{uuid}")
+    @DeleteMapping("/user/{uuid}")
     public ResponseEntity<Void> delete(@PathVariable UUID uuid, Principal principal) {
         applicationUserService.delete(uuid, authUtil.getUser(principal));
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
