@@ -23,7 +23,6 @@ public class BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(columnDefinition = "BINARY(16)")
     private UUID uuid;
 
     @Column(updatable = false)
