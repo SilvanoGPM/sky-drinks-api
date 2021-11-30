@@ -1,3 +1,7 @@
 spring:
   datasource:
     url: {JDBC_DATABASE_URL}
+  jpa:
+    hibernate:
+      ddl-auto: update
+      dialect: org.hibernate.dialect.PostgreSQLDialect
