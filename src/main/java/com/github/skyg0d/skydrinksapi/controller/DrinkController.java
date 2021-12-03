@@ -8,6 +8,7 @@ import com.github.skyg0d.skydrinksapi.service.DrinkService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springdoc.api.annotations.ParameterObject;
@@ -67,6 +68,7 @@ public class DrinkController {
             @ApiResponse(responseCode = "403", description = "Quando o usuário não possuí permissão"),
             @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
     })
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Drink> save(@RequestBody @Valid DrinkPostRequestBody drinkPostRequestBody) {
         return new ResponseEntity<>(drinkService.save(drinkPostRequestBody), HttpStatus.CREATED);
     }
@@ -80,6 +82,7 @@ public class DrinkController {
             @ApiResponse(responseCode = "403", description = "Quando o usuário não possuí permissão"),
             @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
     })
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Void> replace(@RequestBody @Valid DrinkPutRequestBody drinkPutRequestBody) {
         drinkService.replace(drinkPutRequestBody);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -94,6 +97,7 @@ public class DrinkController {
             @ApiResponse(responseCode = "403", description = "Quando o usuário não possuí permissão"),
             @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
     })
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Void> delete(@PathVariable UUID uuid) {
         drinkService.delete(uuid);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

@@ -9,6 +9,7 @@ import com.github.skyg0d.skydrinksapi.util.AuthUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
@@ -91,6 +92,7 @@ public class ApplicationUserController {
             @ApiResponse(responseCode = "403", description = "Quando o usuário não possuí permissão"),
             @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
     })
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<ApplicationUser> save(@Valid @RequestBody ApplicationUserPostRequestBody applicationUserPostRequestBody) {
         return new ResponseEntity<>(applicationUserService.save(applicationUserPostRequestBody), HttpStatus.CREATED);
     }
@@ -104,6 +106,7 @@ public class ApplicationUserController {
             @ApiResponse(responseCode = "403", description = "Quando o usuário não possuí permissão"),
             @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
     })
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Void> replace(@Valid @RequestBody ApplicationUserPutRequestBody applicationUserPutRequestBody, Principal principal) {
         applicationUserService.replace(applicationUserPutRequestBody, authUtil.getUser(principal));
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -118,6 +121,7 @@ public class ApplicationUserController {
             @ApiResponse(responseCode = "403", description = "Quando o usuário não possuí permissão"),
             @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
     })
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Void> delete(@PathVariable UUID uuid, Principal principal) {
         applicationUserService.delete(uuid, authUtil.getUser(principal));
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

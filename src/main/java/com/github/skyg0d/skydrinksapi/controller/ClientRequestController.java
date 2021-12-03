@@ -11,6 +11,7 @@ import com.github.skyg0d.skydrinksapi.util.AuthUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springdoc.api.annotations.ParameterObject;
@@ -41,6 +42,7 @@ public class ClientRequestController {
             @ApiResponse(responseCode = "403", description = "Quando o usuário não possuí permissão"),
             @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
     })
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Page<ClientRequest>> listAll(@ParameterObject Pageable pageable) {
         return ResponseEntity.ok(clientRequestService.listAll(pageable));
     }
@@ -53,6 +55,7 @@ public class ClientRequestController {
             @ApiResponse(responseCode = "403", description = "Quando o usuário não possuí permissão"),
             @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
     })
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Page<ClientRequest>> search(@ParameterObject ClientRequestParameters parameters, @ParameterObject Pageable pageable, Principal principal) {
         return ResponseEntity.ok(clientRequestService.search(parameters, pageable, authUtil.getUser(principal)));
     }
@@ -76,6 +79,7 @@ public class ClientRequestController {
             @ApiResponse(responseCode = "403", description = "Quando o usuário não possuí permissão"),
             @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
     })
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<ClientRequest> save(@RequestBody @Valid ClientRequestPostRequestBody clientRequestPostRequestBody, Principal principal) {
         ApplicationUser user = authUtil.getUser(principal);
 
@@ -95,6 +99,7 @@ public class ClientRequestController {
             @ApiResponse(responseCode = "403", description = "Quando o usuário não possuí permissão"),
             @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
     })
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Void> replace(@RequestBody @Valid ClientRequestPutRequestBody clientRequestPutRequestBody, Principal principal) {
         clientRequestService.replace(clientRequestPutRequestBody, authUtil.getUser(principal));
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -109,6 +114,7 @@ public class ClientRequestController {
             @ApiResponse(responseCode = "403", description = "Quando o usuário não possuí permissão"),
             @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
     })
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<ClientRequest> finishRequest(@PathVariable UUID uuid, Principal principal) {
         return ResponseEntity.ok(clientRequestService.finishRequest(uuid, authUtil.getUser(principal)));
     }
@@ -122,6 +128,7 @@ public class ClientRequestController {
             @ApiResponse(responseCode = "403", description = "Quando o usuário não possuí permissão"),
             @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
     })
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Void> delete(@PathVariable UUID uuid, Principal principal) {
         clientRequestService.delete(uuid, authUtil.getUser(principal));
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

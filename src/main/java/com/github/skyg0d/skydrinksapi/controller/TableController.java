@@ -8,6 +8,7 @@ import com.github.skyg0d.skydrinksapi.service.TableService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
@@ -34,6 +35,7 @@ public class TableController {
             @ApiResponse(responseCode = "403", description = "Quando o usuário não possuí permissão"),
             @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
     })
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Page<Table>> listAll(@ParameterObject Pageable pageable) {
         return ResponseEntity.ok(tableService.listAll(pageable));
     }
@@ -47,10 +49,10 @@ public class TableController {
             @ApiResponse(responseCode = "403", description = "Quando o usuário não possuí permissão"),
             @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
     })
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Table> findById(@PathVariable UUID uuid) {
         return ResponseEntity.ok(tableService.findByIdOrElseThrowBadRequestException(uuid));
     }
-
 
     @GetMapping("/waiter/search")
     @Operation(summary = "Retorna as mesas encontradas com paginação", tags = "Tables")
@@ -60,6 +62,7 @@ public class TableController {
             @ApiResponse(responseCode = "403", description = "Quando o usuário não possuí permissão"),
             @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
     })
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Page<Table>> search(@ParameterObject TableParameters tableParameters, @ParameterObject Pageable pageable) {
         return ResponseEntity.ok(tableService.search(tableParameters, pageable));
     }
@@ -73,6 +76,7 @@ public class TableController {
             @ApiResponse(responseCode = "403", description = "Quando o usuário não possuí permissão"),
             @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
     })
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Table> findByNumber(@PathVariable int number) {
         return ResponseEntity.ok(tableService.findByNumberOrElseThrowBadRequestException(number));
     }
@@ -85,6 +89,7 @@ public class TableController {
             @ApiResponse(responseCode = "403", description = "Quando o usuário não possuí permissão"),
             @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
     })
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Table> save(@RequestBody @Valid TablePostRequestBody tablePostRequestBody) {
         return new ResponseEntity<>(tableService.save(tablePostRequestBody), HttpStatus.CREATED);
     }
@@ -98,6 +103,7 @@ public class TableController {
             @ApiResponse(responseCode = "403", description = "Quando o usuário não possuí permissão"),
             @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
     })
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Void> replace(@RequestBody @Valid TablePutRequestBody tablePutRequestBody) {
         tableService.replace(tablePutRequestBody);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -112,6 +118,7 @@ public class TableController {
             @ApiResponse(responseCode = "403", description = "Quando o usuário não possuí permissão"),
             @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
     })
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Table> switchOccupied(@PathVariable String identification) {
         return ResponseEntity.ok(tableService.switchOccupied(identification));
     }
@@ -125,6 +132,7 @@ public class TableController {
             @ApiResponse(responseCode = "403", description = "Quando o usuário não possuí permissão"),
             @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
     })
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Void> delete(@PathVariable UUID uuid) {
         tableService.delete(uuid);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

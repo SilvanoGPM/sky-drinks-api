@@ -5,6 +5,7 @@ import com.github.skyg0d.skydrinksapi.service.FileStorageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
@@ -63,6 +64,7 @@ public class FileStorageController {
             @ApiResponse(responseCode = "403", description = "Quando o usuário não possuí permissão"),
             @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
     })
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<FileResponse> uploadImage(@RequestParam MultipartFile file) {
         String fileName = fileStorageService.storageImage(file);
 
@@ -91,6 +93,7 @@ public class FileStorageController {
             @ApiResponse(responseCode = "403", description = "Quando o usuário não possuí permissão"),
             @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
     })
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Void> deleteImage(@PathVariable String fileName) {
         fileStorageService.deleteImage(fileName);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
