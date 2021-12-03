@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
@@ -23,12 +24,14 @@ import java.util.stream.Collectors;
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseEntity<ExceptionDetails> handleException(Exception ex) {
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         return new ResponseEntity<>(ExceptionDetails.createExceptionDetails(ex, status), status);
     }
 
     @ExceptionHandler(CustomFileNotFoundException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<CustomFileNotFoundExceptionDetails> handleCustomFileNotFoundException(
             CustomFileNotFoundException ex
     ) {
@@ -44,6 +47,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(FileStorageException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<FileStorageExceptionDetails> handleFileStorageException(FileStorageException ex) {
         FileStorageExceptionDetails exceptionDetails = FileStorageExceptionDetails.builder()
                 .status(HttpStatus.BAD_REQUEST.value())
@@ -57,6 +61,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(BadRequestException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<BadRequestExceptionDetails> handleBadRequestException(BadRequestException exception) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
 
@@ -73,6 +78,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(UserCannotModifyClientRequestException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<UserCannotModifyClientRequestExceptionDetails> handleUserCannotModifyClientRequestException(UserCannotModifyClientRequestException exception) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
 
@@ -91,6 +97,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(UserUniqueFieldExistsException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<UserUniqueFieldExistsDetails> handleEmailAlreadyExistsException(UserUniqueFieldExistsException exception) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
 
@@ -107,6 +114,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(JOSEException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ResponseEntity<ExceptionDetails> handleJOSEException(JOSEException ex) {
         HttpStatus status = HttpStatus.UNAUTHORIZED;
 
@@ -123,6 +131,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(UserCannotCompleteClientRequestException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<UserCannotCompleteClientRequestExceptionDetails> handleUserCannotCompleteClientRequestException(UserCannotCompleteClientRequestException ex) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
 
@@ -140,6 +149,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(ActionNotAllowedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
     public ResponseEntity<ActionNotAllowedExceptionDetails> handleActionNotAllowedException(ActionNotAllowedException ex) {
         HttpStatus status = HttpStatus.FORBIDDEN;
 
