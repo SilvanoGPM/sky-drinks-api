@@ -3,16 +3,16 @@ package com.github.skyg0d.skydrinksapi.domain;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.Hibernate;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import javax.validation.constraints.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 @Getter
 @Setter
@@ -30,6 +30,10 @@ public class Drink extends BaseEntity {
     @NotBlank(message = "O nome da bebida não pode ficar vazio.")
     @Schema(description = "Nome do drink", example = "Blood Mary")
     private String name;
+
+    @Positive(message = "O volume da bebida deve ser positivo.")
+    @Schema(description = "O volume da bebida em mililitros.", example = "1000")
+    private int volume;
 
     @Schema(description = "Imagem do drink", example = "blood_mary.png")
     private String picture;
@@ -53,19 +57,6 @@ public class Drink extends BaseEntity {
         return additional == null || additional.isEmpty()
                 ? new ArrayList<>(Collections.emptyList())
                 : new ArrayList<>(List.of(additional.split(ADDITIONAL_SEPARATOR)));
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        Drink drink = (Drink) o;
-        return getUuid() != null && Objects.equals(getUuid(), drink.getUuid());
-    }
-
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
     }
 
 }

@@ -24,6 +24,7 @@ public class BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Type(type="uuid-char")
     @Schema(description = "Identificador único da entidade", example = "9ce40cbc-4a14-40c7-a016-a46c9964ebcf")
     private UUID uuid;
 

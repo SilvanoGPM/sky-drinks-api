@@ -11,6 +11,11 @@ public class DrinkSpecification extends AbstractSpecification {
 
     public static Specification<Drink> getSpecification(DrinkParameters drinkParameters) {
         return where(withName(drinkParameters.getName()))
+                .and(where(withVolume(drinkParameters.getVolume())))
+                .and(where(withGreaterThanVolume(drinkParameters.getGreaterThanVolume())))
+                .and(where(withLessThanVolume(drinkParameters.getLessThanVolume())))
+                .and(where(withGreaterThanOrEqualToVolume(drinkParameters.getGreaterThanOrEqualToVolume())))
+                .and(where(withLessThanOrEqualToVolume(drinkParameters.getLessThanOrEqualToVolume())))
                 .and(where(withDescription(drinkParameters.getDescription())))
                 .and(where(withAdditional(drinkParameters.getAdditional())))
                 .and(where(withAlcoholic(drinkParameters.getAlcoholic())))
@@ -27,6 +32,46 @@ public class DrinkSpecification extends AbstractSpecification {
     public static Specification<Drink> withName(String name) {
         return getSpec(name, (root, query, builder) -> (
                 builder.like(builder.lower(root.get("name")), like(name))
+        ));
+    }
+
+    public static Specification<Drink> withVolume(double volume) {
+        if (volume < 0) return null;
+
+        return getSpec(volume, (root, query, builder) -> (
+                builder.equal(root.get("volume"), volume)
+        ));
+    }
+
+    public static Specification<Drink> withGreaterThanVolume(double greaterThanVolume) {
+        if (greaterThanVolume < 0) return null;
+
+        return getSpec(greaterThanVolume, (root, query, builder) -> (
+                builder.greaterThan(root.get("volume"), greaterThanVolume)
+        ));
+    }
+
+    public static Specification<Drink> withLessThanVolume(double lessThanVolume) {
+        if (lessThanVolume < 0) return null;
+
+        return getSpec(lessThanVolume, (root, query, builder) -> (
+                builder.lessThan(root.get("volume"), lessThanVolume)
+        ));
+    }
+
+    public static Specification<Drink> withGreaterThanOrEqualToVolume(double greaterThanOrEqualToVolume) {
+        if (greaterThanOrEqualToVolume < 0) return null;
+
+        return getSpec(greaterThanOrEqualToVolume, (root, query, builder) -> (
+                builder.greaterThanOrEqualTo(root.get("volume"), greaterThanOrEqualToVolume)
+        ));
+    }
+
+    public static Specification<Drink> withLessThanOrEqualToVolume(double lessThanOrEqualToVolume) {
+        if (lessThanOrEqualToVolume < 0) return null;
+
+        return getSpec(lessThanOrEqualToVolume, (root, query, builder) -> (
+                builder.lessThanOrEqualTo(root.get("volume"), lessThanOrEqualToVolume)
         ));
     }
 

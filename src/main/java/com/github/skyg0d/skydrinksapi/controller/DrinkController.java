@@ -61,11 +61,11 @@ public class DrinkController {
     }
 
     @PostMapping("/barmen")
-    @Operation(summary = "Cria um novo usuário e retorna seus dados" , tags = "Drinks")
+    @Operation(summary = "Cria um novo drink e retorna seus dados" , tags = "Drinks")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Operação foi realizada com sucesso"),
-            @ApiResponse(responseCode = "401", description = "Quando o usuário não está autenticado"),
-            @ApiResponse(responseCode = "403", description = "Quando o usuário não possuí permissão"),
+            @ApiResponse(responseCode = "401", description = "Quando o drink não está autenticado"),
+            @ApiResponse(responseCode = "403", description = "Quando o drink não possuí permissão"),
             @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
     })
     @SecurityRequirement(name = "bearerAuth")
@@ -74,12 +74,12 @@ public class DrinkController {
     }
 
     @PutMapping("/barmen")
-    @Operation(summary = "Atualiza um usuário", tags = "Drinks")
+    @Operation(summary = "Atualiza um drink", tags = "Drinks")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Operação foi realizada com sucesso"),
             @ApiResponse(responseCode = "400", description = "Quando o drink não existe no banco de dados"),
-            @ApiResponse(responseCode = "401", description = "Quando o usuário não está autenticado"),
-            @ApiResponse(responseCode = "403", description = "Quando o usuário não possuí permissão"),
+            @ApiResponse(responseCode = "401", description = "Quando o drink não está autenticado"),
+            @ApiResponse(responseCode = "403", description = "Quando o drink não possuí permissão"),
             @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
     })
     @SecurityRequirement(name = "bearerAuth")
@@ -89,12 +89,12 @@ public class DrinkController {
     }
 
     @DeleteMapping("/barmen/{uuid}")
-    @Operation(summary = "Remove um usuário", tags = "Drinks")
+    @Operation(summary = "Remove um drink", tags = "Drinks")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Operação foi realizada com sucesso"),
             @ApiResponse(responseCode = "400", description = "Quando o drink não existe no banco de dados"),
-            @ApiResponse(responseCode = "401", description = "Quando o usuário não está autenticado"),
-            @ApiResponse(responseCode = "403", description = "Quando o usuário não possuí permissão"),
+            @ApiResponse(responseCode = "401", description = "Quando o drink não está autenticado"),
+            @ApiResponse(responseCode = "403", description = "Quando o drink não possuí permissão"),
             @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
     })
     @SecurityRequirement(name = "bearerAuth")

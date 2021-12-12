@@ -12,6 +12,7 @@ public class DrinkPutRequestBodyCreator {
                 .builder()
                 .uuid(drink.getUuid())
                 .name(drink.getName())
+                .volume(drink.getVolume())
                 .description(drink.getDescription())
                 .additional(String.join(Drink.ADDITIONAL_SEPARATOR, drink.getAdditionalList()))
                 .alcoholic(drink.isAlcoholic())

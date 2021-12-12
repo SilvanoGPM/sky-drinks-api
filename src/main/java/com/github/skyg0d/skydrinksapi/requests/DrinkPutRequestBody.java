@@ -27,6 +27,10 @@ public class DrinkPutRequestBody {
     @Schema(description = "Nome do drink", example = "Blood Mary")
     private String name;
 
+    @Positive(message = "O volume da bebida deve ser positivo.")
+    @Schema(description = "O volume da bebida em mililitros.", example = "1000")
+    private int volume;
+
     @Schema(description = "Imagem do drink", example = "blood_mary.png")
     private String picture;
 

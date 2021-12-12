@@ -15,6 +15,22 @@ public class DrinkParameters {
      @Parameter(description = "Nome do drink para pesquisa", example = "Blood Mary", allowEmptyValue = true)
      private String name;
 
+     @Parameter(description = "Volume do drink para pesquisa", example = "1000", allowEmptyValue = true)
+     private int volume = -1;
+
+     @Parameter(description = "Volume do drink ou maior que isso", example = "1000", allowEmptyValue = true)
+     private double greaterThanVolume = -1;
+
+     @Parameter(description = "Volume do drink ou menor que isso", example = "1000", allowEmptyValue = true)
+     private double lessThanVolume = -1;
+
+     @Parameter(description = "Volume do drink, maior que ou igual a isso", example = "1000", allowEmptyValue = true)
+     private double greaterThanOrEqualToVolume = -1;
+
+     @Parameter(description = "Volume do drink,menor que ou igual a isso", example = "1000", allowEmptyValue = true)
+     private double lessThanOrEqualToVolume = -1;
+
+
      @Parameter(description = "Descrição do drink para pesquisa", example = "Drink Refrescante", allowEmptyValue = true)
      private String description;
 

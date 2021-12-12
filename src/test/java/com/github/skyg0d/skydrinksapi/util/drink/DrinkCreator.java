@@ -13,6 +13,7 @@ public class DrinkCreator {
         return Drink
                 .builder()
                 .name("Suco de laranja com raspas de limão")
+                .volume(400)
                 .description("Suco básico e refrescante de laranja com algumas raspas de limão.")
                 .additional("gelo;limão")
                 .alcoholic(false)
@@ -28,6 +29,7 @@ public class DrinkCreator {
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .name("Suco de laranja com raspas de limão")
+                .volume(400)
                 .description("Suco básico e refrescante de laranja com algumas raspas de limão.")
                 .additional("gelo;limão")
                 .alcoholic(false)
@@ -43,6 +45,7 @@ public class DrinkCreator {
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .name("Suco de laranja com limão")
+                .volume(450)
                 .description("Suco básico e refrescante de laranja com algumas raspas de limão.")
                 .additional("gelo")
                 .alcoholic(false)

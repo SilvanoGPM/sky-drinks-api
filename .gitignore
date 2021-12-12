@@ -1,6 +1,6 @@
 uploaded-files
-uploaded-files/images/*
 uploaded-files/*
+uploaded-files/images/*
 
 HELP.md
 target/
