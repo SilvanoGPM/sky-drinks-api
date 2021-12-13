@@ -12,17 +12,16 @@ import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -80,17 +79,49 @@ class FileStorageServiceTest {
     }
 
     @Test
-    @DisplayName("storageImage returns name of uploaded file when successful")
-    void storageImage_ReturnsNameOfUploadedImage_WhenSuccessful() throws IOException {
+    @DisplayName("storageFiles returns map of uploaded files when successful")
+    void storageFiles_ReturnsMapOfUploadedFiles_WhenSuccessful() throws IOException {
+        InputStream inputStream = new FileInputStream("./test-files/drink.jpeg");
+        InputStream inputStream2 = new FileInputStream("./test-files/drink2.jpg");
+
+        MockMultipartFile multipartFile = new MockMultipartFile("drink.jpg", "drink.jpeg", MediaType.IMAGE_JPEG_VALUE, inputStream);
+        MockMultipartFile multipartFile2 = new MockMultipartFile("drink2.jpg", "drink2.jpg", MediaType.IMAGE_JPEG_VALUE, inputStream2);
+
+        Map<String, MultipartFile> filesName = fileStorageService.storeFiles(List.of(multipartFile, multipartFile2));
+
+        assertThat(filesName)
+                .isNotEmpty()
+                .containsKeys(multipartFile.getOriginalFilename(), multipartFile2.getOriginalFilename());
+    }
+
+    @Test
+    @DisplayName("storageImage returns name of uploaded images when successful")
+    void storageImage_ReturnsNameOfUploadedImages_WhenSuccessful() throws IOException {
         InputStream inputStream = new FileInputStream("./test-files/drink.jpeg");
 
         MockMultipartFile multipartFile = new MockMultipartFile("drink.jpeg", "drink.jpeg", MediaType.IMAGE_JPEG_VALUE, inputStream);
 
-        String fileName = fileStorageService.storageImage(multipartFile);
+        String fileName = fileStorageService.storeImage(multipartFile);
 
         assertThat(fileName)
                 .isNotNull()
                 .isEqualTo(multipartFile.getOriginalFilename());
+    }
+
+    @Test
+    @DisplayName("storageImages returns map of uploaded image when successful")
+    void storageImages_ReturnsMapOfUploadedImage_WhenSuccessful() throws IOException {
+        InputStream inputStream = new FileInputStream("./test-files/drink.jpeg");
+        InputStream inputStream2 = new FileInputStream("./test-files/drink2.jpg");
+
+        MockMultipartFile multipartFile = new MockMultipartFile("drink.jpg", "drink.jpeg", MediaType.IMAGE_JPEG_VALUE, inputStream);
+        MockMultipartFile multipartFile2 = new MockMultipartFile("drink2.jpg", "drink2.jpg", MediaType.IMAGE_JPEG_VALUE, inputStream2);
+
+        Map<String, MultipartFile> filesName = fileStorageService.storeImages(List.of(multipartFile, multipartFile2));
+
+        assertThat(filesName)
+                .isNotEmpty()
+                .containsKeys(multipartFile.getOriginalFilename(), multipartFile2.getOriginalFilename());
     }
 
     @Test
@@ -202,7 +233,7 @@ class FileStorageServiceTest {
         MockMultipartFile multipartFile = new MockMultipartFile("drink.txt", "drink.txt", MediaType.TEXT_PLAIN_VALUE, "SkyG0D".getBytes());
 
         assertThatExceptionOfType(FileStorageException.class)
-                .isThrownBy(() -> fileStorageService.storageImage(multipartFile));
+                .isThrownBy(() -> fileStorageService.storeImage(multipartFile));
     }
 
     @Test

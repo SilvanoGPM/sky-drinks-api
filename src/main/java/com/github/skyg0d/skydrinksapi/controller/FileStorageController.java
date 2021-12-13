@@ -18,6 +18,8 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @RestController
@@ -29,8 +31,8 @@ public class FileStorageController {
     @GetMapping
     @Operation(summary = "Mostra todos os arquivos com paginação", tags = "Files")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
-        @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
+            @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
+            @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
     })
     public ResponseEntity<Page<String>> listAll(@ParameterObject Pageable pageable) {
         return ResponseEntity.ok(fileStorageService.listFiles(pageable));
@@ -56,7 +58,7 @@ public class FileStorageController {
         return ResponseEntity.ok(fileStorageService.getImage(fileName));
     }
 
-    @PostMapping("/barmen/images")
+    @PostMapping(value = "/barmen/images", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @Operation(summary = "Armazena e retorna informações de uma imagem", tags = "Files")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
@@ -66,7 +68,7 @@ public class FileStorageController {
     })
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<FileResponse> uploadImage(@RequestParam MultipartFile file) {
-        String fileName = fileStorageService.storageImage(file);
+        String fileName = fileStorageService.storeImage(file);
 
         String fileDownloadUri = ServletUriComponentsBuilder
                 .fromCurrentContextPath()
@@ -82,6 +84,38 @@ public class FileStorageController {
                 .build();
 
         return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @PostMapping(value = "/barmen/multiple-images", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @Operation(summary = "Armazena e retorna informações de várias imagens", tags = "Files")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
+            @ApiResponse(responseCode = "401", description = "Quando o usuário não está autenticado"),
+            @ApiResponse(responseCode = "403", description = "Quando o usuário não possuí permissão"),
+            @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
+    })
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<List<FileResponse>> uploadMultipleImages(@RequestParam List<MultipartFile> files) {
+        Map<String, MultipartFile> filesName = fileStorageService.storeImages(files);
+
+        List<FileResponse> responses = filesName.keySet().stream().map((fileName) -> {
+            MultipartFile file = filesName.get(fileName);
+
+            String fileDownloadUri = ServletUriComponentsBuilder
+                    .fromCurrentContextPath()
+                    .path("/files/images/")
+                    .path(fileName)
+                    .toUriString();
+
+            return FileResponse.builder()
+                    .fileName(fileName)
+                    .fileDownloadUri(fileDownloadUri)
+                    .fileType(file.getContentType())
+                    .size(file.getSize())
+                    .build();
+        }).collect(Collectors.toList());
+
+        return new ResponseEntity<>(responses, HttpStatus.CREATED);
     }
 
     @DeleteMapping("/barmen/images/{fileName:.+}")

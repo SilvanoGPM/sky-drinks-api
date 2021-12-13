@@ -69,6 +69,40 @@ class FileStorageControllerTest {
     }
 
     @Test
+    @DisplayName("uploadMultipleImages returns list of uploaded file when successful")
+    void storageImages_ReturnsListOfUploadedImage_WhenSuccessful() throws IOException {
+        byte[] imageBytes = new FileInputStream("./test-files/drink.jpeg").readAllBytes();
+        byte[] imageBytes2 = new FileInputStream("./test-files/drink2.jpg").readAllBytes();
+
+        MockMultipartFile multipartFile = new MockMultipartFile("drink.jpeg", "drink.jpeg", MediaType.IMAGE_JPEG_VALUE, imageBytes);
+        MockMultipartFile multipartFile2 = new MockMultipartFile("drink2.jpg", "drink2.jpg", MediaType.IMAGE_JPEG_VALUE, imageBytes2);
+
+        ResponseEntity<List<FileResponse>> entity = fileStorageController.uploadMultipleImages(List.of(multipartFile, multipartFile2));
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.CREATED);
+
+        assertThat(entity.getBody())
+                .isNotEmpty()
+                .hasSize(2);
+
+        assertThat(entity.getBody().get(0)).isNotNull();
+
+        assertThat(entity.getBody().get(0).getFileName())
+                .isNotNull()
+                .isEqualTo(multipartFile.getOriginalFilename());
+
+        assertThat(entity.getBody().get(1)).isNotNull();
+
+        assertThat(entity.getBody().get(1).getFileName())
+                .isNotNull()
+                .isEqualTo(multipartFile2.getOriginalFilename());
+    }
+
+    @Test
     @DisplayName("listAll returns list of files path when successful")
     void listAll_ReturnsListOfFilesPath_WhenSuccessful() throws IOException {
         InputStream inputStream = new FileInputStream("./test-files/drink.jpeg");

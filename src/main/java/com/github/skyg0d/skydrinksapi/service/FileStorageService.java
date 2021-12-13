@@ -22,11 +22,17 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
 public class FileStorageService {
+
+    public static final List<String> IMAGES_TYPES = List.of(
+            MediaType.IMAGE_JPEG_VALUE,
+            MediaType.IMAGE_PNG_VALUE
+    );
 
     private final FileStorageProperties fileStorageProperties;
     private final Path fileStoragePath;
@@ -68,21 +74,28 @@ public class FileStorageService {
         }
     }
 
-    public String storageImage(MultipartFile file) {
-        List<String> contentTypes = List.of(
-                MediaType.IMAGE_JPEG_VALUE,
-                MediaType.IMAGE_PNG_VALUE
-        );
-
-        if (!contentTypes.contains(file.getContentType())) {
+    public String storeImage(MultipartFile file) {
+        if (!IMAGES_TYPES.contains(file.getContentType())) {
             throw new FileStorageException("Arquivo não é uma imagem.");
         }
 
         return storeFile(file, imagesPath);
     }
 
+    public Map<String, MultipartFile> storeImages(List<MultipartFile> files) {
+        return files
+                .stream()
+                .collect(Collectors.toMap(this::storeImage, (file) -> file));
+    }
+
     public String storeFile(MultipartFile file) {
         return storeFile(file, fileStoragePath);
+    }
+
+    public Map<String, MultipartFile> storeFiles(List<MultipartFile> files) {
+        return files
+                .stream()
+                .collect(Collectors.toMap(this::storeFile, (file) -> file));
     }
 
     public byte[] getImage(String fileName) {
