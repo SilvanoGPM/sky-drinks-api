@@ -6,9 +6,11 @@ import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.List;
@@ -30,7 +32,7 @@ public class SecurityContextUtil {
             }
 
             if (!new Date().before(claims.getExpirationTime())) {
-                throw new JOSEException("Token expirou!");
+                throw new RuntimeException("Token expirou!");
             }
 
             List<String> authorities = claims.getStringListClaim("authorities");
@@ -47,8 +49,9 @@ public class SecurityContextUtil {
 
             SecurityContextHolder.getContext().setAuthentication(auth);
         } catch (Exception e) {
-            log.error("Erro enquanto definia o security context", e);
+            log.error("Erro enquanto definia o security context: {}", e.getMessage());
             SecurityContextHolder.clearContext();
+            throw new RuntimeException(e.getMessage());
         }
     }
 

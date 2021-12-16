@@ -27,6 +27,10 @@ logging:
       hibernate:
         SQL: DEBUG
 
+jwt:
+  config:
+    expiration: 10
+
 my:
   files:
       upload-dir: ./uploaded-files
