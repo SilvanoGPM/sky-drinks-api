@@ -3,8 +3,8 @@ package com.github.skyg0d.skydrinksapi.security.config;
 import com.github.skyg0d.skydrinksapi.enums.Roles;
 import com.github.skyg0d.skydrinksapi.exception.details.ExceptionDetails;
 import com.github.skyg0d.skydrinksapi.filter.ExceptionHandlerFilter;
-import com.github.skyg0d.skydrinksapi.security.filter.JwtEmailAndPasswordAuthenticationFilter;
 import com.github.skyg0d.skydrinksapi.property.JwtConfigurationProperties;
+import com.github.skyg0d.skydrinksapi.security.filter.JwtEmailAndPasswordAuthenticationFilter;
 import com.github.skyg0d.skydrinksapi.security.filter.JwtTokenAuthorizationFilter;
 import com.github.skyg0d.skydrinksapi.security.token.TokenConverter;
 import com.github.skyg0d.skydrinksapi.security.token.TokenCreator;
@@ -24,8 +24,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
-
-import javax.servlet.http.HttpServletResponse;
+import org.springframework.web.cors.CorsConfiguration;
 
 @Configuration
 @EnableWebSecurity
@@ -43,6 +42,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .csrf().disable()
+                .cors().configurationSource(request -> new CorsConfiguration().applyPermitDefaultValues())
+                .and()
                 .addFilterBefore(exceptionHandlerFilter, LogoutFilter.class)
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
