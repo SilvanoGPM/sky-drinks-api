@@ -1,6 +1,7 @@
 package com.github.skyg0d.skydrinksapi.security.filter;
 
 import com.github.skyg0d.skydrinksapi.exception.details.ExceptionDetails;
+import com.github.skyg0d.skydrinksapi.exception.details.TokenExpiredExceptionDetails;
 import com.github.skyg0d.skydrinksapi.property.JwtConfigurationProperties;
 import com.github.skyg0d.skydrinksapi.security.token.TokenConverter;
 import com.github.skyg0d.skydrinksapi.util.ExceptionUtils;
@@ -48,9 +49,20 @@ public class JwtTokenAuthorizationFilter extends OncePerRequestFilter {
         } catch (RuntimeException ex) {
             HttpStatus status = HttpStatus.UNAUTHORIZED;
 
+            ExceptionDetails details = ExceptionDetails.createExceptionDetails(ex, status, "Não autorizado.");
+            TokenExpiredExceptionDetails tokenDetails = TokenExpiredExceptionDetails
+                    .builder()
+                    .title(details.getTitle())
+                    .details(details.getDetails())
+                    .status(status.value())
+                    .timestamp(details.getTimestamp())
+                    .developerMessage(details.getDeveloperMessage())
+                    .expired(true)
+                    .build();
+
             response.setStatus(status.value());
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            response.getWriter().write(ExceptionUtils.convertObjectToJson(ExceptionDetails.createExceptionDetails(ex, status, "Não autorizado.")));
+            response.getWriter().write(ExceptionUtils.convertObjectToJson(tokenDetails));
         }
     }
 

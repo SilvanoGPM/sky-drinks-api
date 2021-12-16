@@ -2,6 +2,7 @@ package com.github.skyg0d.skydrinksapi.util;
 
 
 import com.github.skyg0d.skydrinksapi.domain.ApplicationUser;
+import com.github.skyg0d.skydrinksapi.exception.TokenExpiredException;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
@@ -32,7 +33,7 @@ public class SecurityContextUtil {
             }
 
             if (!new Date().before(claims.getExpirationTime())) {
-                throw new RuntimeException("Token expirou!");
+                throw new TokenExpiredException("Token expirou!");
             }
 
             List<String> authorities = claims.getStringListClaim("authorities");
@@ -51,7 +52,7 @@ public class SecurityContextUtil {
         } catch (Exception e) {
             log.error("Erro enquanto definia o security context: {}", e.getMessage());
             SecurityContextHolder.clearContext();
-            throw new RuntimeException(e.getMessage());
+            throw new TokenExpiredException(e.getMessage());
         }
     }
 
