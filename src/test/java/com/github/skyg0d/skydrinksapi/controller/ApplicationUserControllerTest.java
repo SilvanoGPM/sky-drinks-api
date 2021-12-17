@@ -1,6 +1,7 @@
 package com.github.skyg0d.skydrinksapi.controller;
 
 import com.github.skyg0d.skydrinksapi.domain.ApplicationUser;
+import com.github.skyg0d.skydrinksapi.exception.BadRequestException;
 import com.github.skyg0d.skydrinksapi.parameters.ApplicationUserParameters;
 import com.github.skyg0d.skydrinksapi.requests.ApplicationUserPostRequestBody;
 import com.github.skyg0d.skydrinksapi.service.ApplicationUserService;
@@ -79,6 +80,26 @@ class ApplicationUserControllerTest {
     }
 
     @Test
+    @DisplayName("getUserInfo return application user when successful")
+    void getUserInfo_ReturnApplicationUser_WhenSuccessful() {
+        ApplicationUser expectedApplicationUser = ApplicationUserCreator.createValidApplicationUser();
+
+        Principal principalMock = Mockito.mock(Principal.class);
+
+        ResponseEntity<ApplicationUser> entity = applicationUserController.getUserInfo(principalMock);
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.OK);
+
+        assertThat(entity.getBody())
+                .isNotNull()
+                .isEqualTo(expectedApplicationUser);
+    }
+
+    @Test
     @DisplayName("listAll return list of application users inside page object when successful")
     void listAll_ReturnListOfApplicationUsersInsidePageObject_WhenSuccessful() {
         ApplicationUser expectedApplicationUser = ApplicationUserCreator.createValidApplicationUser();
@@ -135,7 +156,6 @@ class ApplicationUserControllerTest {
                 .hasSize(1)
                 .contains(expectedApplicationUser);
     }
-
 
     @Test
     @DisplayName("findById return application user when successful")

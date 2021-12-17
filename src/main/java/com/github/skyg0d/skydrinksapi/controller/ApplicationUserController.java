@@ -30,6 +30,17 @@ public class ApplicationUserController {
     private final ApplicationUserService applicationUserService;
     private final AuthUtil authUtil;
 
+    @GetMapping("/all/user-info")
+    @Operation(summary = "Retorna as informações do usuário", tags = "Users")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
+            @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
+    })
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<ApplicationUser> getUserInfo(Principal principal) {
+        return ResponseEntity.ok(authUtil.getUser(principal));
+    }
+
     @GetMapping
     @Operation(summary = "Retorna todos os usuários paginação", tags = "Users")
     @ApiResponses(value = {

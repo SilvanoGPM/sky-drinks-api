@@ -2,8 +2,8 @@ package com.github.skyg0d.skydrinksapi.util;
 
 import com.github.skyg0d.skydrinksapi.domain.ApplicationUser;
 import com.github.skyg0d.skydrinksapi.repository.user.ApplicationUserRepository;
+import com.github.skyg0d.skydrinksapi.util.user.ApplicationUserCreator;
 import lombok.*;
-import org.junit.jupiter.api.BeforeAll;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
@@ -11,7 +11,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Component
@@ -23,55 +22,15 @@ public class TokenUtil {
     public TokenUtil(TestRestTemplate testRestTemplate, ApplicationUserRepository applicationUserRepository) {
         this.testRestTemplate = testRestTemplate;
 
-        ApplicationUser adminUser = ApplicationUser
-                .builder()
-                .name("Admin")
-                .role("ADMIN")
-                .cpf("409.695.886-74")
-                .email("admin@mail.com")
-                .password("$2a$10$3eqv7nOc.CFIcOa7zpkwV.h/Jt4h0io6qAha8X/4zOeeexRi6afn2")
-                .birthDay(LocalDate.of(2000, 10, 9))
-                .build();
+        ApplicationUser adminUser = ApplicationUserCreator.createAdminApplicationUser();
 
-        ApplicationUser barmenUser = ApplicationUser
-                .builder()
-                .name("Barmen")
-                .role("BARMEN")
-                .cpf("457.411.373-18")
-                .email("barmen@mail.com")
-                .password("$2a$10$3eqv7nOc.CFIcOa7zpkwV.h/Jt4h0io6qAha8X/4zOeeexRi6afn2")
-                .birthDay(LocalDate.of(2000, 10, 9))
-                .build();
+        ApplicationUser barmenUser = ApplicationUserCreator.createBarmenApplicationUser();
 
-        ApplicationUser waiterUser = ApplicationUser
-                .builder()
-                .name("Waiter")
-                .role("WAITER")
-                .cpf("194.342.608-25")
-                .email("waiter@mail.com")
-                .password("$2a$10$3eqv7nOc.CFIcOa7zpkwV.h/Jt4h0io6qAha8X/4zOeeexRi6afn2")
-                .birthDay(LocalDate.of(2000, 10, 9))
-                .build();
+        ApplicationUser waiterUser = ApplicationUserCreator.createWaiterApplicationUser();
 
-        ApplicationUser user = ApplicationUser
-                .builder()
-                .name("User")
-                .role("USER")
-                .cpf("124.565.732-18")
-                .email("user@mail.com")
-                .password("$2a$10$3eqv7nOc.CFIcOa7zpkwV.h/Jt4h0io6qAha8X/4zOeeexRi6afn2")
-                .birthDay(LocalDate.of(2000, 10, 9))
-                .build();
+        ApplicationUser user = ApplicationUserCreator.createApplicationUser();
 
-        ApplicationUser minorUser = ApplicationUser
-                .builder()
-                .name("User Minor")
-                .role("USER")
-                .cpf("512.262.484-46")
-                .email("userminor@mail.com")
-                .password("$2a$10$3eqv7nOc.CFIcOa7zpkwV.h/Jt4h0io6qAha8X/4zOeeexRi6afn2")
-                .birthDay(LocalDate.now())
-                .build();
+        ApplicationUser minorUser = ApplicationUserCreator.createMinorApplicationUser();
 
         applicationUserRepository.saveAll(List.of(adminUser, barmenUser, waiterUser, user, minorUser));
     }

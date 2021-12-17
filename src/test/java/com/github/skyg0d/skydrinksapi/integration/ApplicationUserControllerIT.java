@@ -43,6 +43,39 @@ class ApplicationUserControllerIT {
     private TokenUtil tokenUtil;
 
     @Test
+    @DisplayName("getUserInfo return application user when successful")
+    void getUserInfo_ReturnApplicationUser_WhenSuccessful() {
+        ApplicationUser expectedApplicationUser = ApplicationUserCreator.createAdminApplicationUser();
+
+        ResponseEntity<ApplicationUser> entity = testRestTemplate.exchange(
+                "/users/all/user-info",
+                HttpMethod.GET,
+                tokenUtil.createAdminAuthEntity(null),
+                ApplicationUser.class
+        );
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.OK);
+
+        assertThat(entity.getBody()).isNotNull();
+
+        assertThat(entity.getBody().getEmail())
+                .isNotNull()
+                .isEqualTo(expectedApplicationUser.getEmail());
+
+        assertThat(entity.getBody().getCpf())
+                .isNotNull()
+                .isEqualTo(expectedApplicationUser.getCpf());
+
+        assertThat(entity.getBody().getName())
+                .isNotNull()
+                .isEqualTo(expectedApplicationUser.getName());
+    }
+
+    @Test
     @DisplayName("listAll return list of application users inside page object when successful")
     void listAll_ReturnListOfApplicationUsersInsidePageObject_WhenSuccessful() {
         applicationUserRepository.deleteAll();
