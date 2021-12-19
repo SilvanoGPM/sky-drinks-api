@@ -3,6 +3,7 @@ package com.github.skyg0d.skydrinksapi.security.config;
 import com.github.skyg0d.skydrinksapi.enums.Roles;
 import com.github.skyg0d.skydrinksapi.exception.details.ExceptionDetails;
 import com.github.skyg0d.skydrinksapi.filter.ExceptionHandlerFilter;
+import com.github.skyg0d.skydrinksapi.property.CorsProperties;
 import com.github.skyg0d.skydrinksapi.property.JwtConfigurationProperties;
 import com.github.skyg0d.skydrinksapi.security.filter.JwtEmailAndPasswordAuthenticationFilter;
 import com.github.skyg0d.skydrinksapi.security.filter.JwtTokenAuthorizationFilter;
@@ -26,6 +27,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
+import java.util.List;
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -35,6 +38,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private final UserDetailsService userDetailsService;
     private final ExceptionHandlerFilter exceptionHandlerFilter;
     private final JwtConfigurationProperties jwtConfigurationProperties;
+    private final CorsProperties corsProperties;
     private final TokenCreator tokenCreator;
     private final TokenConverter tokenConverter;
 
@@ -42,7 +46,15 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .csrf().disable()
-                .cors().configurationSource(request -> new CorsConfiguration().applyPermitDefaultValues())
+                .cors().configurationSource(request -> {
+                    CorsConfiguration corsConfiguration = new CorsConfiguration();
+
+                    corsConfiguration.applyPermitDefaultValues();
+                    corsConfiguration.setAllowedOrigins(corsProperties.getOrigins());
+                    corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE"));
+
+                    return corsConfiguration;
+                })
                 .and()
                 .addFilterBefore(exceptionHandlerFilter, LogoutFilter.class)
                 .sessionManagement()
