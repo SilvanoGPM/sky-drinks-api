@@ -4,6 +4,10 @@
     SkyDrinks é uma API construida para uma empresa fictícia(Sky Drinks), desenvolvida com Spring Boot.   
 </p>
 
+<p align="center">
+    <img width="200" src="./SkyDrinksAPI.png" />
+</p>
+
 ## :wrench: Como executar?
 
 ### :mag_right: Requisitos:
