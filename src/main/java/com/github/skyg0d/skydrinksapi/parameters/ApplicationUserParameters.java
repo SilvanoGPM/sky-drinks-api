@@ -1,7 +1,6 @@
 package com.github.skyg0d.skydrinksapi.parameters;
 
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.ParameterStyle;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -29,7 +28,7 @@ public class ApplicationUserParameters {
     private String createdInDateOrBefore;
 
     @Parameter(description = "Data de nascimento do usuário", example = "2004-04-04", allowEmptyValue = true)
-    private String birthAt;
+    private String birthDay;
 
     @Parameter(description = "Data de nascimento do usuário ou depois", example = "2004-04-04", allowEmptyValue = true)
     private String birthInDateOrAfter;

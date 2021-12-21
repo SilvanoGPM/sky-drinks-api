@@ -14,7 +14,7 @@ public class ApplicationUserSpecification extends AbstractSpecification {
     public static Specification<ApplicationUser> getSpecification(ApplicationUserParameters applicationUserParameters) {
         return where(withName(applicationUserParameters.getName()))
                 .and(where(withRole(applicationUserParameters.getRole())))
-                .and(where(withBirthAt(applicationUserParameters.getBirthAt())))
+                .and(where(withBirthDay(applicationUserParameters.getBirthDay())))
                 .and(where(withBirthInDateOrAfter(applicationUserParameters.getBirthInDateOrAfter())))
                 .and(where(withBirthInDateOrBefore(applicationUserParameters.getBirthInDateOrBefore())))
                 .and(where(withCreatedAt(applicationUserParameters.getCreatedAt())))
@@ -34,7 +34,7 @@ public class ApplicationUserSpecification extends AbstractSpecification {
         ));
     }
 
-    protected static Specification<ApplicationUser> withBirthAt(String birth) {
+    protected static Specification<ApplicationUser> withBirthDay(String birth) {
         return getSpec(birth, (root, query, builder) -> (
                 builder.equal(root.get("birthDay"), LocalDate.parse(birth))
         ));
