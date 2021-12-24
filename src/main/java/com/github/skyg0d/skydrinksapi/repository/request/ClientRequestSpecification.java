@@ -41,15 +41,17 @@ public class ClientRequestSpecification extends AbstractSpecification {
     }
 
     public static Specification<ClientRequest> withDrinkName(String name) {
-        return getSpec(name, (root, query, builder) -> (
-                builder.like(builder.lower(root.join("drinks").get("name")), like(name))
-        ));
+        return getSpec(name, (root, query, builder) -> {
+            query.distinct(true);
+            return builder.like(builder.lower(root.join("drinks").get("name")), like(name));
+        });
     }
 
     public static Specification<ClientRequest> withDrinkDescription(String description) {
-        return getSpec(description, (root, query, builder) -> (
-                builder.like(builder.lower(root.join("drinks").get("description")), like(description))
-        ));
+        return getSpec(description, (root, query, builder) -> {
+            query.distinct(true);
+            return builder.like(builder.lower(root.join("drinks").get("description")), like(description));
+        });
     }
 
     public static Specification<ClientRequest> withUserUUID(UUID uuid) {
