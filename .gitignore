@@ -2,6 +2,8 @@ uploaded-files
 uploaded-files/*
 uploaded-files/images/*
 
+src/main/resources/application-dev.yml
+
 HELP.md
 target/
 !.mvn/wrapper/maven-wrapper.jar

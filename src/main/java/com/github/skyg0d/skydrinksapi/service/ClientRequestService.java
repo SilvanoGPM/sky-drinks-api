@@ -68,6 +68,14 @@ public class ClientRequestService {
 
         ClientRequest request = mapper.toClientRequest(clientRequestPostRequestBody);
 
+        double totalPrice = request
+                .getDrinks()
+                .stream()
+                .mapToDouble(Drink::getPrice)
+                .sum();
+
+        request.setTotalPrice(totalPrice);
+
         request.setUser(user);
 
         return clientRequestRepository.save(request);

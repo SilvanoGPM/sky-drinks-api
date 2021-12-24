@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Data
 public class TableParameters {
 
-    @Parameter(description = "Data que a mesa foi criada", example = "2004-04-04", allowEmptyValue = true)
+    @Parameter(description = "Data que a mesa foi criada", example = "2004-04-04T10:16:28.043216", allowEmptyValue = true)
     private String createdAt;
 
     @Parameter(description = "Data que a mesa foi criada ou depois", example = "2004-04-04", allowEmptyValue = true)

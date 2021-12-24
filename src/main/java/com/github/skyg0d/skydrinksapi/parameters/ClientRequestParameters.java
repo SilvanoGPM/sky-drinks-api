@@ -38,7 +38,7 @@ public class ClientRequestParameters {
     @Parameter(description = "UUID da mesa para pesquisa", example = "b6ffe300-cfd7-46c0-80e4-070998096cbf", allowEmptyValue = true)
     private String tableUUID = "";
 
-    @Parameter(description = "Data que o pedido foi criado", example = "2004-04-04", allowEmptyValue = true)
+    @Parameter(description = "Data que o pedido foi criado", example = "2004-04-04T10:16:28.043216", allowEmptyValue = true)
     private String createdAt;
 
     @Parameter(description = "Data que o pedido foi criado ou depois disso", example = "2004-04-04", allowEmptyValue = true)

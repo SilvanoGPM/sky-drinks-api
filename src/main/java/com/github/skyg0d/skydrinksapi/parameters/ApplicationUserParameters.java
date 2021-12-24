@@ -18,7 +18,7 @@ public class ApplicationUserParameters {
     @Parameter(description = "Função do usuário para pesquisa", example = "BARMEN", allowEmptyValue = true)
     private String role;
 
-    @Parameter(description = "Data que o usuário foi criado", example = "2004-04-04", allowEmptyValue = true)
+    @Parameter(description = "Data que o usuário foi criado", example = "2004-04-04T10:16:28.043216", allowEmptyValue = true)
     private String createdAt;
 
     @Parameter(description = "Data que o usuário foi criado ou depois", example = "2004-04-04", allowEmptyValue = true)

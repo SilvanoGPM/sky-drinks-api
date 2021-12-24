@@ -2,30 +2,34 @@ package com.github.skyg0d.skydrinksapi.repository;
 
 import org.springframework.data.jpa.domain.Specification;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 public abstract class AbstractSpecification {
 
     protected static <T> Specification<T> withCreatedAt(String createdAt) {
         return getSpec(createdAt, (root, query, builder) -> (
-                builder.equal(root.get("createdAt"), formatRequestedDate(createdAt))
+                builder.equal(root.get("createdAt"), LocalDateTime.parse(createdAt))
         ));
     }
 
     protected static <T> Specification<T> withCreatedInDateOrAfter(String createdInDateOrAfter) {
         return getSpec(createdInDateOrAfter, (root, query, builder) -> (
-                builder.greaterThanOrEqualTo(root.get("createdAt"), formatRequestedDate(createdInDateOrAfter))
+                builder.greaterThanOrEqualTo(root.get("createdAt"), LocalDateTime.of(
+                        LocalDate.parse(createdInDateOrAfter),
+                        LocalTime.MIN
+                ))
         ));
     }
 
     protected static <T> Specification<T> withCreatedInDateOrBefore(String createdInDateOrBefore) {
         return getSpec(createdInDateOrBefore, (root, query, builder) -> (
-                builder.lessThanOrEqualTo(root.get("createdAt"), formatRequestedDate(createdInDateOrBefore))
+                builder.lessThanOrEqualTo(root.get("createdAt"), LocalDateTime.of(
+                        LocalDate.parse(createdInDateOrBefore),
+                        LocalTime.MAX
+                ))
         ));
-    }
-
-    protected static LocalDateTime formatRequestedDate(String date) {
-        return LocalDateTime.parse(date.replace("_", ":"));
     }
 
     protected static String like(String string) {

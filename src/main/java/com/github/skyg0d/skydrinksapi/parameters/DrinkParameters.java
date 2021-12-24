@@ -30,14 +30,13 @@ public class DrinkParameters {
      @Parameter(description = "Volume do drink,menor que ou igual a isso", example = "1000", allowEmptyValue = true)
      private double lessThanOrEqualToVolume = -1;
 
-
      @Parameter(description = "Descrição do drink para pesquisa", example = "Drink Refrescante", allowEmptyValue = true)
      private String description;
 
      @Parameter(description = "Adicionais do drink para pesquisa", example = "gelo;limão", allowEmptyValue = true)
      private String additional;
 
-     @Parameter(description = "Data que o drink foi criado", example = "2004-04-04", allowEmptyValue = true)
+     @Parameter(description = "Data que o drink foi criado", example = "2004-04-04T10:16:28.043216", allowEmptyValue = true)
      private String createdAt;
 
      @Parameter(description = "Data que o drink foi criado ou depois", example = "2004-04-04", allowEmptyValue = true)

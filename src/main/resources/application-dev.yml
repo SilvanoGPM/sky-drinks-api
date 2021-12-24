@@ -1,0 +1,3 @@
+jwt:
+  config:
+    expiration: 604800 # One week

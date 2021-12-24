@@ -1,4 +1,6 @@
 spring:
+  profiles:
+    active: dev
   application:
     name: sky-drinks
   datasource:
@@ -26,10 +28,6 @@ logging:
     org:
       hibernate:
         SQL: DEBUG
-
-jwt:
-  config:
-    expiration: 3600
 
 my:
   files:
