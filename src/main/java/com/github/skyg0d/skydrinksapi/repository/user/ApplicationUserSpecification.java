@@ -34,21 +34,27 @@ public class ApplicationUserSpecification extends AbstractSpecification {
         ));
     }
 
-    protected static Specification<ApplicationUser> withBirthDay(String birth) {
+    public static Specification<ApplicationUser> withBirthDay(String birth) {
         return getSpec(birth, (root, query, builder) -> (
                 builder.equal(root.get("birthDay"), LocalDate.parse(birth))
         ));
     }
 
-    protected static Specification<ApplicationUser> withBirthInDateOrAfter(String birth) {
+    public static Specification<ApplicationUser> withBirthInDateOrAfter(String birth) {
         return getSpec(birth, (root, query, builder) -> (
                 builder.greaterThanOrEqualTo(root.get("birthDay"), LocalDate.parse(birth))
         ));
     }
 
-    protected static Specification<ApplicationUser> withBirthInDateOrBefore(String birth) {
+    public static Specification<ApplicationUser> withBirthInDateOrBefore(String birth) {
         return getSpec(birth, (root, query, builder) -> (
                 builder.lessThanOrEqualTo(root.get("birthDay"), LocalDate.parse(birth))
+        ));
+    }
+
+    public static Specification<ApplicationUser> getStaffUsers() {
+        return ((root, query, builder) -> (
+                builder.notLike(builder.lower(root.get("role")), "user")
         ));
     }
 

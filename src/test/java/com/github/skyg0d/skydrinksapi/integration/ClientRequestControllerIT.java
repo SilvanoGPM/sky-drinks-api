@@ -316,12 +316,10 @@ class ClientRequestControllerIT {
 
         clientToUpdate.setTable(clientRequestSaved.getTable());
 
-        clientToUpdate.setUser(clientRequestSaved.getUser());
-
         ResponseEntity<Void> entity = testRestTemplate.exchange(
                 "/requests/all",
                 HttpMethod.PUT,
-                tokenUtil.createWaiterAuthEntity(clientToUpdate),
+                tokenUtil.createWaiterAuthEntity(clientRequestSaved),
                 Void.class
         );
 
@@ -363,8 +361,6 @@ class ClientRequestControllerIT {
         clientToUpdate.setDrinks(clientRequestSaved.getDrinks());
 
         clientToUpdate.setTable(clientRequestSaved.getTable());
-
-        clientToUpdate.setUser(clientRequestSaved.getUser());
 
         ResponseEntity<Void> entity = testRestTemplate.exchange(
                 "/requests/all",

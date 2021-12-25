@@ -19,17 +19,10 @@ import java.util.List;
 public class ClientRequestPostRequestBody {
 
     @NotNull(message = "Um pedido precisa conter drinks.")
-    @Schema(description = "Lista de drinks do pedido", example = "[{ \"uuid\": \"a0ff11c9-0f4e-4852-9166-6dc72b331727\" }, { \"uuid\": \"ec7bb1ce-7770-4957-9dfe-1fa52b3ef340\" }]")
+    @Schema(description = "Lista de drinks do pedido", type = "array", example = "[{ \"uuid\": \"a0ff11c9-0f4e-4852-9166-6dc72b331727\" }, { \"uuid\": \"ec7bb1ce-7770-4957-9dfe-1fa52b3ef340\" }]")
     private List<Drink> drinks;
 
     @Schema(description = "Mesa para entregar os drinks", example = "{ \"uuid\": \"35375453-5ff3-4c78-b458-00b5804afdfe\" }")
     private Table table;
-
-    @Schema(description = "Pedido finalizado", example = "true")
-    private boolean finished;
-
-    @PositiveOrZero(message = "O valor do pedido deve ser positivo ou igual a zero.")
-    @Schema(description = "Valor total do pedido", example = "25.55")
-    private double totalPrice;
 
 }

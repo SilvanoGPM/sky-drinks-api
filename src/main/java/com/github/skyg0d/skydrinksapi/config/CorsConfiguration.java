@@ -22,6 +22,7 @@ public class CorsConfiguration {
                 registry
                         .addMapping("/**")
                         .allowedOrigins(corsProperties.getOrigins().toArray(new String[0]))
+                        .allowCredentials(true)
                         .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE");
             }
         };

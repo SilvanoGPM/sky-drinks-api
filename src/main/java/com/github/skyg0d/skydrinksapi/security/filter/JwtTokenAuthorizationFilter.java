@@ -6,6 +6,7 @@ import com.github.skyg0d.skydrinksapi.property.JwtConfigurationProperties;
 import com.github.skyg0d.skydrinksapi.security.token.TokenConverter;
 import com.github.skyg0d.skydrinksapi.util.ExceptionUtils;
 import com.github.skyg0d.skydrinksapi.util.SecurityContextUtil;
+import com.github.skyg0d.skydrinksapi.util.TokenConverterUtil;
 import com.nimbusds.jwt.SignedJWT;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -26,7 +27,7 @@ import java.io.IOException;
 public class JwtTokenAuthorizationFilter extends OncePerRequestFilter {
 
     private final JwtConfigurationProperties jwtConfigurationProperties;
-    private final TokenConverter tokenConverter;
+    private final TokenConverterUtil tokenConverterUtil;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
@@ -41,7 +42,7 @@ public class JwtTokenAuthorizationFilter extends OncePerRequestFilter {
 
         String token = header.replace(prefix, "").trim();
 
-        SignedJWT signedJWT = decryptedValidating(token);
+        SignedJWT signedJWT = tokenConverterUtil.decryptedValidating(token);
 
         try {
             SecurityContextUtil.setSecurityContext(signedJWT);
@@ -64,18 +65,6 @@ public class JwtTokenAuthorizationFilter extends OncePerRequestFilter {
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.getWriter().write(ExceptionUtils.convertObjectToJson(tokenDetails));
         }
-    }
-
-    @SneakyThrows
-    private SignedJWT decryptedValidating(String encryptedToken) {
-        String signedToken = tokenConverter.decryptToken(encryptedToken);
-        return validate(signedToken);
-    }
-
-    @SneakyThrows
-    private SignedJWT validate(String signedToken) {
-        tokenConverter.validateSignatureToken(signedToken);
-        return SignedJWT.parse(signedToken);
     }
 
 }

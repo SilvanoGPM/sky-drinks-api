@@ -6,6 +6,7 @@ import com.github.skyg0d.skydrinksapi.parameters.ClientRequestParameters;
 import com.github.skyg0d.skydrinksapi.requests.ClientRequestPostRequestBody;
 import com.github.skyg0d.skydrinksapi.requests.ClientRequestPutRequestBody;
 import com.github.skyg0d.skydrinksapi.service.ClientRequestService;
+import com.github.skyg0d.skydrinksapi.socket.domain.FinishedRequest;
 import com.github.skyg0d.skydrinksapi.util.AuthUtil;
 import com.github.skyg0d.skydrinksapi.util.request.ClientRequestCreator;
 import com.github.skyg0d.skydrinksapi.util.request.ClientRequestPostRequestBodyCreator;
@@ -21,6 +22,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.security.Principal;
@@ -41,6 +43,9 @@ class ClientRequestControllerTest {
 
     @Mock
     private AuthUtil authUtilMock;
+
+    @Mock
+    private SimpMessagingTemplate template;
 
     @BeforeEach
     void setUp() {
@@ -79,6 +84,7 @@ class ClientRequestControllerTest {
                 .doNothing()
                 .when(clientRequestServiceMock)
                 .delete(ArgumentMatchers.any(UUID.class), ArgumentMatchers.any(ApplicationUser.class));
+        
     }
 
     @Test

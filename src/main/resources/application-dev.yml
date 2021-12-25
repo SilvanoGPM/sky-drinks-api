@@ -1,3 +1,7 @@
 jwt:
   config:
     expiration: 604800 # One week
+
+my:
+  cors:
+    origins: ["http://localhost:3000/"]

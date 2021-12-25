@@ -7,9 +7,9 @@ import com.github.skyg0d.skydrinksapi.property.CorsProperties;
 import com.github.skyg0d.skydrinksapi.property.JwtConfigurationProperties;
 import com.github.skyg0d.skydrinksapi.security.filter.JwtEmailAndPasswordAuthenticationFilter;
 import com.github.skyg0d.skydrinksapi.security.filter.JwtTokenAuthorizationFilter;
-import com.github.skyg0d.skydrinksapi.security.token.TokenConverter;
 import com.github.skyg0d.skydrinksapi.security.token.TokenCreator;
 import com.github.skyg0d.skydrinksapi.util.ExceptionUtils;
+import com.github.skyg0d.skydrinksapi.util.TokenConverterUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.context.annotation.Bean;
@@ -40,7 +40,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private final JwtConfigurationProperties jwtConfigurationProperties;
     private final CorsProperties corsProperties;
     private final TokenCreator tokenCreator;
-    private final TokenConverter tokenConverter;
+    private final TokenConverterUtil tokenConverterUtil;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -50,6 +50,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                     CorsConfiguration corsConfiguration = new CorsConfiguration();
 
                     corsConfiguration.applyPermitDefaultValues();
+                    corsConfiguration.setAllowCredentials(true);
                     corsConfiguration.setAllowedOrigins(corsProperties.getOrigins());
                     corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE"));
 
@@ -70,7 +71,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 })
                 .and()
                 .addFilter(new JwtEmailAndPasswordAuthenticationFilter(authenticationManager(), jwtConfigurationProperties, tokenCreator))
-                .addFilterAfter(new JwtTokenAuthorizationFilter(jwtConfigurationProperties, tokenConverter), UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(new JwtTokenAuthorizationFilter(jwtConfigurationProperties, tokenConverterUtil), UsernamePasswordAuthenticationFilter.class)
                 .authorizeRequests()
                 .antMatchers(jwtConfigurationProperties.getLoginUrl()).permitAll()
                 .antMatchers("/**/admin/**").hasRole(Roles.ADMIN.getName())

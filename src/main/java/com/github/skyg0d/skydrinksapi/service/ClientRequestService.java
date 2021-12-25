@@ -68,11 +68,7 @@ public class ClientRequestService {
 
         ClientRequest request = mapper.toClientRequest(clientRequestPostRequestBody);
 
-        double totalPrice = request
-                .getDrinks()
-                .stream()
-                .mapToDouble(Drink::getPrice)
-                .sum();
+        double totalPrice = calculatePrice(request);
 
         request.setTotalPrice(totalPrice);
 
@@ -86,7 +82,13 @@ public class ClientRequestService {
 
         userCanModifyRequestOrElseThrowUserCannotModifyClientRequestException(user, request);
 
-        clientRequestRepository.save(mapper.toClientRequest(clientRequestPutRequestBody));
+        ClientRequest requestToUpdate = mapper.toClientRequest(clientRequestPutRequestBody);
+
+        requestToUpdate.setTotalPrice(calculatePrice(requestToUpdate));
+        requestToUpdate.setFinished(request.isFinished());
+        requestToUpdate.setUser(request.getUser());
+
+        clientRequestRepository.save(requestToUpdate);
     }
 
     public ClientRequest finishRequest(UUID uuid, ApplicationUser user) {
@@ -100,11 +102,7 @@ public class ClientRequestService {
 
         request.setFinished(true);
 
-        double totalPrice = request
-                .getDrinks()
-                .stream()
-                .mapToDouble(Drink::getPrice)
-                .sum();
+        double totalPrice = calculatePrice(request);
 
         request.setTotalPrice(totalPrice);
 
@@ -141,6 +139,14 @@ public class ClientRequestService {
                 .collect(Collectors.toList());
 
         return new PageImpl<>(requestsFiltered, pageable, requestsFiltered.size());
+    }
+
+    private double calculatePrice(ClientRequest request) {
+        return request
+                .getDrinks()
+                .stream()
+                .mapToDouble(Drink::getPrice)
+                .sum();
     }
 
 }

@@ -37,10 +37,10 @@ import static org.assertj.core.api.Assertions.*;
 @ExtendWith(SpringExtension.class)
 @DisplayName("Tests for ClienteRequestService")
 class ClientRequestServiceTest {
-    
+
     @InjectMocks
     private ClientRequestService clientRequestService;
-    
+
     @Mock
     private ClientRequestRepository clientRequestRepositoryMock;
 
@@ -172,7 +172,7 @@ class ClientRequestServiceTest {
 
         ClientRequestPutRequestBody requestToUpdate = ClientRequestPutRequestBodyCreator.createClientRequestPutRequestBodyCreatorToBeUpdate();
 
-        assertThatCode(() -> clientRequestService.replace(requestToUpdate, requestToUpdate.getUser()))
+        assertThatCode(() -> clientRequestService.replace(requestToUpdate, ClientRequestCreator.createValidUpdatedClientRequest().getUser()))
                 .doesNotThrowAnyException();
     }
 

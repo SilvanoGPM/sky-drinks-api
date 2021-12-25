@@ -13,9 +13,6 @@ public class ClientRequestPostRequestBodyCreator {
                 .builder()
                 .drinks(request.getDrinks())
                 .table(request.getTable())
-                .finished(request.isFinished())
-                .table(request.getTable())
-                .totalPrice(request.getTotalPrice())
                 .build();
     }
 
