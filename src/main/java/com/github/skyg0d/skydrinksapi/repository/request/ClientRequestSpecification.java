@@ -1,6 +1,7 @@
 package com.github.skyg0d.skydrinksapi.repository.request;
 
 import com.github.skyg0d.skydrinksapi.domain.ClientRequest;
+import com.github.skyg0d.skydrinksapi.enums.ClientRequestStatus;
 import com.github.skyg0d.skydrinksapi.parameters.ClientRequestParameters;
 import com.github.skyg0d.skydrinksapi.repository.AbstractSpecification;
 import com.github.skyg0d.skydrinksapi.util.UUIDUtil;
@@ -15,7 +16,7 @@ public class ClientRequestSpecification extends AbstractSpecification {
     private final static UUIDUtil uuidUtil = new UUIDUtil();
 
     public static Specification<ClientRequest> getSpecification(ClientRequestParameters parameters) {
-        return where(withFinished(parameters.getFinished()))
+        return where(withStatus(parameters.getStatus()))
                 .and(where(withDrinkUUID(parameters.getDrinkUUID())))
                 .and(where(withDrinkName(parameters.getDrinkName())))
                 .and(where(withDrinkDescription(parameters.getDrinkDescription())))
@@ -90,13 +91,9 @@ public class ClientRequestSpecification extends AbstractSpecification {
         ));
     }
 
-    public static Specification<ClientRequest> withFinished(int finished) {
-        if (finished < 0) return null;
-
-        boolean isFinished = finished == 1;
-
-        return getSpec(isFinished, (root, query, builder) -> (
-                builder.equal(root.get("finished"), isFinished)
+    public static Specification<ClientRequest> withStatus(ClientRequestStatus status) {
+        return getSpec(status, (root, query, builder) -> (
+                builder.equal(root.get("status"), status)
         ));
     }
 

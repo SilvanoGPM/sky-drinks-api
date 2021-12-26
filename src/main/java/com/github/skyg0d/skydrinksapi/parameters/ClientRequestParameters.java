@@ -1,5 +1,6 @@
 package com.github.skyg0d.skydrinksapi.parameters;
 
+import com.github.skyg0d.skydrinksapi.enums.ClientRequestStatus;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -48,11 +49,11 @@ public class ClientRequestParameters {
     private String createdInDateOrBefore;
 
     @Parameter(
-            description = "Se o valor for igual a um, pesquisará todos os pedidos finalizados, caso seja zero, pesquisa todos os pedidos não finalizados, e caso seja um menos um, pesquisa todos os pedidos",
-            example = "0",
+            description = "Filtra pelo status do pedido",
+            example = "PROCESSING",
             allowEmptyValue = true
     )
-    private int finished = -1;
+    private ClientRequestStatus status;
 
     @Parameter(description = "Preço total do pedido", example = "25.45", allowEmptyValue = true)
     private double totalPrice = -1;
