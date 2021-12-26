@@ -152,6 +152,26 @@ class ApplicationUserServiceTest {
     }
 
     @Test
+    @DisplayName("getStaffUsers return list of application users when successful")
+    void findByCpf_ReturnListOfApplicationUser_WhenSuccessful() {
+        ApplicationUser adminUser = ApplicationUserCreator.createAdminApplicationUser();
+        ApplicationUser barmenUser = ApplicationUserCreator.createBarmenApplicationUser();
+        ApplicationUser waiterUser = ApplicationUserCreator.createWaiterApplicationUser();
+        ApplicationUser user = ApplicationUserCreator.createValidApplicationUser();
+
+        BDDMockito
+                .when(applicationUserRepositoryMock.findAll(ArgumentMatchers.<Specification<ApplicationUser>>any()))
+                .thenReturn(List.of(adminUser, barmenUser, waiterUser ));
+
+        List<ApplicationUser> applicationUserFound = applicationUserService.getStaffUsers();
+
+        assertThat(applicationUserFound)
+                .isNotNull()
+                .contains(adminUser, barmenUser, waiterUser)
+                .doesNotContain(user);
+    }
+
+    @Test
     @DisplayName("save creates drink when successful")
     void save_CreatesDrink_WhenSuccessful() {
         BDDMockito

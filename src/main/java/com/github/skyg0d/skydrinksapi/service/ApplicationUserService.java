@@ -38,10 +38,6 @@ public class ApplicationUserService {
         return applicationUserRepository.findAll(ApplicationUserSpecification.getSpecification(applicationUserParameters), pageable);
     }
 
-    public List<ApplicationUser> getStaffUsers() {
-        return applicationUserRepository.findAll(Specification.where(ApplicationUserSpecification.getStaffUsers()));
-    }
-
     public ApplicationUser findByIdOrElseThrowBadRequestException(UUID uuid) {
         return applicationUserRepository
                 .findById(uuid)
@@ -58,6 +54,10 @@ public class ApplicationUserService {
         return applicationUserRepository
                 .findByCpf(cpf)
                 .orElseThrow(() -> new BadRequestException(String.format("Usuário com cpf: \"%s\" não foi encontrado!", cpf)));
+    }
+
+    public List<ApplicationUser> getStaffUsers() {
+        return applicationUserRepository.findAll(Specification.where(ApplicationUserSpecification.getStaffUsers()));
     }
 
     public ApplicationUser save(ApplicationUserPostRequestBody applicationUserPostRequestBody) {

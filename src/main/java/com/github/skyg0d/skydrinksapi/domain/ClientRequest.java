@@ -3,6 +3,8 @@ package com.github.skyg0d.skydrinksapi.domain;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -21,7 +23,7 @@ public class ClientRequest extends BaseEntity {
 
     @ToString.Exclude
     @NotNull(message = "Um pedido precisa conter drinks.")
-    @ManyToMany
+    @ManyToMany(cascade = { CascadeType.REMOVE })
     @JoinTable(
             name = "request_drink",
             joinColumns = @JoinColumn(name = "request_id"),

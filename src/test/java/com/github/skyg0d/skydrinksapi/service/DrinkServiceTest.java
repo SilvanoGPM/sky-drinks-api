@@ -1,9 +1,11 @@
 package com.github.skyg0d.skydrinksapi.service;
 
+import com.github.skyg0d.skydrinksapi.domain.ClientRequest;
 import com.github.skyg0d.skydrinksapi.domain.Drink;
 import com.github.skyg0d.skydrinksapi.exception.BadRequestException;
 import com.github.skyg0d.skydrinksapi.parameters.DrinkParameters;
 import com.github.skyg0d.skydrinksapi.repository.drink.DrinkRepository;
+import com.github.skyg0d.skydrinksapi.repository.request.ClientRequestRepository;
 import com.github.skyg0d.skydrinksapi.util.drink.DrinkCreator;
 import com.github.skyg0d.skydrinksapi.util.drink.DrinkPostRequestBodyCreator;
 import com.github.skyg0d.skydrinksapi.util.drink.DrinkPutRequestBodyCreator;
@@ -37,6 +39,9 @@ class DrinkServiceTest {
     @Mock
     private DrinkRepository drinkRepositoryMock;
 
+    @Mock
+    private ClientRequestRepository clientRequestRepositoryMock;
+
     @BeforeEach
     void setUp() {
         Page<Drink> drinkPage = new PageImpl<>(List.of(DrinkCreator.createValidDrink()));
@@ -61,6 +66,11 @@ class DrinkServiceTest {
                 .doNothing()
                 .when(drinkRepositoryMock)
                 .delete(ArgumentMatchers.any(Drink.class));
+
+        BDDMockito
+                .doNothing()
+                .when(clientRequestRepositoryMock)
+                .delete(ArgumentMatchers.any(ClientRequest.class));
     }
 
     @Test
