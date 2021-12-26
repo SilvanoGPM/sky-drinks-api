@@ -4,6 +4,7 @@ import com.github.skyg0d.skydrinksapi.domain.ApplicationUser;
 import com.github.skyg0d.skydrinksapi.domain.ClientRequest;
 import com.github.skyg0d.skydrinksapi.enums.Roles;
 import com.github.skyg0d.skydrinksapi.parameters.ClientRequestParameters;
+import com.github.skyg0d.skydrinksapi.property.WebSocketProperties;
 import com.github.skyg0d.skydrinksapi.requests.ClientRequestPostRequestBody;
 import com.github.skyg0d.skydrinksapi.requests.ClientRequestPutRequestBody;
 import com.github.skyg0d.skydrinksapi.service.ApplicationUserService;
@@ -41,6 +42,7 @@ public class ClientRequestController {
     private final ApplicationUserService applicationUserService;
     private final AuthUtil authUtil;
     private final SimpMessagingTemplate template;
+    private final WebSocketProperties webSocketProperties;
 
     private boolean sendNotificationScheduled;
 
@@ -167,7 +169,7 @@ public class ClientRequestController {
 
                     sendNotificationScheduled = false;
                 }
-            }, 10000);
+            }, webSocketProperties.getSendClientRequestUpdateDelay());
 
             sendNotificationScheduled = true;
         }

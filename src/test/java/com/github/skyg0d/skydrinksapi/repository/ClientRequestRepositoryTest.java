@@ -88,7 +88,11 @@ class ClientRequestRepositoryTest {
     void delete_RemoveClientRequest_WhenSuccessful() {
         ClientRequest requestToBeSave = ClientRequestCreator.createClientRequestToBeSave();
 
+        List<Drink> drinksSaved = drinkRepository.saveAll(requestToBeSave.getDrinks());
+
         ClientRequest requestSaved = clientRequestRepository.save(requestToBeSave);
+
+        requestSaved.setDrinks(drinksSaved);
 
         clientRequestRepository.delete(requestSaved);
 

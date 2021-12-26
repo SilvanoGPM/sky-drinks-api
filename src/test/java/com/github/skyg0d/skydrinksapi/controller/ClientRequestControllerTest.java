@@ -3,10 +3,12 @@ package com.github.skyg0d.skydrinksapi.controller;
 import com.github.skyg0d.skydrinksapi.domain.ApplicationUser;
 import com.github.skyg0d.skydrinksapi.domain.ClientRequest;
 import com.github.skyg0d.skydrinksapi.parameters.ClientRequestParameters;
+import com.github.skyg0d.skydrinksapi.property.WebSocketProperties;
 import com.github.skyg0d.skydrinksapi.requests.ClientRequestPostRequestBody;
 import com.github.skyg0d.skydrinksapi.requests.ClientRequestPutRequestBody;
 import com.github.skyg0d.skydrinksapi.service.ClientRequestService;
 import com.github.skyg0d.skydrinksapi.socket.domain.FinishedRequest;
+import com.github.skyg0d.skydrinksapi.socket.domain.SocketMessage;
 import com.github.skyg0d.skydrinksapi.util.AuthUtil;
 import com.github.skyg0d.skydrinksapi.util.request.ClientRequestCreator;
 import com.github.skyg0d.skydrinksapi.util.request.ClientRequestPostRequestBodyCreator;
@@ -29,7 +31,7 @@ import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @DisplayName("Tests for ClientRequestController")
@@ -45,7 +47,10 @@ class ClientRequestControllerTest {
     private AuthUtil authUtilMock;
 
     @Mock
-    private SimpMessagingTemplate template;
+    private SimpMessagingTemplate templateMock;
+
+    @Mock
+    private WebSocketProperties webSocketPropertiesMock;
 
     @BeforeEach
     void setUp() {
@@ -84,7 +89,22 @@ class ClientRequestControllerTest {
                 .doNothing()
                 .when(clientRequestServiceMock)
                 .delete(ArgumentMatchers.any(UUID.class), ArgumentMatchers.any(ApplicationUser.class));
-        
+
+        BDDMockito
+                .doNothing()
+                .when(templateMock)
+                .convertAndSend(ArgumentMatchers.anyString(), ArgumentMatchers.any(SocketMessage.class));
+
+        BDDMockito
+                .doNothing()
+                .when(templateMock)
+                .convertAndSend(ArgumentMatchers.anyString(), ArgumentMatchers.any(FinishedRequest.class));
+
+
+        BDDMockito
+                .when(webSocketPropertiesMock.getSendClientRequestUpdateDelay())
+                .thenReturn(10000L);
+
     }
 
     @Test
