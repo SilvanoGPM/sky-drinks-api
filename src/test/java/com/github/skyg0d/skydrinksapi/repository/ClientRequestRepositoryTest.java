@@ -3,6 +3,7 @@ package com.github.skyg0d.skydrinksapi.repository;
 import com.github.skyg0d.skydrinksapi.domain.ClientRequest;
 import com.github.skyg0d.skydrinksapi.domain.Drink;
 import com.github.skyg0d.skydrinksapi.domain.Table;
+import com.github.skyg0d.skydrinksapi.enums.ClientRequestStatus;
 import com.github.skyg0d.skydrinksapi.repository.drink.DrinkRepository;
 import com.github.skyg0d.skydrinksapi.repository.request.ClientRequestRepository;
 import com.github.skyg0d.skydrinksapi.repository.table.TableRepository;
@@ -72,13 +73,13 @@ class ClientRequestRepositoryTest {
         ClientRequest requestSaved = clientRequestRepository.save(requestToBeSave);
 
         requestSaved.setTotalPrice(DrinkCreator.createValidDrink().getPrice());
-        requestSaved.setFinished(true);
+        requestSaved.setStatus(ClientRequestStatus.FINISHED);
 
         ClientRequest requestUpdated = clientRequestRepository.save(requestSaved);
 
         assertThat(requestUpdated).isNotNull();
 
-        assertThat(requestUpdated.isFinished()).isEqualTo(requestSaved.isFinished());
+        assertThat(requestUpdated.getStatus()).isEqualTo(requestSaved.getStatus());
 
         assertThat(requestUpdated.getTotalPrice()).isEqualTo(requestSaved.getTotalPrice());
     }

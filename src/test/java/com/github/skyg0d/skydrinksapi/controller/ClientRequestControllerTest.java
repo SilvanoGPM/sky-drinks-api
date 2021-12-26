@@ -7,7 +7,7 @@ import com.github.skyg0d.skydrinksapi.property.WebSocketProperties;
 import com.github.skyg0d.skydrinksapi.requests.ClientRequestPostRequestBody;
 import com.github.skyg0d.skydrinksapi.requests.ClientRequestPutRequestBody;
 import com.github.skyg0d.skydrinksapi.service.ClientRequestService;
-import com.github.skyg0d.skydrinksapi.socket.domain.FinishedRequest;
+import com.github.skyg0d.skydrinksapi.socket.domain.ClientRequestStatusChanged;
 import com.github.skyg0d.skydrinksapi.socket.domain.SocketMessage;
 import com.github.skyg0d.skydrinksapi.util.AuthUtil;
 import com.github.skyg0d.skydrinksapi.util.request.ClientRequestCreator;
@@ -86,6 +86,10 @@ class ClientRequestControllerTest {
                 .thenReturn(ClientRequestCreator.createClientRequestFinished());
 
         BDDMockito
+                .when(clientRequestServiceMock.cancelRequest(ArgumentMatchers.any(UUID.class), ArgumentMatchers.any(ApplicationUser.class)))
+                .thenReturn(ClientRequestCreator.createClientRequestCanceled());
+
+        BDDMockito
                 .doNothing()
                 .when(clientRequestServiceMock)
                 .delete(ArgumentMatchers.any(UUID.class), ArgumentMatchers.any(ApplicationUser.class));
@@ -98,7 +102,7 @@ class ClientRequestControllerTest {
         BDDMockito
                 .doNothing()
                 .when(templateMock)
-                .convertAndSend(ArgumentMatchers.anyString(), ArgumentMatchers.any(FinishedRequest.class));
+                .convertAndSend(ArgumentMatchers.anyString(), ArgumentMatchers.any(ClientRequestStatusChanged.class));
 
 
         BDDMockito
@@ -258,7 +262,31 @@ class ClientRequestControllerTest {
                 .isNotNull()
                 .isEqualTo(expectedClientRequest);
 
-        assertThat(entity.getBody().isFinished()).isEqualTo(expectedClientRequest.isFinished());
+        assertThat(entity.getBody().getStatus()).isEqualTo(expectedClientRequest.getStatus());
+
+        assertThat(entity.getBody().getTotalPrice()).isEqualTo(expectedClientRequest.getTotalPrice());
+    }
+
+    @Test
+    @DisplayName("cancelRequest cancel client request when successful")
+    void cancelRequest_CancelClientRequest_WhenSuccessful() {
+        Principal principalMock = Mockito.mock(Principal.class);
+
+        ClientRequest expectedClientRequest = ClientRequestCreator.createClientRequestCanceled();
+
+        ResponseEntity<ClientRequest> entity = clientRequestController.cancelRequest(ClientRequestCreator.createValidClientRequest().getUuid(), principalMock);
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.OK);
+
+        assertThat(entity.getBody())
+                .isNotNull()
+                .isEqualTo(expectedClientRequest);
+
+        assertThat(entity.getBody().getStatus()).isEqualTo(expectedClientRequest.getStatus());
 
         assertThat(entity.getBody().getTotalPrice()).isEqualTo(expectedClientRequest.getTotalPrice());
     }

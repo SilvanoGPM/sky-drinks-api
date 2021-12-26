@@ -1,5 +1,6 @@
 package com.github.skyg0d.skydrinksapi.domain;
 
+import com.github.skyg0d.skydrinksapi.enums.ClientRequestStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -23,7 +24,7 @@ public class ClientRequest extends BaseEntity {
 
     @ToString.Exclude
     @NotNull(message = "Um pedido precisa conter drinks.")
-    @ManyToMany(cascade = { CascadeType.REMOVE })
+    @ManyToMany
     @JoinTable(
             name = "request_drink",
             joinColumns = @JoinColumn(name = "request_id"),
@@ -43,8 +44,11 @@ public class ClientRequest extends BaseEntity {
     @Schema(description = "Mesa para entregar os drinks", example = "{ \"uuid\": \"35375453-5ff3-4c78-b458-00b5804afdfe\" }")
     private Table table;
 
-    @Schema(description = "Pedido finalizado", example = "true")
-    private boolean finished;
+    @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "varchar(255) default 'PROCESSING'")
+    @NotNull(message = "Um pedido precisa conter um status.")
+    @Schema(description = "Status do pedido", example = "PROCESSING")
+    private ClientRequestStatus status = ClientRequestStatus.PROCESSING;
 
     @PositiveOrZero(message = "O valor do pedido deve ser positivo ou igual a zero.")
     @Schema(description = "Valor total do pedido", example = "25.55")

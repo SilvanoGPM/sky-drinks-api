@@ -2,6 +2,7 @@ package com.github.skyg0d.skydrinksapi.controller;
 
 import com.github.skyg0d.skydrinksapi.domain.ApplicationUser;
 import com.github.skyg0d.skydrinksapi.domain.ClientRequest;
+import com.github.skyg0d.skydrinksapi.enums.ClientRequestStatus;
 import com.github.skyg0d.skydrinksapi.enums.Roles;
 import com.github.skyg0d.skydrinksapi.parameters.ClientRequestParameters;
 import com.github.skyg0d.skydrinksapi.property.WebSocketProperties;
@@ -9,7 +10,7 @@ import com.github.skyg0d.skydrinksapi.requests.ClientRequestPostRequestBody;
 import com.github.skyg0d.skydrinksapi.requests.ClientRequestPutRequestBody;
 import com.github.skyg0d.skydrinksapi.service.ApplicationUserService;
 import com.github.skyg0d.skydrinksapi.service.ClientRequestService;
-import com.github.skyg0d.skydrinksapi.socket.domain.FinishedRequest;
+import com.github.skyg0d.skydrinksapi.socket.domain.ClientRequestStatusChanged;
 import com.github.skyg0d.skydrinksapi.socket.domain.SocketMessage;
 import com.github.skyg0d.skydrinksapi.util.AuthUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -122,8 +123,8 @@ public class ClientRequestController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PatchMapping("/all/{uuid}")
-    @Operation(summary = "Atualiza parcialmente um pedido", tags = "Requests")
+    @PatchMapping("/finish/all/{uuid}")
+    @Operation(summary = "Finaliza um pedido", tags = "Requests")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
             @ApiResponse(responseCode = "400", description = "Quando o pedido não existe no banco de dados, ou o usuário não pode realizar essa ação"),
@@ -135,7 +136,25 @@ public class ClientRequestController {
     public ResponseEntity<ClientRequest> finishRequest(@PathVariable UUID uuid, Principal principal) {
         ClientRequest clientRequestFinished = clientRequestService.finishRequest(uuid, authUtil.getUser(principal));
 
-        sendToUserFinishedRequest(uuid);
+        sendToUserRequestStatusChanged(uuid, ClientRequestStatus.FINISHED.toString());
+
+        return ResponseEntity.ok(clientRequestFinished);
+    }
+
+    @PatchMapping("/cancel/all/{uuid}")
+    @Operation(summary = "Cancela um pedido", tags = "Requests")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Quando o pedido não existe no banco de dados, ou o usuário não pode realizar essa ação"),
+            @ApiResponse(responseCode = "401", description = "Quando o usuário não está autenticado"),
+            @ApiResponse(responseCode = "403", description = "Quando o usuário não possuí permissão"),
+            @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
+    })
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<ClientRequest> cancelRequest(@PathVariable UUID uuid, Principal principal) {
+        ClientRequest clientRequestFinished = clientRequestService.cancelRequest(uuid, authUtil.getUser(principal));
+
+        sendToUserRequestStatusChanged(uuid, ClientRequestStatus.CANCELED.toString());
 
         return ResponseEntity.ok(clientRequestFinished);
     }
@@ -175,16 +194,16 @@ public class ClientRequestController {
         }
     }
 
-    private void sendToUserFinishedRequest(UUID uuid) {
+    private void sendToUserRequestStatusChanged(UUID uuid, String message) {
         String email = clientRequestService.findByIdOrElseThrowBadRequestException(uuid).getUser().getEmail();
 
-        FinishedRequest finishedRequest = FinishedRequest
+        ClientRequestStatusChanged clientRequestStatusChanged = ClientRequestStatusChanged
                 .builder()
                 .uuid(uuid)
-                .message("request-finished")
+                .message(message)
                 .build();
 
-        template.convertAndSend("/topic/finished/" + email, finishedRequest);
+        template.convertAndSend("/topic/finished/" + email, clientRequestStatusChanged);
     }
 
 }

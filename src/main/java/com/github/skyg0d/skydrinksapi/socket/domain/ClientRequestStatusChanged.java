@@ -11,7 +11,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 @Data
-public class FinishedRequest {
+public class ClientRequestStatusChanged {
 
     private String message;
     private UUID uuid;

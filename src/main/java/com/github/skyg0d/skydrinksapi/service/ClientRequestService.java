@@ -3,6 +3,7 @@ package com.github.skyg0d.skydrinksapi.service;
 import com.github.skyg0d.skydrinksapi.domain.ApplicationUser;
 import com.github.skyg0d.skydrinksapi.domain.ClientRequest;
 import com.github.skyg0d.skydrinksapi.domain.Drink;
+import com.github.skyg0d.skydrinksapi.enums.ClientRequestStatus;
 import com.github.skyg0d.skydrinksapi.enums.Roles;
 import com.github.skyg0d.skydrinksapi.exception.BadRequestException;
 import com.github.skyg0d.skydrinksapi.exception.UserCannotCompleteClientRequestException;
@@ -71,7 +72,7 @@ public class ClientRequestService {
         double totalPrice = calculatePrice(request);
 
         request.setTotalPrice(totalPrice);
-
+        request.setStatus(ClientRequestStatus.PROCESSING);
         request.setUser(user);
 
         return clientRequestRepository.save(request);
@@ -85,28 +86,28 @@ public class ClientRequestService {
         ClientRequest requestToUpdate = mapper.toClientRequest(clientRequestPutRequestBody);
 
         requestToUpdate.setTotalPrice(calculatePrice(requestToUpdate));
-        requestToUpdate.setFinished(request.isFinished());
+        requestToUpdate.setStatus(request.getStatus());
         requestToUpdate.setUser(request.getUser());
 
         clientRequestRepository.save(requestToUpdate);
     }
 
     public ClientRequest finishRequest(UUID uuid, ApplicationUser user) {
-        ClientRequest request = findByIdOrElseThrowBadRequestException(uuid);
+        return setStatus(
+                ClientRequestStatus.FINISHED,
+                String.format("Pedido com id %s já foi finalizado!", uuid),
+                uuid,
+                user
+        );
+    }
 
-        if (request.isFinished()) {
-            throw new BadRequestException(String.format("Pedido com id %s já foi finalizado!", uuid));
-        }
-
-        userCanModifyRequestOrElseThrowUserCannotModifyClientRequestException(user, request);
-
-        request.setFinished(true);
-
-        double totalPrice = calculatePrice(request);
-
-        request.setTotalPrice(totalPrice);
-
-        return clientRequestRepository.save(request);
+    public ClientRequest cancelRequest(UUID uuid, ApplicationUser user) {
+        return setStatus(
+                ClientRequestStatus.CANCELED,
+                String.format("Pedido com id %s já foi cancelado!", uuid),
+                uuid,
+                user
+        );
     }
 
     public void delete(UUID uuid, ApplicationUser user) {
@@ -115,6 +116,34 @@ public class ClientRequestService {
         userCanModifyRequestOrElseThrowUserCannotModifyClientRequestException(user, request);
 
         clientRequestRepository.delete(request);
+    }
+
+    private ClientRequest setStatus(ClientRequestStatus status, String errorMessage, UUID uuid, ApplicationUser user) {
+        ClientRequest request = findByIdOrElseThrowBadRequestException(uuid);
+
+        if (request.getStatus().equals(ClientRequestStatus.FINISHED)) {
+            String message = status.equals(ClientRequestStatus.CANCELED)
+                    ? "Um pedido finalizado não pode ser cancelado!"
+                    : String.format("Pedido com id %s já foi finalizado!", uuid);
+
+            throw new BadRequestException(message);
+        } else if (request.getStatus().equals(ClientRequestStatus.CANCELED)) {
+            String message = status.equals(ClientRequestStatus.FINISHED)
+                    ? "Um pedido cancelado não pode ser finalizado!"
+                    : String.format("Pedido com id %s já foi cancelado!", uuid);
+
+            throw new BadRequestException(message);
+        }
+
+        userCanModifyRequestOrElseThrowUserCannotModifyClientRequestException(user, request);
+
+        request.setStatus(status);
+
+        double totalPrice = calculatePrice(request);
+
+        request.setTotalPrice(totalPrice);
+
+        return clientRequestRepository.save(request);
     }
 
     private void userCanModifyRequestOrElseThrowUserCannotModifyClientRequestException(ApplicationUser user, ClientRequest request) {

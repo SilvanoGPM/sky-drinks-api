@@ -4,6 +4,8 @@ import com.github.skyg0d.skydrinksapi.domain.ApplicationUser;
 import com.github.skyg0d.skydrinksapi.domain.ClientRequest;
 import com.github.skyg0d.skydrinksapi.domain.Drink;
 import com.github.skyg0d.skydrinksapi.domain.Table;
+import com.github.skyg0d.skydrinksapi.enums.ClientRequestStatus;
+import com.github.skyg0d.skydrinksapi.exception.details.BadRequestExceptionDetails;
 import com.github.skyg0d.skydrinksapi.repository.drink.DrinkRepository;
 import com.github.skyg0d.skydrinksapi.repository.request.ClientRequestRepository;
 import com.github.skyg0d.skydrinksapi.repository.table.TableRepository;
@@ -149,11 +151,11 @@ class ClientRequestControllerIT {
     @Test
     @DisplayName("findById returns 400 BadRequest when client request not exists")
     void findById_Returns400BadRequest_WhenClientRequestNotExists() {
-        ResponseEntity<ClientRequest> entity = testRestTemplate.exchange(
+        ResponseEntity<BadRequestExceptionDetails> entity = testRestTemplate.exchange(
                 "/requests/{uuid}",
                 HttpMethod.GET,
                 null,
-                ClientRequest.class,
+                BadRequestExceptionDetails.class,
                 UUID.randomUUID()
         );
 
@@ -264,10 +266,10 @@ class ClientRequestControllerIT {
 
         clientRequestValid.setTable(tableSaved);
 
-        ResponseEntity<ClientRequest> entity = testRestTemplate.postForEntity(
+        ResponseEntity<BadRequestExceptionDetails> entity = testRestTemplate.postForEntity(
                 "/requests/user",
                 tokenUtil.createUserMinorAuthEntity(clientRequestValid),
-                ClientRequest.class
+                BadRequestExceptionDetails.class
         );
 
         assertThat(entity).isNotNull();
@@ -290,10 +292,10 @@ class ClientRequestControllerIT {
 
         clientRequestValid.setTable(tableSaved);
 
-        ResponseEntity<ClientRequest> entity = testRestTemplate.postForEntity(
+        ResponseEntity<Object> entity = testRestTemplate.postForEntity(
                 "/requests/user",
                 tokenUtil.createBarmenAuthEntity(clientRequestValid),
-                ClientRequest.class
+                Object.class
         );
 
         assertThat(entity).isNotNull();
@@ -382,7 +384,7 @@ class ClientRequestControllerIT {
         ClientRequest clientRequestSaved = persistClientRequest();
 
         ResponseEntity<ClientRequest> entity = testRestTemplate.exchange(
-                "/requests/all/{uuid}",
+                "/requests/finish/all/{uuid}",
                 HttpMethod.PATCH,
                 tokenUtil.createWaiterAuthEntity(null),
                 ClientRequest.class,
@@ -401,9 +403,7 @@ class ClientRequestControllerIT {
                 .isNotNull()
                 .isEqualTo(clientRequestSaved.getUuid());
 
-        assertThat(entity.getBody().isFinished()).isNotEqualTo(clientRequestSaved.isFinished());
-
-        assertThat(entity.getBody().getTotalPrice()).isNotEqualTo(clientRequestSaved.getTotalPrice());
+        assertThat(entity.getBody().getStatus()).isEqualTo(ClientRequestStatus.FINISHED);
     }
 
     @Test
@@ -411,15 +411,39 @@ class ClientRequestControllerIT {
     void finishRequest_Returns400BadRequest_WhenClientRequestAlreadyFinished() {
         ClientRequest clientRequestSaved = persistClientRequest();
 
-        clientRequestSaved.setFinished(true);
+        clientRequestSaved.setStatus(ClientRequestStatus.FINISHED);
 
         ClientRequest clientRequestFinished = clientRequestRepository.save(clientRequestSaved);
 
-        ResponseEntity<ClientRequest> entity = testRestTemplate.exchange(
-                "/requests/all/{uuid}",
+        ResponseEntity<BadRequestExceptionDetails> entity = testRestTemplate.exchange(
+                "/requests/finish/all/{uuid}",
                 HttpMethod.PATCH,
                 tokenUtil.createWaiterAuthEntity(null),
-                ClientRequest.class,
+                BadRequestExceptionDetails.class,
+                clientRequestFinished.getUuid()
+        );
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    @DisplayName("finishRequest returns 400 BadRequest when client request is canceled")
+    void finishRequest_Returns400BadRequest_WhenClientRequestIsCanceled() {
+        ClientRequest clientRequestSaved = persistClientRequest();
+
+        clientRequestSaved.setStatus(ClientRequestStatus.CANCELED);
+
+        ClientRequest clientRequestFinished = clientRequestRepository.save(clientRequestSaved);
+
+        ResponseEntity<BadRequestExceptionDetails> entity = testRestTemplate.exchange(
+                "/requests/finish/all/{uuid}",
+                HttpMethod.PATCH,
+                tokenUtil.createWaiterAuthEntity(null),
+                BadRequestExceptionDetails.class,
                 clientRequestFinished.getUuid()
         );
 
@@ -433,11 +457,11 @@ class ClientRequestControllerIT {
     @Test
     @DisplayName("finishRequest returns 400 BadRequest when client request not exists")
     void finishRequest_Returns400BadRequest_WhenClientRequestNotExists() {
-        ResponseEntity<ClientRequest> entity = testRestTemplate.exchange(
-                "/requests/all/{uuid}",
+        ResponseEntity<BadRequestExceptionDetails> entity = testRestTemplate.exchange(
+                "/requests/finish/all/{uuid}",
                 HttpMethod.PATCH,
                 tokenUtil.createWaiterAuthEntity(null),
-                ClientRequest.class,
+                BadRequestExceptionDetails.class,
                 UUID.randomUUID()
         );
 
@@ -455,11 +479,127 @@ class ClientRequestControllerIT {
 
         ClientRequest clientRequestFinished = clientRequestRepository.save(clientRequestSaved);
 
-        ResponseEntity<ClientRequest> entity = testRestTemplate.exchange(
-                "/requests/all/{uuid}",
+        ResponseEntity<BadRequestExceptionDetails> entity = testRestTemplate.exchange(
+                "/requests/finish/all/{uuid}",
                 HttpMethod.PATCH,
                 tokenUtil.createUserAuthEntity(null),
+                BadRequestExceptionDetails.class,
+                clientRequestFinished.getUuid()
+        );
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    @DisplayName("cancelRequest cancel client request when successful")
+    void cancelRequest_CancelClientRequest_WhenSuccessful() {
+        ClientRequest clientRequestSaved = persistClientRequest();
+
+        ResponseEntity<ClientRequest> entity = testRestTemplate.exchange(
+                "/requests/cancel/all/{uuid}",
+                HttpMethod.PATCH,
+                tokenUtil.createWaiterAuthEntity(null),
                 ClientRequest.class,
+                clientRequestSaved.getUuid()
+        );
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.OK);
+
+        assertThat(entity.getBody()).isNotNull();
+
+        assertThat(entity.getBody().getUuid())
+                .isNotNull()
+                .isEqualTo(clientRequestSaved.getUuid());
+
+        assertThat(entity.getBody().getStatus()).isEqualTo(ClientRequestStatus.CANCELED);
+    }
+
+    @Test
+    @DisplayName("cancelRequest returns 400 BadRequest when client request already canceled")
+    void cancelRequest_Returns400BadRequest_WhenClientRequestAlreadyCanceled() {
+        ClientRequest clientRequestSaved = persistClientRequest();
+
+        clientRequestSaved.setStatus(ClientRequestStatus.CANCELED);
+
+        ClientRequest clientRequestFinished = clientRequestRepository.save(clientRequestSaved);
+
+        ResponseEntity<BadRequestExceptionDetails> entity = testRestTemplate.exchange(
+                "/requests/cancel/all/{uuid}",
+                HttpMethod.PATCH,
+                tokenUtil.createWaiterAuthEntity(null),
+                BadRequestExceptionDetails.class,
+                clientRequestFinished.getUuid()
+        );
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    @DisplayName("cancelRequest returns 400 BadRequest when client request is finished")
+    void cancelRequest_Returns400BadRequest_WhenClientRequestIsFinished() {
+        ClientRequest clientRequestSaved = persistClientRequest();
+
+        clientRequestSaved.setStatus(ClientRequestStatus.FINISHED);
+
+        ClientRequest clientRequestFinished = clientRequestRepository.save(clientRequestSaved);
+
+        ResponseEntity<BadRequestExceptionDetails> entity = testRestTemplate.exchange(
+                "/requests/cancel/all/{uuid}",
+                HttpMethod.PATCH,
+                tokenUtil.createWaiterAuthEntity(null),
+                BadRequestExceptionDetails.class,
+                clientRequestFinished.getUuid()
+        );
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    @DisplayName("cancelRequest returns 400 BadRequest when client request not exists")
+    void cancelRequest_Returns400BadRequest_WhenClientRequestNotExists() {
+        ResponseEntity<BadRequestExceptionDetails> entity = testRestTemplate.exchange(
+                "/requests/cancel/all/{uuid}",
+                HttpMethod.PATCH,
+                tokenUtil.createWaiterAuthEntity(null),
+                BadRequestExceptionDetails.class,
+                UUID.randomUUID()
+        );
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    @DisplayName("cancelRequest returns 400 BadRequest when user is not staff or owner of request")
+    void cancelRequest_Returns400BadRequest_WhenUserIsNotStaffOrOwnerOfRequest() {
+        ClientRequest clientRequestSaved = persistClientRequest();
+
+        ClientRequest clientRequestFinished = clientRequestRepository.save(clientRequestSaved);
+
+        ResponseEntity<BadRequestExceptionDetails> entity = testRestTemplate.exchange(
+                "/requests/cancel/all/{uuid}",
+                HttpMethod.PATCH,
+                tokenUtil.createUserAuthEntity(null),
+                BadRequestExceptionDetails.class,
                 clientRequestFinished.getUuid()
         );
 

@@ -192,7 +192,28 @@ class ClientRequestServiceTest {
                 .isNotNull()
                 .isEqualTo(expectedClientRequest);
 
-        assertThat(drinkFinished.isFinished()).isEqualTo(expectedClientRequest.isFinished());
+        assertThat(drinkFinished.getStatus()).isEqualTo(expectedClientRequest.getStatus());
+
+        assertThat(drinkFinished.getTotalPrice()).isEqualTo(expectedClientRequest.getTotalPrice());
+    }
+
+    @Test
+    @DisplayName("cancelRequest cancel client request when successful")
+    void cancelRequest_CancelClientRequest_WhenSuccessful() {
+        BDDMockito.when(clientRequestRepositoryMock.save(ArgumentMatchers.any(ClientRequest.class)))
+                .thenReturn(ClientRequestCreator.createClientRequestCanceled());
+
+        ClientRequest expectedClientRequest = ClientRequestCreator.createClientRequestCanceled();
+
+        ClientRequest requestValid = ClientRequestCreator.createValidClientRequest();
+
+        ClientRequest drinkFinished = clientRequestService.cancelRequest(requestValid.getUuid(), requestValid.getUser());
+
+        assertThat(drinkFinished)
+                .isNotNull()
+                .isEqualTo(expectedClientRequest);
+
+        assertThat(drinkFinished.getStatus()).isEqualTo(expectedClientRequest.getStatus());
 
         assertThat(drinkFinished.getTotalPrice()).isEqualTo(expectedClientRequest.getTotalPrice());
     }

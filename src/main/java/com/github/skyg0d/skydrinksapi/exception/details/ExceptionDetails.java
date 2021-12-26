@@ -1,7 +1,9 @@
 package com.github.skyg0d.skydrinksapi.exception.details;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.springframework.http.HttpStatus;
 
@@ -9,6 +11,8 @@ import java.time.LocalDateTime;
 
 @Data
 @SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ExceptionDetails {
 
     @Schema(description = "Título do exceção", example = "Aconteceu um erro no servidor")

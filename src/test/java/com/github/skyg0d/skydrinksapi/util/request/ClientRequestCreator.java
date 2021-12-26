@@ -1,6 +1,8 @@
 package com.github.skyg0d.skydrinksapi.util.request;
 
 import com.github.skyg0d.skydrinksapi.domain.ClientRequest;
+import com.github.skyg0d.skydrinksapi.domain.Drink;
+import com.github.skyg0d.skydrinksapi.enums.ClientRequestStatus;
 import com.github.skyg0d.skydrinksapi.util.drink.DrinkCreator;
 import com.github.skyg0d.skydrinksapi.util.table.TableCreator;
 import com.github.skyg0d.skydrinksapi.util.user.ApplicationUserCreator;
@@ -21,48 +23,84 @@ public class ClientRequestCreator {
                 .table(TableCreator.createValidTable())
                 .drinks(new ArrayList<>(List.of(DrinkCreator.createValidDrink())))
                 .totalPrice(0.0)
-                .finished(false)
+                .status(ClientRequestStatus.PROCESSING)
                 .build();
     }
 
     public static ClientRequest createValidClientRequest() {
+        ArrayList<Drink> drinks = new ArrayList<>(List.of(DrinkCreator.createValidDrink()));
+
+        double totalPrice = calculatePrice(drinks);
+
         return ClientRequest
                 .builder()
                 .uuid(uuid)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .user(ApplicationUserCreator.createValidApplicationUser())
-                .drinks(new ArrayList<>(List.of(DrinkCreator.createValidDrink())))
+                .drinks(drinks)
                 .table(TableCreator.createValidTable())
-                .totalPrice(0.0)
-                .finished(false)
+                .totalPrice(totalPrice)
+                .status(ClientRequestStatus.PROCESSING)
                 .build();
     }
 
     public static ClientRequest createValidUpdatedClientRequest() {
+        ArrayList<Drink> drinks = new ArrayList<>(List.of(DrinkCreator.createValidDrink()));
+
+        double totalPrice = calculatePrice(drinks);
+
         return ClientRequest
                 .builder()
                 .uuid(uuid)
                 .updatedAt(LocalDateTime.now())
                 .user(ApplicationUserCreator.createValidApplicationUser())
-                .drinks(new ArrayList<>(List.of(DrinkCreator.createValidDrink())))
+                .drinks(drinks)
                 .table(TableCreator.createValidTable())
-                .totalPrice(DrinkCreator.createValidDrink().getPrice())
-                .finished(true)
+                .totalPrice(totalPrice)
+                .status(ClientRequestStatus.FINISHED)
                 .build();
     }
 
     public static ClientRequest createClientRequestFinished() {
+        ArrayList<Drink> drinks = new ArrayList<>(List.of(DrinkCreator.createValidDrink()));
+
+        double totalPrice = calculatePrice(drinks);
+
         return ClientRequest
                 .builder()
                 .uuid(uuid)
                 .updatedAt(LocalDateTime.now())
                 .user(ApplicationUserCreator.createValidApplicationUser())
-                .drinks(new ArrayList<>(List.of(DrinkCreator.createValidDrink())))
+                .drinks(drinks)
                 .table(TableCreator.createValidTable())
-                .totalPrice(DrinkCreator.createValidDrink().getPrice())
-                .finished(true)
+                .totalPrice(totalPrice)
+                .status(ClientRequestStatus.FINISHED)
                 .build();
+    }
+
+    public static ClientRequest createClientRequestCanceled() {
+        ArrayList<Drink> drinks = new ArrayList<>(List.of(DrinkCreator.createValidDrink()));
+
+        double totalPrice = calculatePrice(drinks);
+
+        return ClientRequest
+                .builder()
+                .uuid(uuid)
+                .updatedAt(LocalDateTime.now())
+                .user(ApplicationUserCreator.createValidApplicationUser())
+                .drinks(drinks)
+                .table(TableCreator.createValidTable())
+                .totalPrice(totalPrice)
+                .status(ClientRequestStatus.CANCELED)
+                .build();
+    }
+
+    private static double calculatePrice(List<Drink> drinks) {
+        return drinks
+                .stream()
+                .mapToDouble(Drink::getPrice)
+                .sum();
     }
 
 }
