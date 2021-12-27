@@ -21,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -59,7 +60,13 @@ public class FileStorageService {
 
     public Page<String> listFiles(Pageable pageable) {
         List<String> files = listFiles();
-        return new PageImpl<>(files, pageable, files.size());
+
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), files.size());
+
+        List<String> content = start < files.size() ? files.subList(start, end) : Collections.emptyList();
+
+        return new PageImpl<>(content, pageable, files.size());
     }
 
     public List<String> listFiles() {
