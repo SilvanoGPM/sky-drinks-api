@@ -149,7 +149,7 @@ class FileStorageServiceTest {
 
         String fileName = fileStorageService.storeFile(multipartFile);
 
-        Page<String> filesPage = fileStorageService.listFiles(PageRequest.of(1, 1));
+        Page<String> filesPage = fileStorageService.listFiles(PageRequest.of(0, 1));
 
         assertThat(filesPage)
                 .isNotEmpty()

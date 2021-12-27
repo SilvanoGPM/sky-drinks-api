@@ -138,7 +138,7 @@ class FileStorageControllerTest {
 
         FileResponse response = fileStorageController.uploadImage(multipartFile).getBody();
 
-        ResponseEntity<Page<String>> entity = fileStorageController.listAll(PageRequest.of(1, 1));
+        ResponseEntity<Page<String>> entity = fileStorageController.listAll(PageRequest.of(0, 1));
 
         assertThat(entity).isNotNull();
 

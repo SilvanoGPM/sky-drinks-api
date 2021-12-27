@@ -117,7 +117,9 @@ class ClientRequestServiceTest {
     void search_ReturnListOfClientRequestsInsidePageObject_WhenSuccessful() {
         ClientRequest expectedClientRequest = ClientRequestCreator.createValidClientRequest();
 
-        Page<ClientRequest> drinkPage = clientRequestService.search(new ClientRequestParameters(), PageRequest.of(1, 1), expectedClientRequest.getUser());
+        expectedClientRequest.getUser().setRole("BARMEN");
+
+        Page<ClientRequest> drinkPage = clientRequestService.search(new ClientRequestParameters(), PageRequest.of(1, 1));
 
         assertThat(drinkPage).isNotNull();
 
@@ -128,15 +130,11 @@ class ClientRequestServiceTest {
     }
 
     @Test
-    @DisplayName("search return list of client requests inside page object when user is a waiter")
-    void search_ReturnListOfClientRequestsInsidePageObject_WhenUserIsAWaiter() {
+    @DisplayName("searchMyRequests return list of client requests inside page object when successful")
+    void searchMyRequests_ReturnListOfClientRequestsInsidePageObject_WhenSuccessful() {
         ClientRequest expectedClientRequest = ClientRequestCreator.createValidClientRequest();
 
-        ApplicationUser user = expectedClientRequest.getUser();
-
-        user.setRole("WAITER");
-
-        Page<ClientRequest> drinkPage = clientRequestService.search(new ClientRequestParameters(), PageRequest.of(1, 1), user);
+        Page<ClientRequest> drinkPage = clientRequestService.searchMyRequests(new ClientRequestParameters(), PageRequest.of(1, 1), expectedClientRequest.getUser());
 
         assertThat(drinkPage).isNotNull();
 
@@ -145,7 +143,6 @@ class ClientRequestServiceTest {
                 .hasSize(1)
                 .contains(expectedClientRequest);
     }
-
 
     @Test
     @DisplayName("save creates client request when successful")

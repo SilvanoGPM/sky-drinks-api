@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -42,12 +43,13 @@ public class ClientRequestService {
         return clientRequestRepository.findAll(pageable);
     }
 
-    public Page<ClientRequest> search(ClientRequestParameters parameters, Pageable pageable, ApplicationUser user) {
-        Page<ClientRequest> requests = clientRequestRepository.findAll(ClientRequestSpecification.getSpecification(parameters), pageable);
+    public Page<ClientRequest> search(ClientRequestParameters parameters, Pageable pageable) {
+        return clientRequestRepository.findAll(ClientRequestSpecification.getSpecification(parameters), pageable);
+    }
 
-        return userIsStaff(user)
-                ? requests
-                : filterRequestsByUser(requests, user, pageable);
+    public Page<ClientRequest> searchMyRequests(ClientRequestParameters parameters, Pageable pageable, ApplicationUser user) {
+        parameters.setUserUUID(user.getUuid());
+        return clientRequestRepository.findAll(ClientRequestSpecification.getSpecification(parameters), pageable);
     }
 
     public ClientRequest findByIdOrElseThrowBadRequestException(UUID uuid) {
@@ -154,20 +156,11 @@ public class ClientRequestService {
     }
 
     private boolean userIsStaff(ApplicationUser user) {
-        return !user.getRole().contains(Roles.USER.getName());
+        return !Roles.USER.getName().equals(user.getRole());
     }
 
     private boolean requestBelongsToUser(ClientRequest request, ApplicationUser user) {
         return request.getUser().getUuid().equals(user.getUuid());
-    }
-
-    private Page<ClientRequest> filterRequestsByUser(Page<ClientRequest> requests, ApplicationUser user, Pageable pageable) {
-        List<ClientRequest> requestsFiltered = requests
-                .stream()
-                .filter(((request) -> requestBelongsToUser(request, user)))
-                .collect(Collectors.toList());
-
-        return new PageImpl<>(requestsFiltered, pageable, requestsFiltered.size());
     }
 
     private double calculatePrice(ClientRequest request) {

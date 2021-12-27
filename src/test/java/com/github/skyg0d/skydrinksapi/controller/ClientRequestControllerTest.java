@@ -69,8 +69,13 @@ class ClientRequestControllerTest {
                 .thenReturn(ClientRequestCreator.createValidClientRequest());
 
         BDDMockito
-                .when(clientRequestServiceMock.search(ArgumentMatchers.any(ClientRequestParameters.class), ArgumentMatchers.any(PageRequest.class), ArgumentMatchers.any(ApplicationUser.class)))
+                .when(clientRequestServiceMock.search(ArgumentMatchers.any(ClientRequestParameters.class), ArgumentMatchers.any(PageRequest.class)))
                 .thenReturn(drinkPage);
+
+        BDDMockito
+                .when(clientRequestServiceMock.searchMyRequests(ArgumentMatchers.any(ClientRequestParameters.class), ArgumentMatchers.any(PageRequest.class), ArgumentMatchers.any(ApplicationUser.class)))
+                .thenReturn(drinkPage);
+
 
         BDDMockito
                 .when(clientRequestServiceMock.save(ArgumentMatchers.any(ClientRequestPostRequestBody.class), ArgumentMatchers.any(ApplicationUser.class)))
@@ -169,11 +174,30 @@ class ClientRequestControllerTest {
     @Test
     @DisplayName("search return list of client requests inside page object when successful")
     void search_ReturnListOfClientRequestsInsidePageObject_WhenSuccessful() {
+        ClientRequest expectedClientRequest = ClientRequestCreator.createValidClientRequest();
+
+        ResponseEntity<Page<ClientRequest>> entity = clientRequestController.search(new ClientRequestParameters(), PageRequest.of(1, 1));
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.OK);
+
+        assertThat(entity.getBody())
+                .isNotEmpty()
+                .hasSize(1)
+                .contains(expectedClientRequest);
+    }
+
+    @Test
+    @DisplayName("searchMyRequests return list of client requests inside page object when successful")
+    void searchMyRequests_ReturnListOfClientRequestsInsidePageObject_WhenSuccessful() {
         Principal principalMock = Mockito.mock(Principal.class);
 
         ClientRequest expectedClientRequest = ClientRequestCreator.createValidClientRequest();
 
-        ResponseEntity<Page<ClientRequest>> entity = clientRequestController.search(new ClientRequestParameters(), PageRequest.of(1, 1), principalMock);
+        ResponseEntity<Page<ClientRequest>> entity = clientRequestController.searchMyRequests(new ClientRequestParameters(), PageRequest.of(1, 1), principalMock);
 
         assertThat(entity).isNotNull();
 

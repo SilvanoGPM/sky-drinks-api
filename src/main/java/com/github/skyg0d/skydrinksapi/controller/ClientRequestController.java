@@ -60,7 +60,7 @@ public class ClientRequestController {
         return ResponseEntity.ok(clientRequestService.listAll(pageable));
     }
 
-    @GetMapping("/all/search")
+    @GetMapping("/waiter-or-barmen/search")
     @Operation(summary = "Retorna os pedidos encontrados com paginação", tags = "Requests")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
@@ -69,8 +69,21 @@ public class ClientRequestController {
             @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
     })
     @SecurityRequirement(name = "bearerAuth")
-    public ResponseEntity<Page<ClientRequest>> search(@ParameterObject ClientRequestParameters parameters, @ParameterObject Pageable pageable, Principal principal) {
-        return ResponseEntity.ok(clientRequestService.search(parameters, pageable, authUtil.getUser(principal)));
+    public ResponseEntity<Page<ClientRequest>> search(@ParameterObject ClientRequestParameters parameters, @ParameterObject Pageable pageable) {
+        return ResponseEntity.ok(clientRequestService.search(parameters, pageable));
+    }
+
+    @GetMapping("/user/my-requests")
+    @Operation(summary = "Retorna os pedidos encontrados com paginação", tags = "Requests")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
+            @ApiResponse(responseCode = "401", description = "Quando o usuário não está autenticado"),
+            @ApiResponse(responseCode = "403", description = "Quando o usuário não possuí permissão"),
+            @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
+    })
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<Page<ClientRequest>> searchMyRequests(@ParameterObject ClientRequestParameters parameters, @ParameterObject Pageable pageable, Principal principal) {
+        return ResponseEntity.ok(clientRequestService.searchMyRequests(parameters, pageable, authUtil.getUser(principal)));
     }
 
     @GetMapping("/{uuid}")

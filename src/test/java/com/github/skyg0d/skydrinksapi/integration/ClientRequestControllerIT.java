@@ -171,7 +171,7 @@ class ClientRequestControllerIT {
     void search_ReturnListOfClientRequestsInsidePageObject_WhenSuccessful() {
         ClientRequest clientRequestSaved = persistClientRequest();
 
-        String url = String.format("/requests/all/search?drinkUUID=%s", clientRequestSaved.getDrinks().get(0).getUuid());
+        String url = String.format("/requests/waiter-or-barmen/search?drinkUUID=%s", clientRequestSaved.getDrinks().get(0).getUuid());
 
         ResponseEntity<PageableResponse<ClientRequest>> entity = testRestTemplate.exchange(
                 url,
@@ -196,12 +196,61 @@ class ClientRequestControllerIT {
     @Test
     @DisplayName("search return empty page object when does not match")
     void search_ReturnEmptyPage_WhenDoesNotMatch() {
-        String url = String.format("/requests/all/search?drinkUUID=%s", UUID.randomUUID());
+        String url = String.format("/requests/waiter-or-barmen/search?drinkUUID=%s", UUID.randomUUID());
 
         ResponseEntity<PageableResponse<ClientRequest>> entity = testRestTemplate.exchange(
                 url,
                 HttpMethod.GET,
                 tokenUtil.createWaiterAuthEntity(null),
+                new ParameterizedTypeReference<>() {
+                }
+        );
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.OK);
+
+        assertThat(entity.getBody()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("searchMyRequests return list of client requests inside page object when successful")
+    void searchMyRequests_ReturnListOfClientRequestsInsidePageObject_WhenSuccessful() {
+        ClientRequest clientRequestSaved = persistClientRequest(applicationUserRepository.findByEmail(ApplicationUserCreator.createApplicationUser().getEmail()).get());
+
+        String url = String.format("/requests/user/my-requests?drinkUUID=%s", clientRequestSaved.getDrinks().get(0).getUuid());
+
+        ResponseEntity<PageableResponse<ClientRequest>> entity = testRestTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                tokenUtil.createUserAuthEntity(null),
+                new ParameterizedTypeReference<>() {
+                }
+        );
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.OK);
+
+        assertThat(entity.getBody())
+                .isNotEmpty()
+                .hasSize(1)
+                .contains(clientRequestSaved);
+    }
+
+    @Test
+    @DisplayName("searchMyRequests return empty page object when does not match")
+    void searchMyRequests_ReturnEmptyPage_WhenDoesNotMatch() {
+        String url = String.format("/requests/user/my-requests?drinkUUID=%s", UUID.randomUUID());
+
+        ResponseEntity<PageableResponse<ClientRequest>> entity = testRestTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                tokenUtil.createUserAuthEntity(null),
                 new ParameterizedTypeReference<>() {
                 }
         );
@@ -669,11 +718,13 @@ class ClientRequestControllerIT {
     }
 
     private ClientRequest persistClientRequest() {
+        return persistClientRequest(applicationUserRepository.save(ApplicationUserCreator.createApplicationUserToBeSave()));
+    }
+
+    private ClientRequest persistClientRequest(ApplicationUser userSaved) {
         Drink drinkSaved = drinkRepository.save(DrinkCreator.createDrinkToBeSave());
 
         Table tableSaved = tableRepository.save(TableCreator.createTableToBeSave());
-
-        ApplicationUser userSaved = applicationUserRepository.save(ApplicationUserCreator.createApplicationUserToBeSave());
 
         ClientRequest clientRequestValid = ClientRequestCreator.createClientRequestToBeSave();
 
