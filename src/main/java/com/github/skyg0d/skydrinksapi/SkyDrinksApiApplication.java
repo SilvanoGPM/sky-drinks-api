@@ -13,8 +13,10 @@ public class SkyDrinksApiApplication {
 
     public static void main(String[] args) {
         ConfigurableApplicationContext ctx = SpringApplication.run(SkyDrinksApiApplication.class, args);
+        createUserIfNoneExists(ctx);
+    }
 
-        // Cria um usuário caso não exista nenhum.
+    private static void createUserIfNoneExists(ConfigurableApplicationContext ctx) {
         ApplicationUserRepository applicationUserRepository = ctx.getBean(ApplicationUserRepository.class);
 
         if (applicationUserRepository.count() == 0) {
@@ -30,7 +32,6 @@ public class SkyDrinksApiApplication {
 
             applicationUserRepository.save(applicationUser);
         }
-
     }
 
 }

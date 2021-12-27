@@ -59,6 +59,10 @@ class DrinkServiceTest {
                 .thenReturn(drinkPage);
 
         BDDMockito
+                .when(drinkRepositoryMock.findByPicture(ArgumentMatchers.anyString()))
+                .thenReturn(List.of(DrinkCreator.createValidDrink()));
+
+        BDDMockito
                 .when(drinkRepositoryMock.save(ArgumentMatchers.any(Drink.class)))
                 .thenReturn(DrinkCreator.createValidDrink());
 
@@ -121,6 +125,19 @@ class DrinkServiceTest {
         assertThat(drinkPage).isNotNull();
 
         assertThat(drinkPage.toList())
+                .isNotEmpty()
+                .hasSize(1)
+                .contains(expectedDrink);
+    }
+
+    @Test
+    @DisplayName("findByPicture return list of drinks when successful")
+    void findByPicture_ReturnListOfDrinks_WhenSuccessful() {
+        Drink expectedDrink = DrinkCreator.createValidDrink();
+
+        List<Drink> drinkPage = drinkService.findByPicture(expectedDrink.getPicture());
+
+        assertThat(drinkPage)
                 .isNotEmpty()
                 .hasSize(1)
                 .contains(expectedDrink);

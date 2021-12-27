@@ -16,9 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Predicate;
 
 @Log4j2
@@ -38,6 +36,10 @@ public class DrinkService {
         return drinkRepository
                 .findById(uuid)
                 .orElseThrow(() -> new BadRequestException(String.format("Bebida com id: %s, não foi encontrada.", uuid)));
+    }
+
+    public List<Drink> findByPicture(String picture) {
+        return drinkRepository.findByPicture(picture);
     }
 
     public Page<Drink> search(DrinkParameters drinkParameters, Pageable pageable) {

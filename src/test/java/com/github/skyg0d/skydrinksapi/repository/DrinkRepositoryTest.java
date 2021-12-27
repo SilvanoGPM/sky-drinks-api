@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import javax.validation.ConstraintViolationException;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
@@ -74,6 +75,21 @@ class DrinkRepositoryTest {
         assertThatExceptionOfType(ConstraintViolationException.class)
                 .isThrownBy(() -> drinkRepository.saveAndFlush(drink));
 
+    }
+
+    @Test
+    @DisplayName("findByPicture returns list of drinks when successful")
+    void findByPicture_ReturnsListOfDrinks_WhenSuccessful() {
+        Drink drinkToBeSave = DrinkCreator.createDrinkToBeSave();
+
+        Drink drinkSaved = drinkRepository.save(drinkToBeSave);
+
+        List<Drink> drinks = drinkRepository.findByPicture(drinkSaved.getPicture());
+
+        assertThat(drinks)
+                .isNotEmpty()
+                .hasSize(1)
+                .contains(drinkSaved);
     }
 
 }

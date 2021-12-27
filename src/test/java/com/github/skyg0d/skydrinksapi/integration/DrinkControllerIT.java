@@ -21,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 
+import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -169,6 +170,55 @@ class DrinkControllerIT {
 
         assertThat(entity.getBody()).isEmpty();
 
+    }
+
+    @Test
+    @DisplayName("findByPicture return list of drinks when successful")
+    void findByPicture_ReturnListOfDrinks_WhenSuccessful() {
+        Drink drinkSaved = drinkRepository.save(DrinkCreator.createDrinkToBeSave());
+
+        ResponseEntity<List<Drink>> entity = testRestTemplate.exchange(
+                "/drinks/find-by-picture/{picture}",
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<>() {
+                },
+                drinkSaved.getPicture()
+        );
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.OK);
+
+        assertThat(entity.getBody())
+                .isNotEmpty()
+                .hasSize(1)
+                .contains(drinkSaved);
+    }
+
+    @Test
+    @DisplayName("findByPicture return empty list when no picture found")
+    void findByPicture_ReturnEmptyList_WhenNoPictureFound() {
+        drinkRepository.save(DrinkCreator.createDrinkToBeSave());
+
+        ResponseEntity<List<Drink>> entity = testRestTemplate.exchange(
+                "/drinks/find-by-picture/{picture}",
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<>() {
+                },
+                "drink.png"
+        );
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.OK);
+
+        assertThat(entity.getBody()).isEmpty();
     }
 
     @Test

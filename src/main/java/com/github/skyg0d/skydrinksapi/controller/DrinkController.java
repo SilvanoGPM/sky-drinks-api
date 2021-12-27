@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -40,7 +41,7 @@ public class DrinkController {
     }
 
     @GetMapping("/{uuid}")
-    @Operation(summary = "Retorna o drink especificado" , tags = "Drinks")
+    @Operation(summary = "Retorna o drink especificado", tags = "Drinks")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
             @ApiResponse(responseCode = "400", description = "Quando o drink não existe no banco de dados"),
@@ -50,8 +51,18 @@ public class DrinkController {
         return ResponseEntity.ok(drinkService.findByIdOrElseThrowBadRequestException(uuid));
     }
 
+    @GetMapping("/find-by-picture/{picture}")
+    @Operation(summary = "Retorna todos os drinks que contém determinada imagem", tags = "Drinks")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
+            @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
+    })
+    public ResponseEntity<List<Drink>> findByPicture(@PathVariable String picture) {
+        return ResponseEntity.ok(drinkService.findByPicture(picture));
+    }
+
     @GetMapping("/search")
-    @Operation(summary = "Retorna os drinks encontrados com paginação" , tags = "Drinks")
+    @Operation(summary = "Retorna os drinks encontrados com paginação", tags = "Drinks")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
             @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
@@ -61,7 +72,7 @@ public class DrinkController {
     }
 
     @PostMapping("/barmen")
-    @Operation(summary = "Cria um novo drink e retorna seus dados" , tags = "Drinks")
+    @Operation(summary = "Cria um novo drink e retorna seus dados", tags = "Drinks")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Operação foi realizada com sucesso"),
             @ApiResponse(responseCode = "401", description = "Quando o drink não está autenticado"),
