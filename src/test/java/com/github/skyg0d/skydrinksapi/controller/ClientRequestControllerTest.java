@@ -76,7 +76,6 @@ class ClientRequestControllerTest {
                 .when(clientRequestServiceMock.searchMyRequests(ArgumentMatchers.any(ClientRequestParameters.class), ArgumentMatchers.any(PageRequest.class), ArgumentMatchers.any(ApplicationUser.class)))
                 .thenReturn(drinkPage);
 
-
         BDDMockito
                 .when(clientRequestServiceMock.save(ArgumentMatchers.any(ClientRequestPostRequestBody.class), ArgumentMatchers.any(ApplicationUser.class)))
                 .thenReturn(ClientRequestCreator.createValidClientRequest());
@@ -93,6 +92,10 @@ class ClientRequestControllerTest {
         BDDMockito
                 .when(clientRequestServiceMock.cancelRequest(ArgumentMatchers.any(UUID.class), ArgumentMatchers.any(ApplicationUser.class)))
                 .thenReturn(ClientRequestCreator.createClientRequestCanceled());
+
+        BDDMockito
+                .when(clientRequestServiceMock.deliverRequest(ArgumentMatchers.any(UUID.class)))
+                .thenReturn(ClientRequestCreator.createClientRequestDelivered());
 
         BDDMockito
                 .doNothing()
@@ -313,6 +316,26 @@ class ClientRequestControllerTest {
         assertThat(entity.getBody().getStatus()).isEqualTo(expectedClientRequest.getStatus());
 
         assertThat(entity.getBody().getTotalPrice()).isEqualTo(expectedClientRequest.getTotalPrice());
+    }
+
+    @Test
+    @DisplayName("deliverRequest deliver client request when successful")
+    void deliverRequest_DeliverClientRequest_WhenSuccessful() {
+        ClientRequest expectedClientRequest = ClientRequestCreator.createClientRequestDelivered();
+
+        ResponseEntity<ClientRequest> entity = clientRequestController.deliverRequest(ClientRequestCreator.createClientRequestFinished().getUuid());
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.OK);
+
+        assertThat(entity.getBody())
+                .isNotNull()
+                .isEqualTo(expectedClientRequest);
+
+        assertThat(entity.getBody().isDelivered()).isEqualTo(expectedClientRequest.isDelivered());
     }
 
     @Test

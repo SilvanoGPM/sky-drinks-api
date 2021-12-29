@@ -32,7 +32,8 @@ public class ClientRequestSpecification extends AbstractSpecification {
                 .and(where(withLessThanOrEqualToTotalPrice(parameters.getLessThanOrEqualToTotalPrice())))
                 .and(where(withCreatedAt(parameters.getCreatedAt())))
                 .and(where(withCreatedInDateOrAfter(parameters.getCreatedInDateOrAfter())))
-                .and(where(withCreatedInDateOrBefore(parameters.getCreatedInDateOrBefore())));
+                .and(where(withCreatedInDateOrBefore(parameters.getCreatedInDateOrBefore())))
+                .and(where(withDelivered(parameters.getDelivered())));
     }
 
     public static Specification<ClientRequest> withDrinkUUID(UUID uuid) {
@@ -135,6 +136,14 @@ public class ClientRequestSpecification extends AbstractSpecification {
         return getSpec(lessThanOrEqualToTotalPrice, (root, query, builder) -> (
                 builder.lessThanOrEqualTo(root.get("totalPrice"), lessThanOrEqualToTotalPrice)
         ));
+    }
+
+    public static Specification<ClientRequest> withDelivered(int delivered) {
+        if (delivered != 0 && delivered != 1) return null;
+
+        boolean isDelivered = delivered == 1;
+
+        return (root, query, builder) -> builder.equal(root.get("delivered"), isDelivered);
     }
 
 }

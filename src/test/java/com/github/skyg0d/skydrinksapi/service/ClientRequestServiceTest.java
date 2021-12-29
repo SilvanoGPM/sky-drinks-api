@@ -183,15 +183,15 @@ class ClientRequestServiceTest {
 
         ClientRequest requestValid = ClientRequestCreator.createValidClientRequest();
 
-        ClientRequest drinkFinished = clientRequestService.finishRequest(requestValid.getUuid(), requestValid.getUser());
+        ClientRequest requestFinished = clientRequestService.finishRequest(requestValid.getUuid(), requestValid.getUser());
 
-        assertThat(drinkFinished)
+        assertThat(requestFinished)
                 .isNotNull()
                 .isEqualTo(expectedClientRequest);
 
-        assertThat(drinkFinished.getStatus()).isEqualTo(expectedClientRequest.getStatus());
+        assertThat(requestFinished.getStatus()).isEqualTo(expectedClientRequest.getStatus());
 
-        assertThat(drinkFinished.getTotalPrice()).isEqualTo(expectedClientRequest.getTotalPrice());
+        assertThat(requestFinished.getTotalPrice()).isEqualTo(expectedClientRequest.getTotalPrice());
     }
 
     @Test
@@ -204,15 +204,38 @@ class ClientRequestServiceTest {
 
         ClientRequest requestValid = ClientRequestCreator.createValidClientRequest();
 
-        ClientRequest drinkFinished = clientRequestService.cancelRequest(requestValid.getUuid(), requestValid.getUser());
+        ClientRequest requestCanceled = clientRequestService.cancelRequest(requestValid.getUuid(), requestValid.getUser());
 
-        assertThat(drinkFinished)
+        assertThat(requestCanceled)
                 .isNotNull()
                 .isEqualTo(expectedClientRequest);
 
-        assertThat(drinkFinished.getStatus()).isEqualTo(expectedClientRequest.getStatus());
+        assertThat(requestCanceled.getStatus()).isEqualTo(expectedClientRequest.getStatus());
 
-        assertThat(drinkFinished.getTotalPrice()).isEqualTo(expectedClientRequest.getTotalPrice());
+        assertThat(requestCanceled.getTotalPrice()).isEqualTo(expectedClientRequest.getTotalPrice());
+    }
+
+    @Test
+    @DisplayName("deliverRequest deliver client request when successful")
+    void deliverRequest_DeliverClientRequest_WhenSuccessful() {
+        BDDMockito.when(clientRequestRepositoryMock.save(ArgumentMatchers.any(ClientRequest.class)))
+                .thenReturn(ClientRequestCreator.createClientRequestDelivered());
+
+        BDDMockito
+                .when(clientRequestRepositoryMock.findById(ArgumentMatchers.any(UUID.class)))
+                .thenReturn(Optional.of(ClientRequestCreator.createClientRequestFinished()));
+
+        ClientRequest expectedClientRequest = ClientRequestCreator.createClientRequestDelivered();
+
+        ClientRequest requestValid = ClientRequestCreator.createClientRequestFinished();
+
+        ClientRequest requestDelivered = clientRequestService.deliverRequest(requestValid.getUuid());
+
+        assertThat(requestDelivered)
+                .isNotNull()
+                .isEqualTo(expectedClientRequest);
+
+        assertThat(requestDelivered.isDelivered()).isEqualTo(expectedClientRequest.isDelivered());
     }
 
     @Test
@@ -255,36 +278,55 @@ class ClientRequestServiceTest {
     }
 
     @Test
-    @DisplayName("replace throws UserCannotModifyClientRequestException when user do not have access")
-    void replace_ThrowsUserCannotModifyClientRequestException_WhenUserDoNotHaveAccess() {
-        BDDMockito
-                .when(clientRequestRepositoryMock.save(ArgumentMatchers.any(ClientRequest.class)))
-                .thenReturn(ClientRequestCreator.createValidUpdatedClientRequest());
-
-        ApplicationUser someUser = ClientRequestCreator.createValidUpdatedClientRequest().getUser();
-
-        someUser.setUuid(UUID.randomUUID());
-
-        ClientRequestPutRequestBody requestToUpdate = ClientRequestPutRequestBodyCreator.createClientRequestPutRequestBodyCreatorToBeUpdate();
-
-        assertThatExceptionOfType(UserCannotModifyClientRequestException.class)
-                .isThrownBy(() -> clientRequestService.replace(requestToUpdate, someUser));
-    }
-
-    @Test
     @DisplayName("finishRequest throws BadRequestException when client request already finished")
     void finishRequest_ThrowsBadRequestException_WhenClientRequestAlreadyFinished() {
         BDDMockito.when(clientRequestRepositoryMock.findById(ArgumentMatchers.any(UUID.class)))
                 .thenReturn(Optional.of(ClientRequestCreator.createClientRequestFinished()));
 
-        ClientRequest requestValid = ClientRequestCreator.createValidClientRequest();
+        ClientRequest requestValid = ClientRequestCreator.createClientRequestFinished();
 
         assertThatExceptionOfType(BadRequestException.class)
                 .isThrownBy(() -> clientRequestService.finishRequest(requestValid.getUuid(), requestValid.getUser()));
     }
 
     @Test
-    @DisplayName("finishRequest throws UserCannotModifyClientRequestException when user do not have access")
+    @DisplayName("finishRequest throws BadRequestException when client request is canceled")
+    void finishRequest_ThrowsBadRequestException_WhenClientRequestIsCanceled() {
+        BDDMockito.when(clientRequestRepositoryMock.findById(ArgumentMatchers.any(UUID.class)))
+                .thenReturn(Optional.of(ClientRequestCreator.createClientRequestCanceled()));
+
+        ClientRequest requestValid = ClientRequestCreator.createClientRequestCanceled();
+
+        assertThatExceptionOfType(BadRequestException.class)
+                .isThrownBy(() -> clientRequestService.finishRequest(requestValid.getUuid(), requestValid.getUser()));
+    }
+
+    @Test
+    @DisplayName("cancelRequest throws BadRequestException when client request already canceled")
+    void cancelRequest_ThrowsBadRequestException_WhenClientRequestAlreadyCanceled() {
+        BDDMockito.when(clientRequestRepositoryMock.findById(ArgumentMatchers.any(UUID.class)))
+                .thenReturn(Optional.of(ClientRequestCreator.createClientRequestCanceled()));
+
+        ClientRequest requestValid = ClientRequestCreator.createClientRequestCanceled();
+
+        assertThatExceptionOfType(BadRequestException.class)
+                .isThrownBy(() -> clientRequestService.cancelRequest(requestValid.getUuid(), requestValid.getUser()));
+    }
+
+    @Test
+    @DisplayName("cancelRequest throws BadRequestException when client request is finished")
+    void cancelRequest_ThrowsBadRequestException_WhenClientRequestIsFinished() {
+        BDDMockito.when(clientRequestRepositoryMock.findById(ArgumentMatchers.any(UUID.class)))
+                .thenReturn(Optional.of(ClientRequestCreator.createClientRequestFinished()));
+
+        ClientRequest requestValid = ClientRequestCreator.createClientRequestFinished();
+
+        assertThatExceptionOfType(BadRequestException.class)
+                .isThrownBy(() -> clientRequestService.cancelRequest(requestValid.getUuid(), requestValid.getUser()));
+    }
+
+    @Test
+    @DisplayName("cancelRequest throws UserCannotModifyClientRequestException when user do not have access")
     void finishRequest_ThrowsUserCannotModifyClientRequestException_WhenUserDoNotHaveAccess() {
         BDDMockito.when(clientRequestRepositoryMock.save(ArgumentMatchers.any(ClientRequest.class)))
                 .thenReturn(ClientRequestCreator.createClientRequestFinished());
@@ -296,18 +338,31 @@ class ClientRequestServiceTest {
         someUser.setUuid(UUID.randomUUID());
 
         assertThatExceptionOfType(UserCannotModifyClientRequestException.class)
-                .isThrownBy(() -> clientRequestService.finishRequest(requestValid.getUuid(), someUser));
+                .isThrownBy(() -> clientRequestService.cancelRequest(requestValid.getUuid(), someUser));
     }
 
     @Test
-    @DisplayName("delete throws UserCannotModifyClientRequestException when user do not have access")
-    void delete_ThrowsUserCannotModifyClientRequestException_WhenUserDoNotHaveAccess() {
-        ApplicationUser someUser = ClientRequestCreator.createValidUpdatedClientRequest().getUser();
+    @DisplayName("deliverRequest throws BadRequestException when client request is finished")
+    void deliverRequest_ThrowsBadRequestException_WhenClientRequestIsNotFinished() {
+        BDDMockito.when(clientRequestRepositoryMock.save(ArgumentMatchers.any(ClientRequest.class)))
+                .thenReturn(ClientRequestCreator.createValidClientRequest());
 
-        someUser.setUuid(UUID.randomUUID());
+        ClientRequest requestValid = ClientRequestCreator.createValidClientRequest();
 
-        assertThatExceptionOfType(UserCannotModifyClientRequestException.class)
-                .isThrownBy(() -> clientRequestService.delete(UUID.randomUUID(), someUser));
+        assertThatExceptionOfType(BadRequestException.class)
+                .isThrownBy(() -> clientRequestService.deliverRequest(requestValid.getUuid()));
+    }
+
+    @Test
+    @DisplayName("deliverRequest throws BadRequestException when client request already delivered")
+    void deliverRequest_ThrowsBadRequestException_WhenClientRequestAlreadyDelivered() {
+        BDDMockito.when(clientRequestRepositoryMock.save(ArgumentMatchers.any(ClientRequest.class)))
+                .thenReturn(ClientRequestCreator.createClientRequestDelivered());
+
+        ClientRequest requestValid = ClientRequestCreator.createClientRequestDelivered();
+
+        assertThatExceptionOfType(BadRequestException.class)
+                .isThrownBy(() -> clientRequestService.deliverRequest(requestValid.getUuid()));
     }
 
 }

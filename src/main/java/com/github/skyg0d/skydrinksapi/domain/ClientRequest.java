@@ -50,8 +50,11 @@ public class ClientRequest extends BaseEntity {
     @Schema(description = "Status do pedido", example = "PROCESSING")
     private ClientRequestStatus status = ClientRequestStatus.PROCESSING;
 
-    @PositiveOrZero(message = "O valor do pedido deve ser positivo ou igual a zero.")
+    @PositiveOrZero(message = "O valor do pedido deve ser positivo ou igual a zero")
     @Schema(description = "Valor total do pedido", example = "25.55")
     private double totalPrice;
+
+    @Schema(description = "Informa se o pedido foi entregue", example = "false")
+    private boolean delivered;
 
 }

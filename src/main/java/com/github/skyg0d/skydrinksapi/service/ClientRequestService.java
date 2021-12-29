@@ -17,16 +17,12 @@ import com.github.skyg0d.skydrinksapi.requests.ClientRequestPutRequestBody;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Collections;
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -94,22 +90,40 @@ public class ClientRequestService {
         clientRequestRepository.save(requestToUpdate);
     }
 
-    public ClientRequest finishRequest(UUID uuid, ApplicationUser user) {
+    public ClientRequest finishRequest(UUID uuid) {
         return setStatus(
                 ClientRequestStatus.FINISHED,
-                String.format("Pedido com id %s já foi finalizado!", uuid),
                 uuid,
-                user
+                null
         );
     }
 
     public ClientRequest cancelRequest(UUID uuid, ApplicationUser user) {
         return setStatus(
                 ClientRequestStatus.CANCELED,
-                String.format("Pedido com id %s já foi cancelado!", uuid),
                 uuid,
                 user
         );
+    }
+
+    public ClientRequest deliverRequest(UUID uuid) {
+        ClientRequest request = findByIdOrElseThrowBadRequestException(uuid);
+
+        if (!request.getStatus().equals(ClientRequestStatus.FINISHED)) {
+            throw new BadRequestException("Não é possível entregar um pedido não finalizado!");
+        }
+
+        if (request.isDelivered()) {
+            throw new BadRequestException(String.format("O pedido %s já foi entregue!", uuid));
+        }
+
+        request.setDelivered(true);
+
+        double totalPrice = calculatePrice(request);
+
+        request.setTotalPrice(totalPrice);
+
+        return clientRequestRepository.save(request);
     }
 
     public void delete(UUID uuid, ApplicationUser user) {
@@ -120,7 +134,7 @@ public class ClientRequestService {
         clientRequestRepository.delete(request);
     }
 
-    private ClientRequest setStatus(ClientRequestStatus status, String errorMessage, UUID uuid, ApplicationUser user) {
+    private ClientRequest setStatus(ClientRequestStatus status, UUID uuid, ApplicationUser user) {
         ClientRequest request = findByIdOrElseThrowBadRequestException(uuid);
 
         if (request.getStatus().equals(ClientRequestStatus.FINISHED)) {
@@ -137,7 +151,9 @@ public class ClientRequestService {
             throw new BadRequestException(message);
         }
 
-        userCanModifyRequestOrElseThrowUserCannotModifyClientRequestException(user, request);
+        if (user != null) {
+            userCanModifyRequestOrElseThrowUserCannotModifyClientRequestException(user, request);
+        }
 
         request.setStatus(status);
 

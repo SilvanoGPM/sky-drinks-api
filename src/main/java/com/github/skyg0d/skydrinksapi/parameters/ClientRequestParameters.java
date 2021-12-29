@@ -70,4 +70,11 @@ public class ClientRequestParameters {
     @Parameter(description = "Preço total, menor que isso ou igual a isso do pedido", example = "25.45", allowEmptyValue = true)
     private double lessThanOrEqualToTotalPrice = -1;
 
+    @Parameter(
+            description = "Se o valor for igual a um, pesquisará todas os pedidos recebidos, caso seja zero, pesquisa todas os pedidos não recebidos, e caso seja menos um, pesquisa ambos",
+            example = "-1",
+            allowEmptyValue = true
+    )
+    private int delivered = -1;
+
 }

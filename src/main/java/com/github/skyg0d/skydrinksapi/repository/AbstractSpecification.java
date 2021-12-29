@@ -37,7 +37,15 @@ public abstract class AbstractSpecification {
     }
 
     protected static <T, E> Specification<E> getSpec(T value, Specification<E> spec) {
-        return value != null ? spec : null;
+        if (value == null) {
+            return null;
+        }
+
+        if (value instanceof String && ((String) value).isEmpty()) {
+            return null;
+        }
+
+        return spec;
     }
 
 }

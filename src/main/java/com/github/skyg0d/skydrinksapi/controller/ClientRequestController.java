@@ -120,7 +120,7 @@ public class ClientRequestController {
         return new ResponseEntity<>(clientRequestSaved, HttpStatus.CREATED);
     }
 
-    @PutMapping("/all")
+    @PutMapping("/admin")
     @Operation(summary = "Atualiza um pedido", tags = "Requests")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
@@ -136,7 +136,7 @@ public class ClientRequestController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PatchMapping("/finish/all/{uuid}")
+    @PatchMapping("/finish/waiter-or-barmen/{uuid}")
     @Operation(summary = "Finaliza um pedido", tags = "Requests")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
@@ -146,10 +146,10 @@ public class ClientRequestController {
             @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
     })
     @SecurityRequirement(name = "bearerAuth")
-    public ResponseEntity<ClientRequest> finishRequest(@PathVariable UUID uuid, Principal principal) {
-        ClientRequest clientRequestFinished = clientRequestService.finishRequest(uuid, authUtil.getUser(principal));
+    public ResponseEntity<ClientRequest> finishRequest(@PathVariable UUID uuid) {
+        ClientRequest clientRequestFinished = clientRequestService.finishRequest(uuid);
 
-        sendToUserRequestStatusChanged(uuid, ClientRequestStatus.FINISHED.toString());
+        sendToUserRequestChanged(uuid, ClientRequestStatus.FINISHED.toString());
 
         return ResponseEntity.ok(clientRequestFinished);
     }
@@ -167,12 +167,29 @@ public class ClientRequestController {
     public ResponseEntity<ClientRequest> cancelRequest(@PathVariable UUID uuid, Principal principal) {
         ClientRequest clientRequestFinished = clientRequestService.cancelRequest(uuid, authUtil.getUser(principal));
 
-        sendToUserRequestStatusChanged(uuid, ClientRequestStatus.CANCELED.toString());
+        sendToUserRequestChanged(uuid, ClientRequestStatus.CANCELED.toString());
 
         return ResponseEntity.ok(clientRequestFinished);
     }
 
-    @DeleteMapping("/all/{uuid}")
+    @PatchMapping("/deliver/waiter-or-barmen/{uuid}")
+    @Operation(summary = "Entrega um pedido", tags = "Requests")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Quando o pedido não existe no banco de dados, ou o usuário não pode realizar essa ação"),
+            @ApiResponse(responseCode = "401", description = "Quando o usuário não está autenticado"),
+            @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
+    })
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<ClientRequest> deliverRequest(@PathVariable UUID uuid) {
+        ClientRequest clientRequestFinished = clientRequestService.deliverRequest(uuid);
+
+        sendToUserRequestChanged(uuid, "DELIVERED");
+
+        return ResponseEntity.ok(clientRequestFinished);
+    }
+
+    @DeleteMapping("/admin/{uuid}")
     @Operation(summary = "Remove um pedido", tags = "Requests")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
@@ -207,7 +224,7 @@ public class ClientRequestController {
         }
     }
 
-    private void sendToUserRequestStatusChanged(UUID uuid, String message) {
+    private void sendToUserRequestChanged(UUID uuid, String message) {
         String email = clientRequestService.findByIdOrElseThrowBadRequestException(uuid).getUser().getEmail();
 
         ClientRequestStatusChanged clientRequestStatusChanged = ClientRequestStatusChanged
@@ -216,7 +233,7 @@ public class ClientRequestController {
                 .message(message)
                 .build();
 
-        template.convertAndSend("/topic/finished/" + email, clientRequestStatusChanged);
+        template.convertAndSend("/topic/request-changed/" + email, clientRequestStatusChanged);
     }
 
 }
