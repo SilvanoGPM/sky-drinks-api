@@ -183,7 +183,7 @@ class ClientRequestServiceTest {
 
         ClientRequest requestValid = ClientRequestCreator.createValidClientRequest();
 
-        ClientRequest requestFinished = clientRequestService.finishRequest(requestValid.getUuid(), requestValid.getUser());
+        ClientRequest requestFinished = clientRequestService.finishRequest(requestValid.getUuid());
 
         assertThat(requestFinished)
                 .isNotNull()
@@ -286,7 +286,7 @@ class ClientRequestServiceTest {
         ClientRequest requestValid = ClientRequestCreator.createClientRequestFinished();
 
         assertThatExceptionOfType(BadRequestException.class)
-                .isThrownBy(() -> clientRequestService.finishRequest(requestValid.getUuid(), requestValid.getUser()));
+                .isThrownBy(() -> clientRequestService.finishRequest(requestValid.getUuid()));
     }
 
     @Test
@@ -298,7 +298,7 @@ class ClientRequestServiceTest {
         ClientRequest requestValid = ClientRequestCreator.createClientRequestCanceled();
 
         assertThatExceptionOfType(BadRequestException.class)
-                .isThrownBy(() -> clientRequestService.finishRequest(requestValid.getUuid(), requestValid.getUser()));
+                .isThrownBy(() -> clientRequestService.finishRequest(requestValid.getUuid()));
     }
 
     @Test

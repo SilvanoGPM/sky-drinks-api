@@ -86,7 +86,7 @@ class ClientRequestControllerTest {
                 .replace(ArgumentMatchers.any(ClientRequestPutRequestBody.class), ArgumentMatchers.any(ApplicationUser.class));
 
         BDDMockito
-                .when(clientRequestServiceMock.finishRequest(ArgumentMatchers.any(UUID.class), ArgumentMatchers.any(ApplicationUser.class)))
+                .when(clientRequestServiceMock.finishRequest(ArgumentMatchers.any(UUID.class)))
                 .thenReturn(ClientRequestCreator.createClientRequestFinished());
 
         BDDMockito
@@ -273,11 +273,9 @@ class ClientRequestControllerTest {
     @Test
     @DisplayName("finishRequest finish client request when successful")
     void finishRequest_FinishClientRequest_WhenSuccessful() {
-        Principal principalMock = Mockito.mock(Principal.class);
-
         ClientRequest expectedClientRequest = ClientRequestCreator.createClientRequestFinished();
 
-        ResponseEntity<ClientRequest> entity = clientRequestController.finishRequest(ClientRequestCreator.createValidClientRequest().getUuid(), principalMock);
+        ResponseEntity<ClientRequest> entity = clientRequestController.finishRequest(ClientRequestCreator.createValidClientRequest().getUuid());
 
         assertThat(entity).isNotNull();
 
