@@ -30,10 +30,10 @@ public class ClientRequestParameters {
     @Parameter(description = "Nome do usuário para pesquisa, irá procurar todos os pedidos que possuem o nome desse usuário", example = "Roger", allowEmptyValue = true)
     private String userName;
 
-    @Parameter(description = "Nome do usuário para pesquisa, irá procurar todos os pedidos que possuem o email desse usuário", example = "Roger", allowEmptyValue = true)
+    @Parameter(description = "Email do usuário para pesquisa, irá procurar todos os pedidos que possuem o email desse usuário", example = "roger@mail.com", allowEmptyValue = true)
     private String userEmail;
 
-    @Parameter(description = "Nome do usuário para pesquisa, irá procurar todos os pedidos que possuem o CPF desse usuário", example = "Roger", allowEmptyValue = true)
+    @Parameter(description = "CPF do usuário para pesquisa, irá procurar todos os pedidos que possuem o CPF desse usuário", example = "359.425.366-00", allowEmptyValue = true)
     private String userCpf;
 
     @Parameter(description = "UUID da mesa para pesquisa", example = "b6ffe300-cfd7-46c0-80e4-070998096cbf", allowEmptyValue = true)

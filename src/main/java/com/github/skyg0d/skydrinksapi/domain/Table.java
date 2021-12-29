@@ -1,5 +1,6 @@
 package com.github.skyg0d.skydrinksapi.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -7,7 +8,9 @@ import org.hibernate.validator.constraints.Range;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.OneToMany;
 import javax.validation.constraints.Positive;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -31,5 +34,10 @@ public class Table extends BaseEntity {
 
     @Schema(description = "Mesa ocupada", example = "true")
     private boolean occupied;
+
+    @OneToMany(mappedBy = "table")
+    @JsonBackReference
+    @ToString.Exclude
+    private Set<ClientRequest> requests;
 
 }

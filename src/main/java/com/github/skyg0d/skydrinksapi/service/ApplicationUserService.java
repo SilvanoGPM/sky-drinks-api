@@ -1,12 +1,14 @@
 package com.github.skyg0d.skydrinksapi.service;
 
 import com.github.skyg0d.skydrinksapi.domain.ApplicationUser;
+import com.github.skyg0d.skydrinksapi.domain.ClientRequest;
 import com.github.skyg0d.skydrinksapi.enums.Roles;
 import com.github.skyg0d.skydrinksapi.exception.ActionNotAllowedException;
 import com.github.skyg0d.skydrinksapi.exception.BadRequestException;
 import com.github.skyg0d.skydrinksapi.exception.UserUniqueFieldExistsException;
 import com.github.skyg0d.skydrinksapi.mapper.ApplicationUserMapper;
 import com.github.skyg0d.skydrinksapi.parameters.ApplicationUserParameters;
+import com.github.skyg0d.skydrinksapi.repository.request.ClientRequestRepository;
 import com.github.skyg0d.skydrinksapi.repository.user.ApplicationUserRepository;
 import com.github.skyg0d.skydrinksapi.repository.user.ApplicationUserSpecification;
 import com.github.skyg0d.skydrinksapi.requests.ApplicationUserPostRequestBody;
@@ -20,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -28,6 +31,7 @@ import java.util.UUID;
 public class ApplicationUserService {
 
     private final ApplicationUserRepository applicationUserRepository;
+    private final ClientRequestRepository clientRequestRepository;
     private final ApplicationUserMapper mapper = ApplicationUserMapper.INSTANCE;
 
     public Page<ApplicationUser> listAll(Pageable pageable) {
@@ -94,7 +98,16 @@ public class ApplicationUserService {
 
     public void delete(UUID uuid, ApplicationUser user) {
         verifyIfUserHasPermission(uuid, user);
-        applicationUserRepository.delete(findByIdOrElseThrowBadRequestException(uuid));
+
+        ApplicationUser userFound = findByIdOrElseThrowBadRequestException(uuid);
+
+        Set<ClientRequest> requests = userFound.getRequests();
+
+        if (requests != null && !requests.isEmpty()) {
+            clientRequestRepository.deleteAll(requests);
+        }
+
+        applicationUserRepository.delete(userFound);
     }
 
     private void verifyIfUserHasPermission(UUID uuid, ApplicationUser user) {

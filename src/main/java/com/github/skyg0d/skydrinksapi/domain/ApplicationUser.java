@@ -1,5 +1,6 @@
 package com.github.skyg0d.skydrinksapi.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -9,8 +10,7 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.validator.constraints.br.CPF;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
+import javax.persistence.*;
 import javax.persistence.Table;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -18,6 +18,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -60,6 +61,11 @@ public class ApplicationUser extends BaseEntity {
     @Schema(description = "CPF do usuário", example = "123.456.789-10")
     private String cpf;
 
+    @OneToMany(mappedBy = "user")
+    @JsonBackReference
+    @ToString.Exclude
+    private Set<ClientRequest> requests;
+
     public ApplicationUser(@NotNull ApplicationUser applicationUser) {
         this.password = applicationUser.getPassword();
         this.name = applicationUser.getName();
@@ -67,6 +73,7 @@ public class ApplicationUser extends BaseEntity {
         this.role = applicationUser.getRole();
         this.birthDay = applicationUser.getBirthDay();
         this.cpf = applicationUser.getCpf();
+        this.requests = applicationUser.getRequests();
     }
 
 }

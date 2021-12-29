@@ -1,9 +1,11 @@
 package com.github.skyg0d.skydrinksapi.service;
 
+import com.github.skyg0d.skydrinksapi.domain.ClientRequest;
 import com.github.skyg0d.skydrinksapi.domain.Table;
 import com.github.skyg0d.skydrinksapi.exception.BadRequestException;
 import com.github.skyg0d.skydrinksapi.mapper.TableMapper;
 import com.github.skyg0d.skydrinksapi.parameters.TableParameters;
+import com.github.skyg0d.skydrinksapi.repository.request.ClientRequestRepository;
 import com.github.skyg0d.skydrinksapi.repository.table.TableRepository;
 import com.github.skyg0d.skydrinksapi.repository.table.TableSpecification;
 import com.github.skyg0d.skydrinksapi.requests.TablePostRequestBody;
@@ -14,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Set;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -21,6 +24,7 @@ import java.util.UUID;
 public class TableService {
 
     private final TableRepository tableRepository;
+    private final ClientRequestRepository clientRequestRepository;
     private final TableMapper mapper = TableMapper.INSTANCE;
     private final UUIDUtil uuidUtil;
 
@@ -66,7 +70,22 @@ public class TableService {
     }
 
     public void delete(UUID uuid) {
-        tableRepository.delete(findByIdOrElseThrowBadRequestException(uuid));
+        Table tableFound = findByIdOrElseThrowBadRequestException(uuid);
+
+        Set<ClientRequest> requests = tableFound.getRequests();
+
+        if (requests != null && !requests.isEmpty()) {
+            for (ClientRequest request : requests) {
+                Table table = request.getTable();
+
+                if (table.equals(tableFound)) {
+                    request.setTable(null);
+                    clientRequestRepository.save(request);
+                }
+            }
+        }
+
+        tableRepository.delete(tableFound);
     }
 
 }
