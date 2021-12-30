@@ -419,6 +419,62 @@ class ApplicationUserControllerIT {
     }
 
     @Test
+    @DisplayName("toggleLockRequests lock user requests when user requests is unlocked")
+    void toggleLockRequests_LockUserRequests_WhenUserRequestsIsUnlocked() {
+        ApplicationUser userSaved = applicationUserRepository.save(ApplicationUserCreator.createApplicationUserToBeSave());
+
+        ResponseEntity<ApplicationUser> entity = testRestTemplate.exchange(
+                "/users/admin/toggle-lock-requests/{uuid}",
+                HttpMethod.PATCH,
+                tokenUtil.createAdminAuthEntity(null),
+                ApplicationUser.class,
+                userSaved.getUuid()
+        );
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.OK);
+
+        assertThat(entity.getBody()).isNotNull();
+
+        assertThat(entity.getBody())
+                .isNotNull()
+                .isEqualTo(userSaved);
+
+        assertThat(entity.getBody().isLockRequests()).isNotEqualTo(userSaved.isLockRequests());
+    }
+
+    @Test
+    @DisplayName("toggleLockRequests unlock user requests when user requests is locked")
+    void toggleLockRequests_UnlockUserRequests_WhenUserRequestsIsLocked() {
+        ApplicationUser userSaved = applicationUserRepository.save(ApplicationUserCreator.createApplicationUserWithRequestsLocked());
+
+        ResponseEntity<ApplicationUser> entity = testRestTemplate.exchange(
+                "/users/admin/toggle-lock-requests/{uuid}",
+                HttpMethod.PATCH,
+                tokenUtil.createAdminAuthEntity(null),
+                ApplicationUser.class,
+                userSaved.getUuid()
+        );
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.OK);
+
+        assertThat(entity.getBody()).isNotNull();
+
+        assertThat(entity.getBody())
+                .isNotNull()
+                .isEqualTo(userSaved);
+
+        assertThat(entity.getBody().isLockRequests()).isNotEqualTo(userSaved.isLockRequests());
+    }
+
+    @Test
     @DisplayName("delete removes application user when successful")
     void delete_RemovesApplicationUser_WhenSuccessful() {
         ApplicationUser userSaved = applicationUserRepository.save(ApplicationUserCreator.createApplicationUserToBeSave());

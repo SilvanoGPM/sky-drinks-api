@@ -123,6 +123,19 @@ public class ApplicationUserController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @PatchMapping("/admin/toggle-lock-requests/{uuid}")
+    @Operation(summary = "Alterna se um usuário pode ou não realizar pedidos", tags = "Users")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Quando o usuário não existe no banco de dados"),
+            @ApiResponse(responseCode = "401", description = "Quando o usuário não está autenticado"),
+            @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
+    })
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<ApplicationUser> toggleLockRequests(@PathVariable UUID uuid) {
+        return ResponseEntity.ok(applicationUserService.toggleLockRequests(uuid));
+    }
+
     @DeleteMapping("/user/{uuid}")
     @Operation(summary = "Deleta um usuário", tags = "Users")
     @ApiResponses(value = {

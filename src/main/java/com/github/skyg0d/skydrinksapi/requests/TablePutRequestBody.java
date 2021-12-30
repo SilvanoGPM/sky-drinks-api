@@ -30,7 +30,4 @@ public class TablePutRequestBody {
     @Schema(description = "Número da mesa", example = "3")
     private int number;
 
-    @Schema(description = "Mesa ocupada", example = "true")
-    private boolean occupied;
-
 }

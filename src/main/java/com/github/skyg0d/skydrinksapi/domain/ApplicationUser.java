@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.validator.constraints.br.CPF;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import javax.persistence.Table;
@@ -66,6 +65,12 @@ public class ApplicationUser extends BaseEntity {
     @ToString.Exclude
     private Set<ClientRequest> requests;
 
+    @Schema(description = "Caso verdadeiro, impede que o usuário realize novos pedidos", example = "true")
+    private boolean lockRequests;
+
+    @Schema(description = "Data em que o usuário foi impedido de realizar pedidos", example = "2004-04-09")
+    private LocalDateTime lockRequestsTimestamp;
+
     public ApplicationUser(@NotNull ApplicationUser applicationUser) {
         this.password = applicationUser.getPassword();
         this.name = applicationUser.getName();
@@ -74,6 +79,8 @@ public class ApplicationUser extends BaseEntity {
         this.birthDay = applicationUser.getBirthDay();
         this.cpf = applicationUser.getCpf();
         this.requests = applicationUser.getRequests();
+        this.lockRequests = applicationUser.isLockRequests();
+        this.lockRequestsTimestamp = applicationUser.getLockRequestsTimestamp();
     }
 
 }

@@ -143,6 +143,23 @@ class FileStorageServiceTest {
     }
 
     @Test
+    @DisplayName("listFiles throws FileStorageException when path does not exists")
+    void listFiles_ThrowsFileStorageException_WhenPathDoesNotExists(@TempDir Path uploadDir, @TempDir Path imagedDir) throws IOException {
+        FileStorageProperties properties = new FileStorageProperties();
+
+        properties.setUploadDir(uploadDir.toAbsolutePath().toString());
+        properties.setImagesDir(imagedDir.toAbsolutePath().toString());
+
+        this.fileStorageService = new FileStorageService(properties);
+
+        Files.deleteIfExists(uploadDir);
+        Files.deleteIfExists(imagedDir);
+
+        assertThatExceptionOfType(FileStorageException.class)
+                .isThrownBy(() -> fileStorageService.listFiles());
+    }
+
+    @Test
     @DisplayName("listFiles returns list of files path inside page object when successful")
     void listFiles_ReturnsListOfFilesPathInsideObjectPage_WhenSuccessful() {
         MockMultipartFile multipartFile = new MockMultipartFile("file.txt", "file.txt", MediaType.TEXT_PLAIN_VALUE, "SkyG0D".getBytes());
@@ -189,6 +206,24 @@ class FileStorageServiceTest {
         assertThat(resource.getFilename())
                 .isNotNull()
                 .isEqualTo(fileName);
+    }
+
+    @Test
+    @DisplayName("loadFileAsResource throws CustomFileNotFoundException when file path does not exists")
+    void loadFileAsResource_ThrowsCustomFileNotFoundException_WhenFilePathDoesNotExists(@TempDir Path uploadDir, @TempDir Path imagedDir) throws IOException {
+        FileStorageProperties properties = new FileStorageProperties();
+
+        properties.setUploadDir(uploadDir.toAbsolutePath().toString());
+        properties.setImagesDir(imagedDir.toAbsolutePath().toString());
+
+        this.fileStorageService = new FileStorageService(properties);
+
+        Files.deleteIfExists(uploadDir);
+        Files.deleteIfExists(imagedDir);
+
+        assertThatExceptionOfType(CustomFileNotFoundException.class)
+                .isThrownBy(() -> fileStorageService.loadFileAsResource(""));
+
     }
 
     @Test

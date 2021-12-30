@@ -5,6 +5,7 @@ import com.github.skyg0d.skydrinksapi.exception.ActionNotAllowedException;
 import com.github.skyg0d.skydrinksapi.exception.BadRequestException;
 import com.github.skyg0d.skydrinksapi.exception.UserUniqueFieldExistsException;
 import com.github.skyg0d.skydrinksapi.parameters.ApplicationUserParameters;
+import com.github.skyg0d.skydrinksapi.repository.request.ClientRequestRepository;
 import com.github.skyg0d.skydrinksapi.repository.user.ApplicationUserRepository;
 import com.github.skyg0d.skydrinksapi.util.user.ApplicationUserCreator;
 import com.github.skyg0d.skydrinksapi.util.user.ApplicationUserPostRequestBodyCreator;
@@ -40,6 +41,9 @@ class ApplicationUserServiceTest {
 
     @Mock
     private ApplicationUserRepository applicationUserRepositoryMock;
+
+    @Mock
+    private ClientRequestRepository clientRequestRepositoryMock;
 
     @BeforeEach
     void setUp() {
@@ -161,7 +165,7 @@ class ApplicationUserServiceTest {
 
         BDDMockito
                 .when(applicationUserRepositoryMock.findAll(ArgumentMatchers.<Specification<ApplicationUser>>any()))
-                .thenReturn(List.of(adminUser, barmenUser, waiterUser ));
+                .thenReturn(List.of(adminUser, barmenUser, waiterUser));
 
         List<ApplicationUser> applicationUserFound = applicationUserService.getStaffUsers();
 
@@ -172,8 +176,8 @@ class ApplicationUserServiceTest {
     }
 
     @Test
-    @DisplayName("save creates drink when successful")
-    void save_CreatesDrink_WhenSuccessful() {
+    @DisplayName("save creates application user when successful")
+    void save_CreatesApplicationUser_WhenSuccessful() {
         BDDMockito
                 .when(applicationUserRepositoryMock.findByEmail(ArgumentMatchers.anyString()))
                 .thenReturn(Optional.empty());
@@ -192,8 +196,8 @@ class ApplicationUserServiceTest {
     }
 
     @Test
-    @DisplayName("replace updates drink when successful")
-    void replace_UpdatedDrink_WhenSuccessful() {
+    @DisplayName("replace updates application user when successful")
+    void replace_UpdatedApplicationUser_WhenSuccessful() {
         ApplicationUser user = ApplicationUserCreator.createValidApplicationUser();
 
         BDDMockito
@@ -203,6 +207,38 @@ class ApplicationUserServiceTest {
 
         assertThatCode(() -> applicationUserService.replace(ApplicationUserPutRequestBodyCreator.createApplicationUserPutRequestBodyToBeSave(), user))
                 .doesNotThrowAnyException();
+    }
+
+    @Test
+    @DisplayName("toggleLockRequests lock user requests when user requests is unlocked")
+    void toggleLockRequests_LockUserRequests_WhenUserRequestsIsUnlocked() {
+        BDDMockito
+                .when(applicationUserRepositoryMock.save(ArgumentMatchers.any(ApplicationUser.class)))
+                .thenReturn(ApplicationUserCreator.createApplicationUserWithRequestsLocked());
+
+        ApplicationUser expectedApplicationUser = ApplicationUserCreator.createValidApplicationUser();
+
+        ApplicationUser applicationUserSaved = applicationUserService.toggleLockRequests(expectedApplicationUser.getUuid());
+
+        assertThat(applicationUserSaved)
+                .isNotNull()
+                .isEqualTo(expectedApplicationUser);
+
+        assertThat(applicationUserSaved.isLockRequests()).isNotEqualTo(expectedApplicationUser.isLockRequests());
+    }
+
+    @Test
+    @DisplayName("toggleLockRequests unlock user requests when user requests is locked")
+    void toggleLockRequests_UnlockUserRequests_WhenUserRequestsIsLocked() {
+        ApplicationUser expectedApplicationUser = ApplicationUserCreator.createApplicationUserWithRequestsLocked();
+
+        ApplicationUser applicationUserSaved = applicationUserService.toggleLockRequests(expectedApplicationUser.getUuid());
+
+        assertThat(applicationUserSaved)
+                .isNotNull()
+                .isEqualTo(expectedApplicationUser);
+
+        assertThat(applicationUserSaved.isLockRequests()).isNotEqualTo(expectedApplicationUser.isLockRequests());
     }
 
     @Test

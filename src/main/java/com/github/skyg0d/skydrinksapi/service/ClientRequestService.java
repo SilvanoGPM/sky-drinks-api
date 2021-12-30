@@ -8,6 +8,7 @@ import com.github.skyg0d.skydrinksapi.enums.Roles;
 import com.github.skyg0d.skydrinksapi.exception.BadRequestException;
 import com.github.skyg0d.skydrinksapi.exception.UserCannotCompleteClientRequestException;
 import com.github.skyg0d.skydrinksapi.exception.UserCannotModifyClientRequestException;
+import com.github.skyg0d.skydrinksapi.exception.UserRequestsAreLockedException;
 import com.github.skyg0d.skydrinksapi.mapper.ClientRequestMapper;
 import com.github.skyg0d.skydrinksapi.parameters.ClientRequestParameters;
 import com.github.skyg0d.skydrinksapi.repository.request.ClientRequestRepository;
@@ -55,6 +56,10 @@ public class ClientRequestService {
     }
 
     public ClientRequest save(ClientRequestPostRequestBody clientRequestPostRequestBody, ApplicationUser user) {
+        if (user.isLockRequests()) {
+            throw new UserRequestsAreLockedException("Usuário foi bloqueado temporariamente, logo não pode realizar novos pedidos", user.getLockRequestsTimestamp());
+        }
+
         boolean containsAlcoholicDrink = clientRequestPostRequestBody.getDrinks().stream().anyMatch((drink) -> (
                 drinkService.findByIdOrElseThrowBadRequestException(drink.getUuid()).isAlcoholic()
         ));

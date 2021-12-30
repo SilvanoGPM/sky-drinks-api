@@ -1,7 +1,6 @@
 package com.github.skyg0d.skydrinksapi.controller;
 
 import com.github.skyg0d.skydrinksapi.domain.ApplicationUser;
-import com.github.skyg0d.skydrinksapi.exception.BadRequestException;
 import com.github.skyg0d.skydrinksapi.parameters.ApplicationUserParameters;
 import com.github.skyg0d.skydrinksapi.requests.ApplicationUserPostRequestBody;
 import com.github.skyg0d.skydrinksapi.service.ApplicationUserService;
@@ -72,6 +71,10 @@ class ApplicationUserControllerTest {
         BDDMockito
                 .when(applicationUserServiceMock.save(ArgumentMatchers.any(ApplicationUserPostRequestBody.class)))
                 .thenReturn(ApplicationUserCreator.createValidApplicationUser());
+
+        BDDMockito
+                .when(applicationUserServiceMock.toggleLockRequests(ArgumentMatchers.any(UUID.class)))
+                .thenReturn(ApplicationUserCreator.createApplicationUserWithRequestsLocked());
 
         BDDMockito
                 .doNothing()
@@ -243,6 +246,54 @@ class ApplicationUserControllerTest {
         assertThat(entity.getStatusCode())
                 .isNotNull()
                 .isEqualTo(HttpStatus.NO_CONTENT);
+    }
+
+    @Test
+    @DisplayName("toggleLockRequests lock user requests when user requests is unlocked")
+    void toggleLockRequests_LockUserRequests_WhenUserRequestsIsUnlocked() {
+        ApplicationUser expectedApplicationUser = ApplicationUserCreator.createValidApplicationUser();
+
+        ResponseEntity<ApplicationUser> entity = applicationUserController.toggleLockRequests(expectedApplicationUser.getUuid());
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.OK);
+
+        assertThat(entity.getBody()).isNotNull();
+
+        assertThat(entity.getBody())
+                .isNotNull()
+                .isEqualTo(expectedApplicationUser);
+
+        assertThat(entity.getBody().isLockRequests()).isNotEqualTo(expectedApplicationUser.isLockRequests());
+    }
+
+    @Test
+    @DisplayName("toggleLockRequests unlock user requests when user requests is locked")
+    void toggleLockRequests_UnlockUserRequests_WhenUserRequestsIsLocked() {
+        BDDMockito
+                .when(applicationUserServiceMock.toggleLockRequests(ArgumentMatchers.any(UUID.class)))
+                .thenReturn(ApplicationUserCreator.createValidApplicationUser());
+
+        ApplicationUser expectedApplicationUser = ApplicationUserCreator.createApplicationUserWithRequestsLocked();
+
+        ResponseEntity<ApplicationUser> entity = applicationUserController.toggleLockRequests(expectedApplicationUser.getUuid());
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.OK);
+
+        assertThat(entity.getBody()).isNotNull();
+
+        assertThat(entity.getBody())
+                .isNotNull()
+                .isEqualTo(expectedApplicationUser);
+
+        assertThat(entity.getBody().isLockRequests()).isNotEqualTo(expectedApplicationUser.isLockRequests());
     }
 
     @Test

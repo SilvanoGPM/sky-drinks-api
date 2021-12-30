@@ -22,7 +22,6 @@ public class ClientRequestCreator {
                 .user(ApplicationUserCreator.createValidApplicationUser())
                 .table(TableCreator.createValidTable())
                 .drinks(new ArrayList<>(List.of(DrinkCreator.createValidDrink())))
-                .totalPrice(0.0)
                 .status(ClientRequestStatus.PROCESSING)
                 .build();
     }

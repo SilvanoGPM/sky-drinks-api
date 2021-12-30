@@ -3,6 +3,7 @@ package com.github.skyg0d.skydrinksapi.service;
 import com.github.skyg0d.skydrinksapi.domain.Table;
 import com.github.skyg0d.skydrinksapi.exception.BadRequestException;
 import com.github.skyg0d.skydrinksapi.parameters.TableParameters;
+import com.github.skyg0d.skydrinksapi.repository.request.ClientRequestRepository;
 import com.github.skyg0d.skydrinksapi.repository.table.TableRepository;
 import com.github.skyg0d.skydrinksapi.util.UUIDUtil;
 import com.github.skyg0d.skydrinksapi.util.table.TableCreator;
@@ -37,6 +38,9 @@ class TableServiceTest {
 
     @Mock
     private TableRepository tableRepositoryMock;
+
+    @Mock
+    private ClientRequestRepository clientRequestRepository;
 
     @Mock
     private UUIDUtil uuidUtilMock;

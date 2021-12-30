@@ -165,6 +165,24 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(exceptionDetails, status);
     }
 
+    @ExceptionHandler(UserRequestsAreLockedException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<UserRequestsAreLockedExceptionDetails> handleUserRequestsAreLockedException(UserRequestsAreLockedException exception) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+
+        UserRequestsAreLockedExceptionDetails exceptionDetails = UserRequestsAreLockedExceptionDetails
+                .builder()
+                .title("Seus pedidos estão bloqueados.")
+                .developerMessage(exception.getClass().getName())
+                .details(exception.getMessage())
+                .timestamp(LocalDateTime.now().toString())
+                .lockedTimestamp(exception.getLockedTimestamp())
+                .status(status.value())
+                .build();
+
+        return new ResponseEntity<>(exceptionDetails, status);
+    }
+
     @Override
     protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers, HttpStatus status, WebRequest request) {
         return new ResponseEntity<>(ExceptionDetails.createExceptionDetails(ex, status), status);

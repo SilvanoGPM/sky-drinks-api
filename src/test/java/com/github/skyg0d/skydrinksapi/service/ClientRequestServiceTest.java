@@ -6,6 +6,7 @@ import com.github.skyg0d.skydrinksapi.domain.Drink;
 import com.github.skyg0d.skydrinksapi.exception.BadRequestException;
 import com.github.skyg0d.skydrinksapi.exception.UserCannotCompleteClientRequestException;
 import com.github.skyg0d.skydrinksapi.exception.UserCannotModifyClientRequestException;
+import com.github.skyg0d.skydrinksapi.exception.UserRequestsAreLockedException;
 import com.github.skyg0d.skydrinksapi.parameters.ClientRequestParameters;
 import com.github.skyg0d.skydrinksapi.repository.request.ClientRequestRepository;
 import com.github.skyg0d.skydrinksapi.requests.ClientRequestPutRequestBody;
@@ -28,6 +29,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -278,6 +280,21 @@ class ClientRequestServiceTest {
     }
 
     @Test
+    @DisplayName("save throws UserRequestsAreLockedException when requests is locked")
+    void save_ThrowsUserRequestsAreLockedException_WhenRequestsIsLocked() {
+        ClientRequest expectedClientRequest = ClientRequestCreator.createValidClientRequest();
+
+        ApplicationUser user = expectedClientRequest.getUser();
+
+        user.setLockRequests(true);
+
+        user.setLockRequestsTimestamp(LocalDateTime.now());
+
+        assertThatExceptionOfType(UserRequestsAreLockedException.class)
+                .isThrownBy(() -> clientRequestService.save(ClientRequestPostRequestBodyCreator.createClientRequestPostRequestBodyToBeSave(), user));
+    }
+
+    @Test
     @DisplayName("finishRequest throws BadRequestException when client request already finished")
     void finishRequest_ThrowsBadRequestException_WhenClientRequestAlreadyFinished() {
         BDDMockito.when(clientRequestRepositoryMock.findById(ArgumentMatchers.any(UUID.class)))
@@ -356,13 +373,14 @@ class ClientRequestServiceTest {
     @Test
     @DisplayName("deliverRequest throws BadRequestException when client request already delivered")
     void deliverRequest_ThrowsBadRequestException_WhenClientRequestAlreadyDelivered() {
-        BDDMockito.when(clientRequestRepositoryMock.save(ArgumentMatchers.any(ClientRequest.class)))
-                .thenReturn(ClientRequestCreator.createClientRequestDelivered());
+        BDDMockito.when(clientRequestRepositoryMock.findById(ArgumentMatchers.any(UUID.class)))
+                .thenReturn(Optional.of(ClientRequestCreator.createClientRequestDelivered()));
 
         ClientRequest requestValid = ClientRequestCreator.createClientRequestDelivered();
 
         assertThatExceptionOfType(BadRequestException.class)
                 .isThrownBy(() -> clientRequestService.deliverRequest(requestValid.getUuid()));
     }
+
 
 }

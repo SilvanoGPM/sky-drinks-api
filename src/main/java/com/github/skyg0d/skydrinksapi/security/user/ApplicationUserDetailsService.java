@@ -54,7 +54,7 @@ public class ApplicationUserDetailsService implements UserDetailsService {
 
         @Override
         public String getUsername() {
-            return null;
+            return getEmail();
         }
 
         @Override

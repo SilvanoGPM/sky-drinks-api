@@ -11,7 +11,6 @@ public class TablePostRequestBodyCreator {
         return TablePostRequestBody
                 .builder()
                 .number(table.getNumber())
-                .occupied(table.isOccupied())
                 .seats(table.getSeats())
                 .build();
     }

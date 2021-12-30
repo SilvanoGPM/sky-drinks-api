@@ -20,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -67,9 +68,9 @@ public class ApplicationUserService {
     public ApplicationUser save(ApplicationUserPostRequestBody applicationUserPostRequestBody) {
         String email = applicationUserPostRequestBody.getEmail();
 
-        Optional<ApplicationUser> emailFound = applicationUserRepository.findByEmail(email);
+        Optional<ApplicationUser> userFound = applicationUserRepository.findByEmail(email);
 
-        if (emailFound.isPresent()) {
+        if (userFound.isPresent()) {
             String message = String.format("Usuário com email: \"%s\" já existe", email);
             throw new UserUniqueFieldExistsException(message, "Email: " + email);
         }
@@ -94,6 +95,18 @@ public class ApplicationUserService {
         findByIdOrElseThrowBadRequestException(uuid);
 
         applicationUserRepository.save(mapper.toApplicationUser(applicationUserPutRequestBody));
+    }
+
+    public ApplicationUser toggleLockRequests(UUID uuid) {
+        ApplicationUser userFound = findByIdOrElseThrowBadRequestException(uuid);
+
+        boolean isUserRequestsLockedNow = !userFound.isLockRequests();
+        LocalDateTime lockedTimestamp = isUserRequestsLockedNow ? LocalDateTime.now() : null;
+
+        userFound.setLockRequests(isUserRequestsLockedNow);
+        userFound.setLockRequestsTimestamp(lockedTimestamp);
+
+        return applicationUserRepository.save(userFound);
     }
 
     public void delete(UUID uuid, ApplicationUser user) {

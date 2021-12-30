@@ -12,7 +12,6 @@ public class TablePutRequestBodyCreator {
                 .builder()
                 .uuid(table.getUuid())
                 .number(table.getNumber())
-                .occupied(table.isOccupied())
                 .seats(table.getSeats())
                 .build();
     }

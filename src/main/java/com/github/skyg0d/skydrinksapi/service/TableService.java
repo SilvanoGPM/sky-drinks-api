@@ -78,7 +78,7 @@ public class TableService {
             for (ClientRequest request : requests) {
                 Table table = request.getTable();
 
-                if (table.equals(tableFound)) {
+                if (tableFound.equals(table)) {
                     request.setTable(null);
                     clientRequestRepository.save(request);
                 }
