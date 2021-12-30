@@ -97,6 +97,18 @@ public class ClientRequestController {
         return ResponseEntity.ok((clientRequestService.findByIdOrElseThrowBadRequestException(uuid)));
     }
 
+    @GetMapping("/admin/all-blocked")
+    @Operation(summary = "Retorna se todos os usuários estão bloqueados", tags = "Requests")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
+            @ApiResponse(responseCode = "401", description = "Quando o usuário não está autenticado"),
+            @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
+    })
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<Boolean> getAllBlocked() {
+        return ResponseEntity.ok((clientRequestService.getAllBlocked()));
+    }
+
     @PostMapping("/user")
     @Operation(summary = "Cria um pedido e retorna os dados", tags = "Requests")
     @ApiResponses(value = {
@@ -205,6 +217,18 @@ public class ClientRequestController {
         requestsChanged();
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PatchMapping("/admin/toggle-all-blocked")
+    @Operation(summary = "Inverte se todos os usuários estão bloqueados ou não", tags = "Requests")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
+            @ApiResponse(responseCode = "401", description = "Quando o usuário não está autenticado"),
+            @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
+    })
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<Boolean> toggleBlockAllRequests() {
+        return ResponseEntity.ok(clientRequestService.toggleBlockAllRequests());
     }
 
     private void requestsChanged() {

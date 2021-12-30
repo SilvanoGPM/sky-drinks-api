@@ -176,6 +176,23 @@ class ClientRequestServiceTest {
     }
 
     @Test
+    @DisplayName("toggleBlockAllRequests set blockAllRequests to true value when value is false")
+    void toggleBlockAllRequests_SetBlockAllRequestsToTrue_WhenValueIsFalse() {
+        boolean allBlocked = clientRequestService.toggleBlockAllRequests();
+        assertThat(allBlocked).isTrue();
+    }
+
+    @Test
+    @DisplayName("toggleBlockAllRequests set blockAllRequests to false value when value is true")
+    void toggleBlockAllRequests_SetBlockAllRequestsToFalse_WhenValueIsTrue() {
+        boolean allBlocked1 = clientRequestService.toggleBlockAllRequests();
+        boolean allBlocked2 = clientRequestService.toggleBlockAllRequests();
+
+        assertThat(allBlocked1).isTrue();
+        assertThat(allBlocked2).isFalse();
+    }
+
+    @Test
     @DisplayName("finishRequest finish client request when successful")
     void finishRequest_FinishClientRequest_WhenSuccessful() {
         BDDMockito.when(clientRequestRepositoryMock.save(ArgumentMatchers.any(ClientRequest.class)))
@@ -291,6 +308,19 @@ class ClientRequestServiceTest {
         user.setLockRequestsTimestamp(LocalDateTime.now());
 
         assertThatExceptionOfType(UserRequestsAreLockedException.class)
+                .isThrownBy(() -> clientRequestService.save(ClientRequestPostRequestBodyCreator.createClientRequestPostRequestBodyToBeSave(), user));
+    }
+
+    @Test
+    @DisplayName("save throws BadRequestException when all users is blocked")
+    void save_ThrowsBadRequestException_WhenAllUsersIsBlocked() {
+        ClientRequest expectedClientRequest = ClientRequestCreator.createValidClientRequest();
+
+        ApplicationUser user = expectedClientRequest.getUser();
+
+        clientRequestService.toggleBlockAllRequests();
+
+        assertThatExceptionOfType(BadRequestException.class)
                 .isThrownBy(() -> clientRequestService.save(ClientRequestPostRequestBodyCreator.createClientRequestPostRequestBodyToBeSave(), user));
     }
 

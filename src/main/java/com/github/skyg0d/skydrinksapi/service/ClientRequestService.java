@@ -36,6 +36,8 @@ public class ClientRequestService {
     private final DrinkService drinkService;
     private final ClientRequestMapper mapper = ClientRequestMapper.INSTANCE;
 
+    private boolean blockAllRequests;
+
     public Page<ClientRequest> listAll(Pageable pageable) {
         return clientRequestRepository.findAll(pageable);
     }
@@ -56,6 +58,10 @@ public class ClientRequestService {
     }
 
     public ClientRequest save(ClientRequestPostRequestBody clientRequestPostRequestBody, ApplicationUser user) {
+        if (blockAllRequests) {
+            throw new BadRequestException("A criação de novos pedidos está bloqueada para todos os usuários!");
+        }
+
         if (user.isLockRequests()) {
             throw new UserRequestsAreLockedException("Usuário foi bloqueado temporariamente, logo não pode realizar novos pedidos", user.getLockRequestsTimestamp());
         }
@@ -137,6 +143,15 @@ public class ClientRequestService {
         userCanModifyRequestOrElseThrowUserCannotModifyClientRequestException(user, request);
 
         clientRequestRepository.delete(request);
+    }
+
+    public boolean getAllBlocked() {
+        return blockAllRequests;
+    }
+
+    public boolean toggleBlockAllRequests() {
+        blockAllRequests = !blockAllRequests;
+        return blockAllRequests;
     }
 
     private ClientRequest setStatus(ClientRequestStatus status, UUID uuid, ApplicationUser user) {

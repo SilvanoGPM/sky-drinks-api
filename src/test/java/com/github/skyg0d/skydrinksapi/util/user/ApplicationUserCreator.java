@@ -77,6 +77,7 @@ public class ApplicationUserCreator {
     public static ApplicationUser createApplicationUserWithRequestsLocked() {
         return ApplicationUser
                 .builder()
+                .uuid(uuid)
                 .name("Locked User")
                 .role("ADMIN")
                 .cpf("538.119.488-90")

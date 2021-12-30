@@ -21,7 +21,6 @@ public class TableCreator {
                 .number(1)
                 .seats(4)
                 .occupied(false)
-                .requests(createClientRequest())
                 .build();
     }
 

@@ -86,6 +86,10 @@ class ClientRequestControllerTest {
                 .replace(ArgumentMatchers.any(ClientRequestPutRequestBody.class), ArgumentMatchers.any(ApplicationUser.class));
 
         BDDMockito
+                .when(clientRequestServiceMock.toggleBlockAllRequests())
+                .thenReturn(true);
+
+        BDDMockito
                 .when(clientRequestServiceMock.finishRequest(ArgumentMatchers.any(UUID.class)))
                 .thenReturn(ClientRequestCreator.createClientRequestFinished());
 
@@ -96,6 +100,7 @@ class ClientRequestControllerTest {
         BDDMockito
                 .when(clientRequestServiceMock.deliverRequest(ArgumentMatchers.any(UUID.class)))
                 .thenReturn(ClientRequestCreator.createClientRequestDelivered());
+
 
         BDDMockito
                 .doNothing()
@@ -268,6 +273,34 @@ class ClientRequestControllerTest {
         assertThat(entity.getStatusCode())
                 .isNotNull()
                 .isEqualTo(HttpStatus.NO_CONTENT);
+    }
+
+    @Test
+    @DisplayName("toggleBlockAllRequests set blockAllRequests to true value when value is false")
+    void toggleBlockAllRequests_SetBlockAllRequestsToTrue_WhenValueIsFalse() {
+        ResponseEntity<Boolean> entity = clientRequestController.toggleBlockAllRequests();
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        assertThat(entity.getBody()).isTrue();
+    }
+
+    @Test
+    @DisplayName("toggleBlockAllRequests set blockAllRequests to false value when value is true")
+    void toggleBlockAllRequests_SetBlockAllRequestsToFalse_WhenValueIsTrue() {
+        BDDMockito
+                .when(clientRequestServiceMock.toggleBlockAllRequests())
+                .thenReturn(false);
+
+        ResponseEntity<Boolean> entity = clientRequestController.toggleBlockAllRequests();
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        assertThat(entity.getBody()).isFalse();
     }
 
     @Test

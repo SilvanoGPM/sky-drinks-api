@@ -268,6 +268,48 @@ class ClientRequestControllerIT {
         assertThat(entity.getBody()).isEmpty();
     }
 
+
+    @Test
+    @DisplayName("toggleBlockAllRequests set blockAllRequests to true value when value is false")
+    void toggleBlockAllRequests_SetBlockAllRequestsToTrue_WhenValueIsFalse() {
+        ResponseEntity<Boolean> entity = testRestTemplate.exchange(
+                "/requests/admin/toggle-all-blocked",
+                HttpMethod.PATCH,
+                tokenUtil.createAdminAuthEntity(null),
+                Boolean.class
+        );
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        assertThat(entity.getBody()).isTrue();
+    }
+
+    @Test
+    @DisplayName("toggleBlockAllRequests set blockAllRequests to false value when value is true")
+    void toggleBlockAllRequests_SetBlockAllRequestsToFalse_WhenValueIsTrue() {
+        testRestTemplate.exchange(
+                "/requests/admin/toggle-all-blocked",
+                HttpMethod.PATCH,
+                tokenUtil.createAdminAuthEntity(null),
+                Boolean.class
+        );
+
+        ResponseEntity<Boolean> entity = testRestTemplate.exchange(
+                "/requests/admin/toggle-all-blocked",
+                HttpMethod.PATCH,
+                tokenUtil.createAdminAuthEntity(null),
+                Boolean.class
+        );
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        assertThat(entity.getBody()).isFalse();
+    }
+
     @Test
     @DisplayName("save creates client request when successful")
     void save_CreatesClientRequest_WhenSuccessful() {
@@ -336,6 +378,30 @@ class ClientRequestControllerIT {
     @DisplayName("save returns 400 BadRequest when requests is locked")
     void save_Returns400BadRequest_WhenRequestsIsLocked() {
         ClientRequest clientRequestValid = persistClientRequest(applicationUserRepository.save(ApplicationUserCreator.createApplicationUserWithRequestsLocked()));
+
+        ResponseEntity<BadRequestExceptionDetails> entity = testRestTemplate.postForEntity(
+                "/requests/user",
+                tokenUtil.createAdminAuthEntity(clientRequestValid),
+                BadRequestExceptionDetails.class
+        );
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    @DisplayName("save returns 400 BadRequest when all requests is blocked")
+    void save_Returns400BadRequest_WhenAllRequestsIsBlocked() {
+        ClientRequest clientRequestValid = persistClientRequest(applicationUserRepository.save(ApplicationUserCreator.createApplicationUserWithRequestsLocked()));
+
+        testRestTemplate.patchForObject(
+                "/requests/admin/toggle-all-blocked",
+                tokenUtil.createAdminAuthEntity(null),
+                Boolean.class
+        );
 
         ResponseEntity<BadRequestExceptionDetails> entity = testRestTemplate.postForEntity(
                 "/requests/user",
