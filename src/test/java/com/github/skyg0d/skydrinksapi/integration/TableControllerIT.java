@@ -346,7 +346,6 @@ class TableControllerIT {
                 .isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
-
     @Test
     @DisplayName("save returns 403 Forbidden when user does not have ROLE_WAITER")
     void save_Returns403Forbidden_WhenUserDoesNotHaveROLE_WAITER() {

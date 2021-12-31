@@ -157,9 +157,9 @@ public class ClientRequestService {
     private ClientRequest setStatus(ClientRequestStatus status, UUID uuid, ApplicationUser user) {
         ClientRequest request = findByIdOrElseThrowBadRequestException(uuid);
 
-        if (request.getStatus().equals(ClientRequestStatus.FINISHED)) {
+        if (request.getStatus().equals(ClientRequestStatus.FINISHED) && request.isDelivered()) {
             String message = status.equals(ClientRequestStatus.CANCELED)
-                    ? "Um pedido finalizado não pode ser cancelado!"
+                    ? "Um pedido já entregue não pode ser cancelado!"
                     : String.format("Pedido com id %s já foi finalizado!", uuid);
 
             throw new BadRequestException(message);
