@@ -16,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -49,6 +50,13 @@ public class TableService {
     }
 
     public Table save(TablePostRequestBody tablePostRequestBody) {
+        int tableNumber = tablePostRequestBody.getNumber();
+        Optional<Table> tableFound = tableRepository.findByNumber(tableNumber);
+
+        if (tableFound.isPresent()) {
+            throw new BadRequestException(String.format("Mesa com número %d já existe!", tableNumber));
+        }
+
         return tableRepository.save(mapper.toTable(tablePostRequestBody));
     }
 

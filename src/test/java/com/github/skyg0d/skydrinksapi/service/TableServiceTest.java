@@ -148,6 +148,10 @@ class TableServiceTest {
     @Test
     @DisplayName("save creates table when successful")
     void save_CreatesTable_WhenSuccessful() {
+        BDDMockito
+                .when(tableRepositoryMock.findByNumber(ArgumentMatchers.anyInt()))
+                .thenReturn(Optional.empty());
+
         Table expectedTable = TableCreator.createValidTable();
 
         Table drinkSaved = tableService.save(TablePostRequestBodyCreator.createTablePostRequestBodyToBeSave());
@@ -235,6 +239,13 @@ class TableServiceTest {
 
         assertThatExceptionOfType(BadRequestException.class)
                 .isThrownBy(() -> tableService.findByNumberOrElseThrowBadRequestException(0));
+    }
+
+    @Test
+    @DisplayName("save throws BadRequestException when number of table already exists")
+    void save_ThrowsBadRequestException_WhenNumberOfTableAlreadyExists() {
+        assertThatExceptionOfType(BadRequestException.class)
+                .isThrownBy(() -> tableService.save(TablePostRequestBodyCreator.createTablePostRequestBodyToBeSave()));
     }
 
 }

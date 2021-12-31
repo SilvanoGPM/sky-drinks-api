@@ -323,6 +323,31 @@ class TableControllerIT {
     }
 
     @Test
+    @DisplayName("save throws BadRequestException when number of table already exists")
+    void save_ThrowsBadRequestException_WhenNumberOfTableAlreadyExists() {
+        TablePostRequestBody tableValid = TablePostRequestBodyCreator.createTablePostRequestBodyToBeSave();
+
+        testRestTemplate.postForEntity(
+                "/tables/waiter",
+                tokenUtil.createWaiterAuthEntity(tableValid),
+                Table.class
+        );
+
+        ResponseEntity<Table> entity = testRestTemplate.postForEntity(
+                "/tables/waiter",
+                tokenUtil.createWaiterAuthEntity(tableValid),
+                Table.class
+        );
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+
+    @Test
     @DisplayName("save returns 403 Forbidden when user does not have ROLE_WAITER")
     void save_Returns403Forbidden_WhenUserDoesNotHaveROLE_WAITER() {
         TablePostRequestBody tableValid = TablePostRequestBodyCreator.createTablePostRequestBodyToBeSave();
