@@ -361,12 +361,12 @@ class ClientRequestServiceTest {
     }
 
     @Test
-    @DisplayName("cancelRequest throws BadRequestException when client request is finished")
-    void cancelRequest_ThrowsBadRequestException_WhenClientRequestIsFinished() {
+    @DisplayName("cancelRequest throws BadRequestException when client request is finished and delivered")
+    void cancelRequest_ThrowsBadRequestException_WhenClientRequestIsFinishedAndDelivered() {
         BDDMockito.when(clientRequestRepositoryMock.findById(ArgumentMatchers.any(UUID.class)))
-                .thenReturn(Optional.of(ClientRequestCreator.createClientRequestFinished()));
+                .thenReturn(Optional.of(ClientRequestCreator.createClientRequestDelivered()));
 
-        ClientRequest requestValid = ClientRequestCreator.createClientRequestFinished();
+        ClientRequest requestValid = ClientRequestCreator.createClientRequestDelivered();
 
         assertThatExceptionOfType(BadRequestException.class)
                 .isThrownBy(() -> clientRequestService.cancelRequest(requestValid.getUuid(), requestValid.getUser()));
