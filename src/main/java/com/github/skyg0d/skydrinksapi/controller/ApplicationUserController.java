@@ -41,55 +41,60 @@ public class ApplicationUserController {
         return ResponseEntity.ok(authUtil.getUser(principal));
     }
 
-    @GetMapping
+    @GetMapping("/admin")
     @Operation(summary = "Retorna todos os usuários paginação", tags = "Users")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
             @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
     })
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Page<ApplicationUser>> listAll(@ParameterObject Pageable pageable) {
         return ResponseEntity.ok(applicationUserService.listAll(pageable));
     }
 
-    @GetMapping("/search")
+    @GetMapping("/admin/search")
     @Operation(summary = "Retorna os usuários encontrados paginação", tags = "Users")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
             @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
     })
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Page<ApplicationUser>> search(@ParameterObject ApplicationUserParameters applicationUserParameters, @ParameterObject Pageable pageable) {
         return ResponseEntity.ok(applicationUserService.search(applicationUserParameters, pageable));
     }
 
-    @GetMapping("/{uuid}")
+    @GetMapping("/admin/{uuid}")
     @Operation(summary = "Retorna um usuário especificado", tags = "Users")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
             @ApiResponse(responseCode = "400", description = "Quando o usuário não existe no banco de dados"),
             @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
     })
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<ApplicationUser> findById(@PathVariable UUID uuid) {
         return ResponseEntity.ok(applicationUserService.findByIdOrElseThrowBadRequestException(uuid));
     }
 
-    @GetMapping("/find-by-email/{email}")
+    @GetMapping("/admin/find-by-email/{email}")
     @Operation(summary = "Retorna um usuário especificado", tags = "Users")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
             @ApiResponse(responseCode = "400", description = "Quando o usuário não existe no banco de dados"),
             @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
     })
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<ApplicationUser> findByEmail(@PathVariable String email) {
         return ResponseEntity.ok(applicationUserService.findByEmail(email));
     }
 
-    @GetMapping("/find-by-cpf/{cpf}")
+    @GetMapping("/admin/find-by-cpf/{cpf}")
     @Operation(summary = "Retorna um usuário especificado", tags = "Users")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
             @ApiResponse(responseCode = "400", description = "Quando o usuário não existe no banco de dados"),
             @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
     })
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<ApplicationUser> findByCpf(@PathVariable String cpf) {
         return ResponseEntity.ok(applicationUserService.findByCpf(cpf));
     }

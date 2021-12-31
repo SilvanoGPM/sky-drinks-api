@@ -47,7 +47,7 @@ public class ClientRequestController {
 
     private boolean sendNotificationScheduled;
 
-    @GetMapping("/waiter-or-barmen")
+    @GetMapping("/staff")
     @Operation(summary = "Retorna todos os pedidos com paginação", tags = "Requests")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
@@ -60,7 +60,7 @@ public class ClientRequestController {
         return ResponseEntity.ok(clientRequestService.listAll(pageable));
     }
 
-    @GetMapping("/waiter-or-barmen/search")
+    @GetMapping("/staff/search")
     @Operation(summary = "Retorna os pedidos encontrados com paginação", tags = "Requests")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
@@ -148,7 +148,7 @@ public class ClientRequestController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PatchMapping("/finish/waiter-or-barmen/{uuid}")
+    @PatchMapping("/staff/finish/{uuid}")
     @Operation(summary = "Finaliza um pedido", tags = "Requests")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
@@ -166,7 +166,7 @@ public class ClientRequestController {
         return ResponseEntity.ok(clientRequestFinished);
     }
 
-    @PatchMapping("/cancel/all/{uuid}")
+    @PatchMapping("/all/cancel/{uuid}")
     @Operation(summary = "Cancela um pedido", tags = "Requests")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
@@ -184,7 +184,7 @@ public class ClientRequestController {
         return ResponseEntity.ok(clientRequestFinished);
     }
 
-    @PatchMapping("/deliver/waiter-or-barmen/{uuid}")
+    @PatchMapping("/staff/deliver/{uuid}")
     @Operation(summary = "Entrega um pedido", tags = "Requests")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),

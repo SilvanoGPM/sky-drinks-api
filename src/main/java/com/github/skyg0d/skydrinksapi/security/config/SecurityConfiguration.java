@@ -78,7 +78,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/**/user/**").hasAnyRole(Roles.USER.getName(), Roles.ADMIN.getName())
                 .antMatchers("/**/waiter/**").hasAnyRole(Roles.WAITER.getName(), Roles.ADMIN.getName())
                 .antMatchers("/**/barmen/**").hasAnyRole(Roles.BARMEN.getName(), Roles.ADMIN.getName())
-                .antMatchers("/**/waiter-or-barmen/**").hasAnyRole(Roles.WAITER.getName(), Roles.BARMEN.getName(), Roles.ADMIN.getName())
+                .antMatchers("/**/staff/**").hasAnyRole(Roles.WAITER.getName(), Roles.BARMEN.getName(), Roles.ADMIN.getName())
                 .antMatchers("/**/all/**").hasAnyRole(Roles.ADMIN.getName(), Roles.USER.getName(), Roles.WAITER.getName(), Roles.BARMEN.getName())
                 .antMatchers("/**").permitAll();
     }

@@ -78,14 +78,12 @@ class ApplicationUserControllerIT {
     @Test
     @DisplayName("listAll return list of application users inside page object when successful")
     void listAll_ReturnListOfApplicationUsersInsidePageObject_WhenSuccessful() {
-        applicationUserRepository.deleteAll();
-
         ApplicationUser expectedApplicationUser = applicationUserRepository.save(ApplicationUserCreator.createApplicationUserToBeSave());
 
         ResponseEntity<PageableResponse<ApplicationUser>> entity = testRestTemplate.exchange(
-                "/users",
+                "/users/admin?size=20",
                 HttpMethod.GET,
-                null,
+                tokenUtil.createAdminAuthEntity(null),
                 new ParameterizedTypeReference<>() {
                 }
         );
@@ -99,45 +97,20 @@ class ApplicationUserControllerIT {
         assertThat(entity.getBody())
                 .isNotNull()
                 .isNotEmpty()
-                .hasSize(1)
                 .contains(expectedApplicationUser);
-    }
-
-    @Test
-    @DisplayName("listAll return empty page when there are no application users")
-    void listAll_ReturnEmptyPage_WhenThereAreNoApplicationUsers() {
-        applicationUserRepository.deleteAll();
-
-        ResponseEntity<PageableResponse<ApplicationUser>> entity = testRestTemplate.exchange(
-                "/users",
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<>() {
-                }
-        );
-
-        assertThat(entity).isNotNull();
-
-        assertThat(entity.getStatusCode())
-                .isNotNull()
-                .isEqualTo(HttpStatus.OK);
-
-        assertThat(entity.getBody()).isEmpty();
     }
 
     @Test
     @DisplayName("search return list of application users inside page object when successful")
     void search_ReturnListOfApplicationUsersInsidePageObject_WhenSuccessful() {
-        applicationUserRepository.deleteAll();
-
         ApplicationUser expectedApplicationUser = applicationUserRepository.save(ApplicationUserCreator.createApplicationUserToBeSave());
 
-        String url = String.format("/users/search?name=%s", expectedApplicationUser.getName());
+        String url = String.format("/users/admin/search?name=%s&size=20", expectedApplicationUser.getName());
 
         ResponseEntity<PageableResponse<ApplicationUser>> entity = testRestTemplate.exchange(
                 url,
                 HttpMethod.GET,
-                null,
+                tokenUtil.createAdminAuthEntity(null),
                 new ParameterizedTypeReference<>() {
                 }
         );
@@ -151,21 +124,18 @@ class ApplicationUserControllerIT {
         assertThat(entity.getBody())
                 .isNotNull()
                 .isNotEmpty()
-                .hasSize(1)
                 .contains(expectedApplicationUser);
     }
 
     @Test
     @DisplayName("search return empty page object when does not match")
     void search_ReturnEmptyPage_WhenDoesNotMatch() {
-        applicationUserRepository.deleteAll();
-
-        String url = String.format("/users/search?name=%s", "qfqqg");
+        String url = String.format("/users/admin/search?name=%s", "qfqqg");
 
         ResponseEntity<PageableResponse<ApplicationUser>> entity = testRestTemplate.exchange(
                 url,
                 HttpMethod.GET,
-                null,
+                tokenUtil.createAdminAuthEntity(null),
                 new ParameterizedTypeReference<>() {
                 }
         );
@@ -184,8 +154,10 @@ class ApplicationUserControllerIT {
     void findById_ReturnApplicationUser_WhenSuccessful() {
         ApplicationUser expectedApplicationUser = applicationUserRepository.save(ApplicationUserCreator.createApplicationUserToBeSave());
 
-        ResponseEntity<ApplicationUser> entity = testRestTemplate.getForEntity(
-                "/users/{uuid}",
+        ResponseEntity<ApplicationUser> entity = testRestTemplate.exchange(
+                "/users/admin/{uuid}",
+                HttpMethod.GET,
+                tokenUtil.createAdminAuthEntity(null),
                 ApplicationUser.class,
                 expectedApplicationUser.getUuid()
         );
@@ -204,8 +176,10 @@ class ApplicationUserControllerIT {
     @Test
     @DisplayName("findById returns 400 BadRequest when application user not exists")
     void findById_Returns400BadRequest_WhenApplicationUserNotExists() {
-        ResponseEntity<ApplicationUser> entity = testRestTemplate.getForEntity(
-                "/users/{uuid}",
+        ResponseEntity<ApplicationUser> entity = testRestTemplate.exchange(
+                "/users/admin/{uuid}",
+                HttpMethod.GET,
+                tokenUtil.createAdminAuthEntity(null),
                 ApplicationUser.class,
                 UUID.randomUUID()
         );
@@ -222,8 +196,10 @@ class ApplicationUserControllerIT {
     void findByEmail_ReturnApplicationUser_WhenSuccessful() {
         ApplicationUser expectedApplicationUser = applicationUserRepository.save(ApplicationUserCreator.createApplicationUserToBeSave());
 
-        ResponseEntity<ApplicationUser> entity = testRestTemplate.getForEntity(
-                "/users/find-by-email/{email}",
+        ResponseEntity<ApplicationUser> entity = testRestTemplate.exchange(
+                "/users/admin/find-by-email/{email}",
+                HttpMethod.GET,
+                tokenUtil.createAdminAuthEntity(null),
                 ApplicationUser.class,
                 expectedApplicationUser.getEmail()
         );
@@ -242,8 +218,10 @@ class ApplicationUserControllerIT {
     @Test
     @DisplayName("findByIdEmail returns 400 BadRequest when application user not exists")
     void findByEmail_Returns400BadRequest_WhenApplicationUserNotExists() {
-        ResponseEntity<ApplicationUser> entity = testRestTemplate.getForEntity(
-                "/users/find-by-email/{email}",
+        ResponseEntity<ApplicationUser> entity = testRestTemplate.exchange(
+                "/users/admin/find-by-email/{email}",
+                HttpMethod.GET,
+                tokenUtil.createAdminAuthEntity(null),
                 ApplicationUser.class,
                 UUID.randomUUID()
         );
@@ -260,8 +238,10 @@ class ApplicationUserControllerIT {
     void findByCpf_ReturnApplicationUser_WhenSuccessful() {
         ApplicationUser expectedApplicationUser = applicationUserRepository.save(ApplicationUserCreator.createApplicationUserToBeSave());
 
-        ResponseEntity<ApplicationUser> entity = testRestTemplate.getForEntity(
-                "/users/find-by-cpf/{cpf}",
+        ResponseEntity<ApplicationUser> entity = testRestTemplate.exchange(
+                "/users/admin/find-by-cpf/{cpf}",
+                HttpMethod.GET,
+                tokenUtil.createAdminAuthEntity(null),
                 ApplicationUser.class,
                 expectedApplicationUser.getCpf()
         );
@@ -280,11 +260,14 @@ class ApplicationUserControllerIT {
     @Test
     @DisplayName("findByCpf returns 400 BadRequest when application user not exists")
     void findByCpf_Returns400BadRequest_WhenApplicationUserNotExists() {
-        ResponseEntity<ApplicationUser> entity = testRestTemplate.getForEntity(
-                "/users/find-by-cpf/{cpf}",
+        ResponseEntity<ApplicationUser> entity = testRestTemplate.exchange(
+                "/users/admin/find-by-cpf/{cpf}",
+                HttpMethod.GET,
+                tokenUtil.createAdminAuthEntity(null),
                 ApplicationUser.class,
                 UUID.randomUUID()
         );
+
 
         assertThat(entity).isNotNull();
 

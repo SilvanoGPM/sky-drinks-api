@@ -70,7 +70,7 @@ class ClientRequestControllerIT {
         ClientRequest clientRequestSaved = persistClientRequest();
 
         ResponseEntity<PageableResponse<ClientRequest>> entity = testRestTemplate.exchange(
-                "/requests/waiter-or-barmen",
+                "/requests/staff",
                 HttpMethod.GET,
                 tokenUtil.createWaiterAuthEntity(null),
                 new ParameterizedTypeReference<>() {
@@ -93,7 +93,7 @@ class ClientRequestControllerIT {
     @DisplayName("listAll return empty page when there are no client requests")
     void listAll_ReturnListOfClientRequestsInsidePageObject_WhenThereAreNoClientRequests() {
         ResponseEntity<PageableResponse<ClientRequest>> entity = testRestTemplate.exchange(
-                "/requests/waiter-or-barmen",
+                "/requests/staff",
                 HttpMethod.GET,
                 tokenUtil.createWaiterAuthEntity(null),
                 new ParameterizedTypeReference<>() {
@@ -113,7 +113,7 @@ class ClientRequestControllerIT {
     @DisplayName("listAll returns 403 Forbidden when user does not have ROLE_WAITER or ROLE_BARMEN7")
     void listAll_Returns403Forbidden_WhenUserDoesNotHaveROLE_WAITERorROLE_BARMEN() {
         ResponseEntity<Void> entity = testRestTemplate.exchange(
-                "/requests/waiter-or-barmen",
+                "/requests/staff",
                 HttpMethod.GET,
                 tokenUtil.createUserAuthEntity(null),
                 Void.class
@@ -175,7 +175,7 @@ class ClientRequestControllerIT {
     void search_ReturnListOfClientRequestsInsidePageObject_WhenSuccessful() {
         ClientRequest clientRequestSaved = persistClientRequest();
 
-        String url = String.format("/requests/waiter-or-barmen/search?drinkUUID=%s", clientRequestSaved.getDrinks().get(0).getUuid());
+        String url = String.format("/requests/staff/search?drinkUUID=%s", clientRequestSaved.getDrinks().get(0).getUuid());
 
         ResponseEntity<PageableResponse<ClientRequest>> entity = testRestTemplate.exchange(
                 url,
@@ -200,7 +200,7 @@ class ClientRequestControllerIT {
     @Test
     @DisplayName("search return empty page object when does not match")
     void search_ReturnEmptyPage_WhenDoesNotMatch() {
-        String url = String.format("/requests/waiter-or-barmen/search?drinkUUID=%s", UUID.randomUUID());
+        String url = String.format("/requests/staff/search?drinkUUID=%s", UUID.randomUUID());
 
         ResponseEntity<PageableResponse<ClientRequest>> entity = testRestTemplate.exchange(
                 url,
@@ -494,7 +494,7 @@ class ClientRequestControllerIT {
         ClientRequest clientRequestSaved = persistClientRequest();
 
         ResponseEntity<ClientRequest> entity = testRestTemplate.exchange(
-                "/requests/finish/waiter-or-barmen/{uuid}",
+                "/requests/staff/finish/{uuid}",
                 HttpMethod.PATCH,
                 tokenUtil.createWaiterAuthEntity(null),
                 ClientRequest.class,
@@ -526,7 +526,7 @@ class ClientRequestControllerIT {
         ClientRequest clientRequestFinished = clientRequestRepository.save(clientRequestSaved);
 
         ResponseEntity<BadRequestExceptionDetails> entity = testRestTemplate.exchange(
-                "/requests/finish/waiter-or-barmen/{uuid}",
+                "/requests/staff/finish/{uuid}",
                 HttpMethod.PATCH,
                 tokenUtil.createWaiterAuthEntity(null),
                 BadRequestExceptionDetails.class,
@@ -550,7 +550,7 @@ class ClientRequestControllerIT {
         ClientRequest clientRequestFinished = clientRequestRepository.save(clientRequestSaved);
 
         ResponseEntity<BadRequestExceptionDetails> entity = testRestTemplate.exchange(
-                "/requests/finish/waiter-or-barmen/{uuid}",
+                "/requests/staff/finish/{uuid}",
                 HttpMethod.PATCH,
                 tokenUtil.createWaiterAuthEntity(null),
                 BadRequestExceptionDetails.class,
@@ -568,7 +568,7 @@ class ClientRequestControllerIT {
     @DisplayName("finishRequest returns 400 BadRequest when client request not exists")
     void finishRequest_Returns400BadRequest_WhenClientRequestNotExists() {
         ResponseEntity<BadRequestExceptionDetails> entity = testRestTemplate.exchange(
-                "/requests/finish/waiter-or-barmen/{uuid}",
+                "/requests/staff/finish/{uuid}",
                 HttpMethod.PATCH,
                 tokenUtil.createWaiterAuthEntity(null),
                 BadRequestExceptionDetails.class,
@@ -588,7 +588,7 @@ class ClientRequestControllerIT {
         ClientRequest clientRequestSaved = persistClientRequest();
 
         ResponseEntity<ClientRequest> entity = testRestTemplate.exchange(
-                "/requests/cancel/all/{uuid}",
+                "/requests/all/cancel/{uuid}",
                 HttpMethod.PATCH,
                 tokenUtil.createWaiterAuthEntity(null),
                 ClientRequest.class,
@@ -620,7 +620,7 @@ class ClientRequestControllerIT {
         ClientRequest clientRequestFinished = clientRequestRepository.save(clientRequestSaved);
 
         ResponseEntity<BadRequestExceptionDetails> entity = testRestTemplate.exchange(
-                "/requests/cancel/all/{uuid}",
+                "/requests/all/cancel/{uuid}",
                 HttpMethod.PATCH,
                 tokenUtil.createWaiterAuthEntity(null),
                 BadRequestExceptionDetails.class,
@@ -645,7 +645,7 @@ class ClientRequestControllerIT {
         ClientRequest clientRequestFinished = clientRequestRepository.save(clientRequestSaved);
 
         ResponseEntity<BadRequestExceptionDetails> entity = testRestTemplate.exchange(
-                "/requests/cancel/all/{uuid}",
+                "/requests/all/cancel/{uuid}",
                 HttpMethod.PATCH,
                 tokenUtil.createWaiterAuthEntity(null),
                 BadRequestExceptionDetails.class,
@@ -663,7 +663,7 @@ class ClientRequestControllerIT {
     @DisplayName("cancelRequest returns 400 BadRequest when client request not exists")
     void cancelRequest_Returns400BadRequest_WhenClientRequestNotExists() {
         ResponseEntity<BadRequestExceptionDetails> entity = testRestTemplate.exchange(
-                "/requests/cancel/all/{uuid}",
+                "/requests/all/cancel/{uuid}",
                 HttpMethod.PATCH,
                 tokenUtil.createWaiterAuthEntity(null),
                 BadRequestExceptionDetails.class,
@@ -685,7 +685,7 @@ class ClientRequestControllerIT {
         ClientRequest clientRequestFinished = clientRequestRepository.save(clientRequestSaved);
 
         ResponseEntity<BadRequestExceptionDetails> entity = testRestTemplate.exchange(
-                "/requests/cancel/all/{uuid}",
+                "/requests/all/cancel/{uuid}",
                 HttpMethod.PATCH,
                 tokenUtil.createUserAuthEntity(null),
                 BadRequestExceptionDetails.class,
@@ -709,7 +709,7 @@ class ClientRequestControllerIT {
         ClientRequest clientRequestFinished = clientRequestRepository.save(clientRequestSaved);
 
         ResponseEntity<ClientRequest> entity = testRestTemplate.exchange(
-                "/requests/deliver/waiter-or-barmen/{uuid}",
+                "/requests/staff/deliver/{uuid}",
                 HttpMethod.PATCH,
                 tokenUtil.createWaiterAuthEntity(null),
                 ClientRequest.class,
@@ -735,7 +735,7 @@ class ClientRequestControllerIT {
         ClientRequest clientRequestSaved = persistClientRequest();
 
         ResponseEntity<BadRequestExceptionDetails> entity = testRestTemplate.exchange(
-                "/requests/deliver/waiter-or-barmen/{uuid}",
+                "/requests/staff/deliver/{uuid}",
                 HttpMethod.PATCH,
                 tokenUtil.createWaiterAuthEntity(null),
                 BadRequestExceptionDetails.class,
@@ -753,7 +753,7 @@ class ClientRequestControllerIT {
     @DisplayName("deliverRequest returns 400 BadRequest when client request not exists")
     void deliverRequest_Returns400BadRequest_WhenClientRequestNotExists() {
         ResponseEntity<BadRequestExceptionDetails> entity = testRestTemplate.exchange(
-                "/requests/deliver/waiter-or-barmen/{uuid}",
+                "/requests/staff/deliver/{uuid}",
                 HttpMethod.PATCH,
                 tokenUtil.createWaiterAuthEntity(null),
                 BadRequestExceptionDetails.class,
@@ -810,17 +810,11 @@ class ClientRequestControllerIT {
     }
 
     private ClientRequest persistClientRequest(ApplicationUser userSaved) {
-        return persistClientRequest(applicationUserRepository.save(userSaved), ClientRequestStatus.PROCESSING);
-    }
-
-    private ClientRequest persistClientRequest(ApplicationUser userSaved, ClientRequestStatus status) {
         Drink drinkSaved = drinkRepository.save(DrinkCreator.createDrinkToBeSave());
 
         Table tableSaved = tableRepository.save(TableCreator.createTableToBeSave());
 
         ClientRequest clientRequestValid = ClientRequestCreator.createClientRequestToBeSave();
-
-        clientRequestValid.setStatus(status);
 
         clientRequestValid.setDrinks(new ArrayList<>(List.of(drinkSaved)));
 
