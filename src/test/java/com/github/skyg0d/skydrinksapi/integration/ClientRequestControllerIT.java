@@ -635,7 +635,7 @@ class ClientRequestControllerIT {
     }
 
     @Test
-    @DisplayName("cancelRequest returns 400 BadRequest when client request is finished and delivered")
+    @DisplayName("cancelRequest returns 400 BadRequest when client request is finished and gited")
     void cancelRequest_Returns400BadRequest_WhenClientRequestIsFinishedAndDelivered() {
         ClientRequest clientRequestSaved = persistClientRequest();
 
