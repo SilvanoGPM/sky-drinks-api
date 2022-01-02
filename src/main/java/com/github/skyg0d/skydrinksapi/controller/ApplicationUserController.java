@@ -63,7 +63,7 @@ public class ApplicationUserController {
         return ResponseEntity.ok(applicationUserService.search(applicationUserParameters, pageable));
     }
 
-    @GetMapping("/admin/{uuid}")
+    @GetMapping("/all/{uuid}")
     @Operation(summary = "Retorna um usuário especificado", tags = "Users")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),

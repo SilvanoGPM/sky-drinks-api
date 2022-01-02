@@ -155,7 +155,7 @@ class ApplicationUserControllerIT {
         ApplicationUser expectedApplicationUser = applicationUserRepository.save(ApplicationUserCreator.createApplicationUserToBeSave());
 
         ResponseEntity<ApplicationUser> entity = testRestTemplate.exchange(
-                "/users/admin/{uuid}",
+                "/users/all/{uuid}",
                 HttpMethod.GET,
                 tokenUtil.createAdminAuthEntity(null),
                 ApplicationUser.class,
@@ -177,7 +177,7 @@ class ApplicationUserControllerIT {
     @DisplayName("findById returns 400 BadRequest when application user not exists")
     void findById_Returns400BadRequest_WhenApplicationUserNotExists() {
         ResponseEntity<ApplicationUser> entity = testRestTemplate.exchange(
-                "/users/admin/{uuid}",
+                "/users/all/{uuid}",
                 HttpMethod.GET,
                 tokenUtil.createAdminAuthEntity(null),
                 ApplicationUser.class,
