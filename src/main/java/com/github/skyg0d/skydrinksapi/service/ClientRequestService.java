@@ -1,8 +1,6 @@
 package com.github.skyg0d.skydrinksapi.service;
 
-import com.github.skyg0d.skydrinksapi.domain.ApplicationUser;
-import com.github.skyg0d.skydrinksapi.domain.ClientRequest;
-import com.github.skyg0d.skydrinksapi.domain.Drink;
+import com.github.skyg0d.skydrinksapi.domain.*;
 import com.github.skyg0d.skydrinksapi.enums.ClientRequestStatus;
 import com.github.skyg0d.skydrinksapi.enums.Roles;
 import com.github.skyg0d.skydrinksapi.exception.BadRequestException;
@@ -18,11 +16,13 @@ import com.github.skyg0d.skydrinksapi.requests.ClientRequestPutRequestBody;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -55,6 +55,14 @@ public class ClientRequestService {
         return clientRequestRepository
                 .findById(uuid)
                 .orElseThrow(() -> new BadRequestException(String.format("Pedido com id %s não foi encontrado", uuid)));
+    }
+
+    public List<ClientRequestDrinkCount> getMyTopFiveDrinks(ApplicationUser user) {
+        return clientRequestRepository.countTotalDrinksInRequest(user.getUuid(), PageRequest.of(0, 5));
+    }
+
+    public List<ClientRequestAlcoholicDrinkCount> getTotalOfDrinksGroupedByAlcoholic(ApplicationUser user) {
+        return clientRequestRepository.countAlcoholicDrinksInRequests(user.getUuid(), PageRequest.of(0, 2));
     }
 
     public ClientRequest save(ClientRequestPostRequestBody clientRequestPostRequestBody, ApplicationUser user) {

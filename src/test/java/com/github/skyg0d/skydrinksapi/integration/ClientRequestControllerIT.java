@@ -1,9 +1,6 @@
 package com.github.skyg0d.skydrinksapi.integration;
 
-import com.github.skyg0d.skydrinksapi.domain.ApplicationUser;
-import com.github.skyg0d.skydrinksapi.domain.ClientRequest;
-import com.github.skyg0d.skydrinksapi.domain.Drink;
-import com.github.skyg0d.skydrinksapi.domain.Table;
+import com.github.skyg0d.skydrinksapi.domain.*;
 import com.github.skyg0d.skydrinksapi.enums.ClientRequestStatus;
 import com.github.skyg0d.skydrinksapi.exception.details.BadRequestExceptionDetails;
 import com.github.skyg0d.skydrinksapi.repository.drink.DrinkRepository;
@@ -15,6 +12,7 @@ import com.github.skyg0d.skydrinksapi.requests.ClientRequestPutRequestBody;
 import com.github.skyg0d.skydrinksapi.util.TokenUtil;
 import com.github.skyg0d.skydrinksapi.util.drink.DrinkCreator;
 import com.github.skyg0d.skydrinksapi.util.request.ClientRequestCreator;
+import com.github.skyg0d.skydrinksapi.util.request.ClientRequestDrinkCountCreator;
 import com.github.skyg0d.skydrinksapi.util.request.ClientRequestPostRequestBodyCreator;
 import com.github.skyg0d.skydrinksapi.util.request.ClientRequestPutRequestBodyCreator;
 import com.github.skyg0d.skydrinksapi.util.table.TableCreator;
@@ -23,6 +21,7 @@ import com.github.skyg0d.skydrinksapi.wrapper.PageableResponse;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -33,6 +32,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -268,6 +268,63 @@ class ClientRequestControllerIT {
         assertThat(entity.getBody()).isEmpty();
     }
 
+    @Test
+    @DisplayName("countTotalDrinksInRequest returns client request drinks count when successful")
+    void countTotalDrinksInRequest_ReturnsClientRequestDrinksCount_WhenSuccessful() {
+        ClientRequest clientRequestSaved = persistClientRequest(applicationUserRepository.findByEmail(ApplicationUserCreator.createApplicationUser().getEmail()).get());
+
+        ResponseEntity<List<ClientRequestDrinkCount>> entity = testRestTemplate.exchange(
+                "/requests/user/top-five-drinks",
+                HttpMethod.GET,
+                tokenUtil.createUserAuthEntity(null),
+                new ParameterizedTypeReference<>() {
+                }
+        );
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.OK);
+
+        assertThat(entity.getBody())
+                .isNotEmpty()
+                .hasSize(1);
+
+        assertThat(entity.getBody().get(0)).isNotNull();
+
+        assertThat(entity.getBody().get(0).getDrinkUUID())
+                .isNotNull()
+                .isEqualTo(clientRequestSaved.getDrinks().get(0).getUuid());
+    }
+
+    @Test
+    @DisplayName("countAlcoholicDrinksInRequests returns total of client requests grouped by alcoholic when successful")
+    void countAlcoholicDrinksInRequests_ReturnsTotalOfClientRequestsGroupedByAlcoholic_WhenSuccessful() {
+        ClientRequest clientRequestSaved = persistClientRequest(applicationUserRepository.findByEmail(ApplicationUserCreator.createApplicationUser().getEmail()).get());
+
+        ResponseEntity<List<ClientRequestAlcoholicDrinkCount>> entity = testRestTemplate.exchange(
+                "/requests/user/total-of-drinks-alcoholic",
+                HttpMethod.GET,
+                tokenUtil.createUserAuthEntity(null),
+                new ParameterizedTypeReference<>() {
+                }
+        );
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.OK);
+
+        assertThat(entity.getBody())
+                .isNotEmpty()
+                .hasSize(1);
+
+        assertThat(entity.getBody().get(0)).isNotNull();
+
+        assertThat(entity.getBody().get(0).isAlcoholic()).isEqualTo(clientRequestSaved.getDrinks().get(0).isAlcoholic());
+    }
 
     @Test
     @DisplayName("toggleBlockAllRequests set blockAllRequests to true value when value is false")

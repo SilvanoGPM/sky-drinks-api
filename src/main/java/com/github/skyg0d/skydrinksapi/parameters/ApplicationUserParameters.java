@@ -36,4 +36,11 @@ public class ApplicationUserParameters {
     @Parameter(description = "Data de nascimento do usuário ou antes", example = "2004-04-04", allowEmptyValue = true)
     private String birthInDateOrBefore;
 
+    @Parameter(
+            description = "Se o valor for igual a um, pesquisará todas os usuários com pedidos bloqueados, caso seja zero, pesquisa todas os usuários não bloqueados, e caso seja menos um, pesquisa ambos",
+            example = "-1",
+            allowEmptyValue = true
+    )
+    private int lockRequests = -1;
+
 }

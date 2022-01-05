@@ -19,7 +19,8 @@ public class ApplicationUserSpecification extends AbstractSpecification {
                 .and(where(withBirthInDateOrBefore(applicationUserParameters.getBirthInDateOrBefore())))
                 .and(where(withCreatedAt(applicationUserParameters.getCreatedAt())))
                 .and(where(withCreatedInDateOrAfter(applicationUserParameters.getCreatedInDateOrAfter())))
-                .and(where(withCreatedInDateOrBefore(applicationUserParameters.getCreatedInDateOrBefore())));
+                .and(where(withCreatedInDateOrBefore(applicationUserParameters.getCreatedInDateOrBefore())))
+                .and(where(withLockedRequests(applicationUserParameters.getLockRequests())));
     }
 
     public static Specification<ApplicationUser> withName(String name) {
@@ -49,6 +50,16 @@ public class ApplicationUserSpecification extends AbstractSpecification {
     public static Specification<ApplicationUser> withBirthInDateOrBefore(String birth) {
         return getSpec(birth, (root, query, builder) -> (
                 builder.lessThanOrEqualTo(root.get("birthDay"), LocalDate.parse(birth))
+        ));
+    }
+
+    public static Specification<ApplicationUser> withLockedRequests(int lockRequests) {
+        if (lockRequests != 0 && lockRequests != 1) return null;
+
+        boolean isLocked = lockRequests == 1;
+
+        return getSpec(isLocked, (root, query, builder) -> (
+                builder.equal(root.get("lockRequests"), isLocked)
         ));
     }
 

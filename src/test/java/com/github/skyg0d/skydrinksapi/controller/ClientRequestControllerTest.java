@@ -2,6 +2,8 @@ package com.github.skyg0d.skydrinksapi.controller;
 
 import com.github.skyg0d.skydrinksapi.domain.ApplicationUser;
 import com.github.skyg0d.skydrinksapi.domain.ClientRequest;
+import com.github.skyg0d.skydrinksapi.domain.ClientRequestAlcoholicDrinkCount;
+import com.github.skyg0d.skydrinksapi.domain.ClientRequestDrinkCount;
 import com.github.skyg0d.skydrinksapi.parameters.ClientRequestParameters;
 import com.github.skyg0d.skydrinksapi.property.WebSocketProperties;
 import com.github.skyg0d.skydrinksapi.requests.ClientRequestPostRequestBody;
@@ -10,9 +12,7 @@ import com.github.skyg0d.skydrinksapi.service.ClientRequestService;
 import com.github.skyg0d.skydrinksapi.socket.domain.ClientRequestStatusChanged;
 import com.github.skyg0d.skydrinksapi.socket.domain.SocketMessage;
 import com.github.skyg0d.skydrinksapi.util.AuthUtil;
-import com.github.skyg0d.skydrinksapi.util.request.ClientRequestCreator;
-import com.github.skyg0d.skydrinksapi.util.request.ClientRequestPostRequestBodyCreator;
-import com.github.skyg0d.skydrinksapi.util.request.ClientRequestPutRequestBodyCreator;
+import com.github.skyg0d.skydrinksapi.util.request.*;
 import com.github.skyg0d.skydrinksapi.util.user.ApplicationUserCreator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -22,6 +22,7 @@ import org.mockito.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -75,6 +76,14 @@ class ClientRequestControllerTest {
         BDDMockito
                 .when(clientRequestServiceMock.searchMyRequests(ArgumentMatchers.any(ClientRequestParameters.class), ArgumentMatchers.any(PageRequest.class), ArgumentMatchers.any(ApplicationUser.class)))
                 .thenReturn(drinkPage);
+
+        BDDMockito
+                .when(clientRequestServiceMock.getTotalOfDrinksGroupedByAlcoholic(ArgumentMatchers.any(ApplicationUser.class)))
+                .thenReturn(List.of(ClientRequestAlcoholicDrinkCountCreator.createClientRequestAlcoholicDrinkCount(), ClientRequestAlcoholicDrinkCountCreator.createClientRequestNotAlcoholicDrinkCount()));
+
+        BDDMockito
+                .when(clientRequestServiceMock.getMyTopFiveDrinks(ArgumentMatchers.any(ApplicationUser.class)))
+                .thenReturn(List.of(ClientRequestDrinkCountCreator.createClientRequestDrinkCount()));
 
         BDDMockito
                 .when(clientRequestServiceMock.save(ArgumentMatchers.any(ClientRequestPostRequestBody.class), ArgumentMatchers.any(ApplicationUser.class)))
@@ -217,6 +226,58 @@ class ClientRequestControllerTest {
                 .isNotEmpty()
                 .hasSize(1)
                 .contains(expectedClientRequest);
+    }
+
+    @Test
+    @DisplayName("countTotalDrinksInRequest returns client request drinks count when successful")
+    void countTotalDrinksInRequest_ReturnsClientRequestDrinksCount_WhenSuccessful() {
+        Principal principalMock = Mockito.mock(Principal.class);
+
+        ClientRequestDrinkCount expectedDrinksCount = ClientRequestDrinkCountCreator.createClientRequestDrinkCount();
+
+        ResponseEntity<List<ClientRequestDrinkCount>> entity = clientRequestController.getMyTopFiveDrinks(principalMock);
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.OK);
+
+        assertThat(entity.getBody())
+                .isNotEmpty()
+                .hasSize(1);
+
+        assertThat(entity.getBody().get(0)).isNotNull();
+
+        assertThat(entity.getBody().get(0).getDrinkUUID())
+                .isNotNull()
+                .isEqualTo(expectedDrinksCount.getDrinkUUID());
+    }
+
+    @Test
+    @DisplayName("countAlcoholicDrinksInRequests returns total of client requests grouped by alcoholic when successful")
+    void countAlcoholicDrinksInRequests_ReturnsTotalOfClientRequestsGroupedByAlcoholic_WhenSuccessful() {
+        Principal principalMock = Mockito.mock(Principal.class);
+
+        ResponseEntity<List<ClientRequestAlcoholicDrinkCount>> entity = clientRequestController.getTotalOfDrinksGroupeddByAlcoholic(principalMock);
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.OK);
+
+        assertThat(entity.getBody())
+                .isNotEmpty()
+                .hasSize(2);
+
+        assertThat(entity.getBody().get(0)).isNotNull();
+
+        assertThat(entity.getBody().get(0).isAlcoholic()).isTrue();
+
+        assertThat(entity.getBody().get(1)).isNotNull();
+
+        assertThat(entity.getBody().get(1).isAlcoholic()).isFalse();
     }
 
     @Test

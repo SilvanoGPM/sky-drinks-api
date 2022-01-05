@@ -1,12 +1,11 @@
 package com.github.skyg0d.skydrinksapi.repository;
 
-import com.github.skyg0d.skydrinksapi.domain.ClientRequest;
-import com.github.skyg0d.skydrinksapi.domain.Drink;
-import com.github.skyg0d.skydrinksapi.domain.Table;
+import com.github.skyg0d.skydrinksapi.domain.*;
 import com.github.skyg0d.skydrinksapi.enums.ClientRequestStatus;
 import com.github.skyg0d.skydrinksapi.repository.drink.DrinkRepository;
 import com.github.skyg0d.skydrinksapi.repository.request.ClientRequestRepository;
 import com.github.skyg0d.skydrinksapi.repository.table.TableRepository;
+import com.github.skyg0d.skydrinksapi.repository.user.ApplicationUserRepository;
 import com.github.skyg0d.skydrinksapi.util.drink.DrinkCreator;
 import com.github.skyg0d.skydrinksapi.util.request.ClientRequestCreator;
 import com.github.skyg0d.skydrinksapi.util.table.TableCreator;
@@ -14,6 +13,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.PageRequest;
 
 import javax.validation.ConstraintViolationException;
 import java.util.ArrayList;
@@ -31,6 +31,9 @@ class ClientRequestRepositoryTest {
 
     @Autowired
     private DrinkRepository drinkRepository;
+
+    @Autowired
+    private ApplicationUserRepository applicationUserRepository;
 
     @Autowired
     private TableRepository tableRepository;
@@ -100,6 +103,66 @@ class ClientRequestRepositoryTest {
         Optional<ClientRequest> requestFound = clientRequestRepository.findById(requestSaved.getUuid());
 
         assertThat(requestFound).isEmpty();
+    }
+
+    @Test
+    @DisplayName("countTotalDrinksInRequest returns client request drinks count when successful")
+    void countTotalDrinksInRequest_ReturnsClientRequestDrinksCount_WhenSuccessful() {
+        ClientRequest requestToBeSave = ClientRequestCreator.createClientRequestToBeSave();
+
+        ApplicationUser userSaved = applicationUserRepository.save(requestToBeSave.getUser());
+
+        List<Drink> drinksSaved = drinkRepository.saveAll(requestToBeSave.getDrinks());
+
+        Table tableSaved = tableRepository.save(requestToBeSave.getTable());
+
+        requestToBeSave.setUser(userSaved);
+        requestToBeSave.setDrinks(drinksSaved);
+        requestToBeSave.setTable(tableSaved);
+
+        clientRequestRepository.save(requestToBeSave);
+
+        List<ClientRequestDrinkCount> drinksFound = clientRequestRepository.countTotalDrinksInRequest(userSaved.getUuid(), PageRequest.of(0, 1));
+
+        assertThat(drinksFound)
+                .isNotEmpty()
+                .hasSize(1);
+
+        assertThat(drinksFound.get(0)).isNotNull();
+
+        assertThat(drinksFound.get(0).getDrinkUUID())
+                .isNotNull()
+                .isEqualTo(drinksSaved.get(0).getUuid());
+    }
+
+    @Test
+    @DisplayName("countAlcoholicDrinksInRequests returns total of client requests grouped by alcoholic when successful")
+    void countAlcoholicDrinksInRequests_ReturnsTotalOfClientRequestsGroupedByAlcoholic_WhenSuccessful() {
+        ClientRequest requestToBeSave = ClientRequestCreator.createClientRequestToBeSave();
+
+        ApplicationUser userSaved = applicationUserRepository.save(requestToBeSave.getUser());
+
+        List<Drink> drinksSaved = drinkRepository.saveAll(requestToBeSave.getDrinks());
+
+        Table tableSaved = tableRepository.save(requestToBeSave.getTable());
+
+        requestToBeSave.setUser(userSaved);
+        requestToBeSave.setDrinks(drinksSaved);
+        requestToBeSave.setTable(tableSaved);
+
+        clientRequestRepository.save(requestToBeSave);
+
+        List<ClientRequestAlcoholicDrinkCount> drinksFound = clientRequestRepository.countAlcoholicDrinksInRequests(userSaved.getUuid(), PageRequest.of(0, 2));
+
+        assertThat(drinksFound)
+                .isNotEmpty()
+                .hasSize(1);
+
+        assertThat(drinksFound.get(0)).isNotNull();
+
+        assertThat(drinksFound.get(0).isAlcoholic()).isFalse();
+
+        assertThat(drinksFound.get(0).getTotal()).isEqualTo(1);
     }
 
     @Test

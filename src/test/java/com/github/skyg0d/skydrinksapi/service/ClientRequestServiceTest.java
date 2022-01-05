@@ -1,8 +1,6 @@
 package com.github.skyg0d.skydrinksapi.service;
 
-import com.github.skyg0d.skydrinksapi.domain.ApplicationUser;
-import com.github.skyg0d.skydrinksapi.domain.ClientRequest;
-import com.github.skyg0d.skydrinksapi.domain.Drink;
+import com.github.skyg0d.skydrinksapi.domain.*;
 import com.github.skyg0d.skydrinksapi.exception.BadRequestException;
 import com.github.skyg0d.skydrinksapi.exception.UserCannotCompleteClientRequestException;
 import com.github.skyg0d.skydrinksapi.exception.UserCannotModifyClientRequestException;
@@ -10,9 +8,7 @@ import com.github.skyg0d.skydrinksapi.exception.UserRequestsAreLockedException;
 import com.github.skyg0d.skydrinksapi.parameters.ClientRequestParameters;
 import com.github.skyg0d.skydrinksapi.repository.request.ClientRequestRepository;
 import com.github.skyg0d.skydrinksapi.requests.ClientRequestPutRequestBody;
-import com.github.skyg0d.skydrinksapi.util.request.ClientRequestCreator;
-import com.github.skyg0d.skydrinksapi.util.request.ClientRequestPostRequestBodyCreator;
-import com.github.skyg0d.skydrinksapi.util.request.ClientRequestPutRequestBodyCreator;
+import com.github.skyg0d.skydrinksapi.util.request.*;
 import com.github.skyg0d.skydrinksapi.util.user.ApplicationUserCreator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -25,6 +21,7 @@ import org.mockito.Mock;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -60,6 +57,14 @@ class ClientRequestServiceTest {
         BDDMockito
                 .when(clientRequestRepositoryMock.findById(ArgumentMatchers.any(UUID.class)))
                 .thenReturn(Optional.of(ClientRequestCreator.createValidClientRequest()));
+
+        BDDMockito
+                .when(clientRequestRepositoryMock.countAlcoholicDrinksInRequests(ArgumentMatchers.any(UUID.class), ArgumentMatchers.any(Pageable.class)))
+                .thenReturn(List.of(ClientRequestAlcoholicDrinkCountCreator.createClientRequestAlcoholicDrinkCount(), ClientRequestAlcoholicDrinkCountCreator.createClientRequestNotAlcoholicDrinkCount()));
+
+        BDDMockito
+                .when(clientRequestRepositoryMock.countTotalDrinksInRequest(ArgumentMatchers.any(UUID.class), ArgumentMatchers.any(Pageable.class)))
+                .thenReturn(List.of(ClientRequestDrinkCountCreator.createClientRequestDrinkCount()));
 
         BDDMockito
                 .when(clientRequestRepositoryMock.findAll(ArgumentMatchers.<Specification<ClientRequest>>any(), ArgumentMatchers.any(PageRequest.class)))
@@ -144,6 +149,42 @@ class ClientRequestServiceTest {
                 .isNotEmpty()
                 .hasSize(1)
                 .contains(expectedClientRequest);
+    }
+
+    @Test
+    @DisplayName("countTotalDrinksInRequest returns client request drinks count when successful")
+    void countTotalDrinksInRequest_ReturnsClientRequestDrinksCount_WhenSuccessful() {
+        ClientRequestDrinkCount expectedDrinksCount = ClientRequestDrinkCountCreator.createClientRequestDrinkCount();
+
+        List<ClientRequestDrinkCount> myTopFiveDrinks = clientRequestService.getMyTopFiveDrinks(ApplicationUserCreator.createValidApplicationUser());
+
+        assertThat(myTopFiveDrinks)
+                .isNotEmpty()
+                .hasSize(1);
+
+        assertThat(myTopFiveDrinks.get(0)).isNotNull();
+
+        assertThat(myTopFiveDrinks.get(0).getDrinkUUID())
+                .isNotNull()
+                .isEqualTo(expectedDrinksCount.getDrinkUUID());
+    }
+
+    @Test
+    @DisplayName("countAlcoholicDrinksInRequests returns total of client requests grouped by alcoholic when successful")
+    void countAlcoholicDrinksInRequests_ReturnsTotalOfClientRequestsGroupedByAlcoholic_WhenSuccessful() {
+        List<ClientRequestAlcoholicDrinkCount> allDrinksOfRequests = clientRequestService.getTotalOfDrinksGroupedByAlcoholic(ApplicationUserCreator.createValidApplicationUser());
+
+        assertThat(allDrinksOfRequests)
+                .isNotEmpty()
+                .hasSize(2);
+
+        assertThat(allDrinksOfRequests.get(0)).isNotNull();
+
+        assertThat(allDrinksOfRequests.get(0).isAlcoholic()).isTrue();
+
+        assertThat(allDrinksOfRequests.get(1)).isNotNull();
+
+        assertThat(allDrinksOfRequests.get(1).isAlcoholic()).isFalse();
     }
 
     @Test

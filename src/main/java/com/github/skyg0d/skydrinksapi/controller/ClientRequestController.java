@@ -2,6 +2,8 @@ package com.github.skyg0d.skydrinksapi.controller;
 
 import com.github.skyg0d.skydrinksapi.domain.ApplicationUser;
 import com.github.skyg0d.skydrinksapi.domain.ClientRequest;
+import com.github.skyg0d.skydrinksapi.domain.ClientRequestAlcoholicDrinkCount;
+import com.github.skyg0d.skydrinksapi.domain.ClientRequestDrinkCount;
 import com.github.skyg0d.skydrinksapi.enums.ClientRequestStatus;
 import com.github.skyg0d.skydrinksapi.enums.Roles;
 import com.github.skyg0d.skydrinksapi.parameters.ClientRequestParameters;
@@ -29,6 +31,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.security.Principal;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
@@ -71,6 +74,30 @@ public class ClientRequestController {
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Page<ClientRequest>> search(@ParameterObject ClientRequestParameters parameters, @ParameterObject Pageable pageable) {
         return ResponseEntity.ok(clientRequestService.search(parameters, pageable));
+    }
+
+    @GetMapping("/user/top-five-drinks")
+    @Operation(summary = "Retorna as cinco bebidas que mais aparecem nos seus pedidos", tags = "Requests")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
+            @ApiResponse(responseCode = "401", description = "Quando o usuário não está autenticado"),
+            @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
+    })
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<List<ClientRequestDrinkCount>> getMyTopFiveDrinks(Principal principal) {
+        return ResponseEntity.ok(clientRequestService.getMyTopFiveDrinks(authUtil.getUser(principal)));
+    }
+
+    @GetMapping("/user/total-of-drinks-alcoholic")
+    @Operation(summary = "Retorna as todas as bebidas dos seus pedidos", tags = "Requests")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
+            @ApiResponse(responseCode = "401", description = "Quando o usuário não está autenticado"),
+            @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
+    })
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<List<ClientRequestAlcoholicDrinkCount>> getTotalOfDrinksGroupeddByAlcoholic(Principal principal) {
+        return ResponseEntity.ok(clientRequestService.getTotalOfDrinksGroupedByAlcoholic(authUtil.getUser(principal)));
     }
 
     @GetMapping("/user/my-requests")
