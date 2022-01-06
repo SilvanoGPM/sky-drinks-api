@@ -5,3 +5,11 @@ spring:
     hibernate:
       ddl-auto: update
       dialect: org.hibernate.dialect.PostgreSQLDialect
+
+jwt:
+  config:
+    expiration: 604800 # One week
+
+my:
+  cors:
+    origins: ["https://sky-drinks-ui.herokuapp.com"]
