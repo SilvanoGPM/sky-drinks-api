@@ -46,7 +46,7 @@ class TableControllerIT {
         Table tableSaved = tableRepository.save(TableCreator.createTableToBeSave());
 
         ResponseEntity<PageableResponse<Table>> entity = testRestTemplate.exchange(
-                "/tables/waiter",
+                "/tables/all",
                 HttpMethod.GET,
                 tokenUtil.createWaiterAuthEntity(null),
                 new ParameterizedTypeReference<>() {
@@ -71,7 +71,7 @@ class TableControllerIT {
     @DisplayName("listAll return empty page when there are no tables")
     void listAll_ReturnEmptyPage_WhenThereAreNoTables() {
         ResponseEntity<PageableResponse<Table>> entity = testRestTemplate.exchange(
-                "/tables/waiter",
+                "/tables/all",
                 HttpMethod.GET,
                 tokenUtil.createWaiterAuthEntity(null),
                 new ParameterizedTypeReference<>() {
@@ -93,7 +93,7 @@ class TableControllerIT {
     @DisplayName("listAll returns 403 Forbidden when user does not have ROLE_WAITER")
     void listAll_Returns403Forbidden_WhenUserDoesNotHaveROLE_WAITER() {
         ResponseEntity<Void> entity = testRestTemplate.exchange(
-                "/tables/waiter",
+                "/tables/all",
                 HttpMethod.GET,
                 tokenUtil.createUserAuthEntity(null),
                 Void.class

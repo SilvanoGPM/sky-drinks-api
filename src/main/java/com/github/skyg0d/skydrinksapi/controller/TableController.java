@@ -27,7 +27,7 @@ public class TableController {
 
     private final TableService tableService;
 
-    @GetMapping("/waiter")
+    @GetMapping("/all")
     @Operation(summary = "Retorna todos as mesas com paginação", tags = "Tables")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
