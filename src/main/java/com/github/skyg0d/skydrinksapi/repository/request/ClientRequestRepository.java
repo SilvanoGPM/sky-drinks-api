@@ -2,6 +2,7 @@ package com.github.skyg0d.skydrinksapi.repository.request;
 
 import com.github.skyg0d.skydrinksapi.domain.ClientRequest;
 import com.github.skyg0d.skydrinksapi.domain.ClientRequestAlcoholicDrinkCount;
+import com.github.skyg0d.skydrinksapi.domain.ClientRequestDate;
 import com.github.skyg0d.skydrinksapi.domain.ClientRequestDrinkCount;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,6 +14,13 @@ import java.util.UUID;
 
 public interface ClientRequestRepository extends JpaRepository<ClientRequest, UUID>,
         JpaSpecificationExecutor<ClientRequest> {
+
+    @Query("SELECT DISTINCT new com.github.skyg0d.skydrinksapi.domain.ClientRequestDate(CAST(cr.createdAt AS LocalDate))"
+            + " FROM ClientRequest cr"
+            + " GROUP BY CAST(cr.createdAt AS LocalDate)"
+            + " ORDER BY CAST(cr.createdAt AS LocalDate)"
+    )
+    List<ClientRequestDate> getAllDatesInRequests();
 
     @Query("SELECT new com.github.skyg0d.skydrinksapi.domain.ClientRequestDrinkCount(d.uuid, d.name, COUNT(d.name))"
             + " FROM ClientRequest cr"

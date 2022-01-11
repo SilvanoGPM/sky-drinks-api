@@ -1,9 +1,6 @@
 package com.github.skyg0d.skydrinksapi.controller;
 
-import com.github.skyg0d.skydrinksapi.domain.ApplicationUser;
-import com.github.skyg0d.skydrinksapi.domain.ClientRequest;
-import com.github.skyg0d.skydrinksapi.domain.ClientRequestAlcoholicDrinkCount;
-import com.github.skyg0d.skydrinksapi.domain.ClientRequestDrinkCount;
+import com.github.skyg0d.skydrinksapi.domain.*;
 import com.github.skyg0d.skydrinksapi.parameters.ClientRequestParameters;
 import com.github.skyg0d.skydrinksapi.property.WebSocketProperties;
 import com.github.skyg0d.skydrinksapi.requests.ClientRequestPostRequestBody;
@@ -85,6 +82,10 @@ class ClientRequestControllerTest {
                 .thenReturn(List.of(ClientRequestDrinkCountCreator.createClientRequestDrinkCount()));
 
         BDDMockito
+                .when(clientRequestServiceMock.getAllDatesInRequests())
+                .thenReturn(List.of(ClientRequestDateCreator.createClientRequestDate()));
+
+        BDDMockito
                 .when(clientRequestServiceMock.save(ArgumentMatchers.any(ClientRequestPostRequestBody.class), ArgumentMatchers.any(ApplicationUser.class)))
                 .thenReturn(ClientRequestCreator.createValidClientRequest());
 
@@ -108,7 +109,6 @@ class ClientRequestControllerTest {
         BDDMockito
                 .when(clientRequestServiceMock.deliverRequest(ArgumentMatchers.any(UUID.class)))
                 .thenReturn(ClientRequestCreator.createClientRequestDelivered());
-
 
         BDDMockito
                 .doNothing()
@@ -277,6 +277,28 @@ class ClientRequestControllerTest {
         assertThat(entity.getBody().get(1)).isNotNull();
 
         assertThat(entity.getBody().get(1).isAlcoholic()).isFalse();
+    }
+
+    @Test
+    @DisplayName("getAllDatesInRequests returns all dates in requests when successful")
+    void getAllDatesInRequests_ReturnsAllDatesInRequests_WhenSuccessful() {
+        ResponseEntity<List<ClientRequestDate>> entity = clientRequestController.getAllDatesInRequests();
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.OK);
+
+        assertThat(entity.getBody())
+                .isNotEmpty()
+                .hasSize(1);
+
+        assertThat(entity.getBody().get(0)).isNotNull();
+
+        assertThat(entity.getBody().get(0).getDate())
+                .isNotNull()
+                .isEqualTo(ClientRequestDateCreator.createClientRequestDate().getDate());
     }
 
     @Test

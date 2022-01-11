@@ -12,6 +12,7 @@ import com.github.skyg0d.skydrinksapi.requests.ClientRequestPutRequestBody;
 import com.github.skyg0d.skydrinksapi.util.TokenUtil;
 import com.github.skyg0d.skydrinksapi.util.drink.DrinkCreator;
 import com.github.skyg0d.skydrinksapi.util.request.ClientRequestCreator;
+import com.github.skyg0d.skydrinksapi.util.request.ClientRequestDateCreator;
 import com.github.skyg0d.skydrinksapi.util.request.ClientRequestPostRequestBodyCreator;
 import com.github.skyg0d.skydrinksapi.util.request.ClientRequestPutRequestBodyCreator;
 import com.github.skyg0d.skydrinksapi.util.table.TableCreator;
@@ -321,6 +322,36 @@ class ClientRequestControllerIT {
         assertThat(entity.getBody().get(0)).isNotNull();
 
         assertThat(entity.getBody().get(0).isAlcoholic()).isEqualTo(clientRequestSaved.getDrinks().get(0).isAlcoholic());
+    }
+
+    @Test
+    @DisplayName("getAllDatesInRequests returns all dates in requests when successful")
+    void getAllDatesInRequests_ReturnsAllDatesInRequests_WhenSuccessful() {
+        ClientRequest clientRequestSaved = persistClientRequest(applicationUserRepository.findByEmail(ApplicationUserCreator.createApplicationUser().getEmail()).get());
+
+        ResponseEntity<List<ClientRequestDate>> entity = testRestTemplate.exchange(
+                "/requests/admin/all-dates",
+                HttpMethod.GET,
+                tokenUtil.createAdminAuthEntity(null),
+                new ParameterizedTypeReference<>() {
+                }
+        );
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.OK);
+
+        assertThat(entity.getBody())
+                .isNotEmpty()
+                .hasSize(1);
+
+        assertThat(entity.getBody().get(0)).isNotNull();
+
+        assertThat(entity.getBody().get(0).getDate())
+                .isNotNull()
+                .isEqualTo(clientRequestSaved.getCreatedAt().toLocalDate());
     }
 
     @Test

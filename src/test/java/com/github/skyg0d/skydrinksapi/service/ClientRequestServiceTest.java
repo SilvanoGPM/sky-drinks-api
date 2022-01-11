@@ -67,6 +67,10 @@ class ClientRequestServiceTest {
                 .thenReturn(List.of(ClientRequestDrinkCountCreator.createClientRequestDrinkCount()));
 
         BDDMockito
+                .when(clientRequestRepositoryMock.getAllDatesInRequests())
+                .thenReturn(List.of(ClientRequestDateCreator.createClientRequestDate()));
+
+        BDDMockito
                 .when(clientRequestRepositoryMock.findAll(ArgumentMatchers.<Specification<ClientRequest>>any(), ArgumentMatchers.any(PageRequest.class)))
                 .thenReturn(drinkPage);
 
@@ -185,6 +189,22 @@ class ClientRequestServiceTest {
         assertThat(allDrinksOfRequests.get(1)).isNotNull();
 
         assertThat(allDrinksOfRequests.get(1).isAlcoholic()).isFalse();
+    }
+
+    @Test
+    @DisplayName("getAllDatesInRequests returns all dates in requests when successful")
+    void getAllDatesInRequests_ReturnsAllDatesInRequests_WhenSuccessful() {
+        List<ClientRequestDate> datesFound = clientRequestService.getAllDatesInRequests();
+
+        assertThat(datesFound)
+                .isNotEmpty()
+                .hasSize(1);
+
+        assertThat(datesFound.get(0)).isNotNull();
+
+        assertThat(datesFound.get(0).getDate())
+                .isNotNull()
+                .isEqualTo(ClientRequestDateCreator.createClientRequestDate().getDate());
     }
 
     @Test

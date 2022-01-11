@@ -1,9 +1,6 @@
 package com.github.skyg0d.skydrinksapi.controller;
 
-import com.github.skyg0d.skydrinksapi.domain.ApplicationUser;
-import com.github.skyg0d.skydrinksapi.domain.ClientRequest;
-import com.github.skyg0d.skydrinksapi.domain.ClientRequestAlcoholicDrinkCount;
-import com.github.skyg0d.skydrinksapi.domain.ClientRequestDrinkCount;
+import com.github.skyg0d.skydrinksapi.domain.*;
 import com.github.skyg0d.skydrinksapi.enums.ClientRequestStatus;
 import com.github.skyg0d.skydrinksapi.enums.Roles;
 import com.github.skyg0d.skydrinksapi.parameters.ClientRequestParameters;
@@ -86,6 +83,19 @@ public class ClientRequestController {
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<List<ClientRequestDrinkCount>> getMyTopFiveDrinks(Principal principal) {
         return ResponseEntity.ok(clientRequestService.getMyTopFiveDrinks(authUtil.getUser(principal)));
+    }
+
+    @GetMapping("/admin/all-dates")
+    @Operation(summary = "Retorna as datas que foram realizados pedidos", tags = "Requests")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
+            @ApiResponse(responseCode = "401", description = "Quando o usuário não está autenticado"),
+            @ApiResponse(responseCode = "403", description = "Quando o usuário não possuí permissão"),
+            @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
+    })
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<List<ClientRequestDate>> getAllDatesInRequests() {
+        return ResponseEntity.ok(clientRequestService.getAllDatesInRequests());
     }
 
     @GetMapping("/user/total-of-drinks-alcoholic")

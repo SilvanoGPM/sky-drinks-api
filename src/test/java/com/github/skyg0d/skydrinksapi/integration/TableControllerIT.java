@@ -90,23 +90,6 @@ class TableControllerIT {
     }
 
     @Test
-    @DisplayName("listAll returns 403 Forbidden when user does not have ROLE_WAITER")
-    void listAll_Returns403Forbidden_WhenUserDoesNotHaveROLE_WAITER() {
-        ResponseEntity<Void> entity = testRestTemplate.exchange(
-                "/tables/all",
-                HttpMethod.GET,
-                tokenUtil.createUserAuthEntity(null),
-                Void.class
-        );
-
-        assertThat(entity).isNotNull();
-
-        assertThat(entity.getStatusCode())
-                .isNotNull()
-                .isEqualTo(HttpStatus.FORBIDDEN);
-    }
-
-    @Test
     @DisplayName("findById returns an table object when successful")
     void findById_ReturnsAnTableObject_WhenSuccessful() {
         Table tableSaved = tableRepository.save(TableCreator.createTableToBeSave());

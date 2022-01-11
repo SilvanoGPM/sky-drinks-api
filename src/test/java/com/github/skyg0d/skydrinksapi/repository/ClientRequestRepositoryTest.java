@@ -166,6 +166,36 @@ class ClientRequestRepositoryTest {
     }
 
     @Test
+    @DisplayName("getAllDatesInRequests returns all dates in requests when successful")
+    void getAllDatesInRequests_ReturnsAllDatesInRequests_WhenSuccessful() {
+        ClientRequest requestToBeSave = ClientRequestCreator.createClientRequestToBeSave();
+
+        ApplicationUser userSaved = applicationUserRepository.save(requestToBeSave.getUser());
+
+        List<Drink> drinksSaved = drinkRepository.saveAll(requestToBeSave.getDrinks());
+
+        Table tableSaved = tableRepository.save(requestToBeSave.getTable());
+
+        requestToBeSave.setUser(userSaved);
+        requestToBeSave.setDrinks(drinksSaved);
+        requestToBeSave.setTable(tableSaved);
+
+        ClientRequest requestSaved = clientRequestRepository.save(requestToBeSave);
+
+        List<ClientRequestDate> datesFound = clientRequestRepository.getAllDatesInRequests();
+
+        assertThat(datesFound)
+                .isNotEmpty()
+                .hasSize(1);
+
+        assertThat(datesFound.get(0)).isNotNull();
+
+        assertThat(datesFound.get(0).getDate())
+                .isNotNull()
+                .isEqualTo(requestSaved.getCreatedAt().toLocalDate());
+    }
+
+    @Test
     @DisplayName("save throws ConstraintViolationException when client request properties is invalid")
     void save_ThrowsConstraintViolationException_WhenClientRequestPropertiesIsInvalid() {
         ClientRequest request = new ClientRequest();

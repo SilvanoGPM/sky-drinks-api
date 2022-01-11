@@ -65,6 +65,10 @@ public class ClientRequestService {
         return clientRequestRepository.countAlcoholicDrinksInRequests(user.getUuid(), PageRequest.of(0, 2));
     }
 
+    public List<ClientRequestDate> getAllDatesInRequests() {
+        return clientRequestRepository.getAllDatesInRequests();
+    }
+
     public ClientRequest save(ClientRequestPostRequestBody clientRequestPostRequestBody, ApplicationUser user) {
         if (blockAllRequests) {
             throw new BadRequestException("A criação de novos pedidos está bloqueada para todos os usuários!");
