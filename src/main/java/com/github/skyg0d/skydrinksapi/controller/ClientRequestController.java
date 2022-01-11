@@ -81,8 +81,44 @@ public class ClientRequestController {
             @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
     })
     @SecurityRequirement(name = "bearerAuth")
-    public ResponseEntity<List<ClientRequestDrinkCount>> getMyTopFiveDrinks(Principal principal) {
+    public ResponseEntity<List<ClientRequestDrinkCount>> getTopFiveDrinks(Principal principal) {
         return ResponseEntity.ok(clientRequestService.getMyTopFiveDrinks(authUtil.getUser(principal)));
+    }
+
+    @GetMapping("/admin/top-five-drinks/{uuid}")
+    @Operation(summary = "Retorna as cinco bebidas que mais aparecem de um determinado usuário", tags = "Requests")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
+            @ApiResponse(responseCode = "401", description = "Quando o usuário não está autenticado"),
+            @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
+    })
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<List<ClientRequestDrinkCount>> getTopFiveDrinks(@PathVariable UUID uuid) {
+        return ResponseEntity.ok(clientRequestService.getTopFiveDrinks(uuid));
+    }
+
+    @GetMapping("/admin/top-drinks")
+    @Operation(summary = "Retorna as bebidas que mais aparecem nos pedidos", tags = "Requests")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
+            @ApiResponse(responseCode = "401", description = "Quando o usuário não está autenticado"),
+            @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
+    })
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<List<ClientRequestDrinkCount>> getTopDrinksInRequests(@ParameterObject Pageable pageable) {
+        return ResponseEntity.ok(clientRequestService.getTopDrinksInRequests(pageable));
+    }
+
+    @GetMapping("/admin/most-canceled")
+    @Operation(summary = "Retorna as bebidas que mais foram canceladas nos pedidos", tags = "Requests")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
+            @ApiResponse(responseCode = "401", description = "Quando o usuário não está autenticado"),
+            @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
+    })
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<List<ClientRequestDrinkCount>> mostCanceledDrinks(@ParameterObject Pageable pageable) {
+        return ResponseEntity.ok(clientRequestService.mostCanceledDrinks(pageable));
     }
 
     @GetMapping("/admin/all-dates")

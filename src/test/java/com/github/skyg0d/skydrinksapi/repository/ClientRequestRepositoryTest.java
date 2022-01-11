@@ -166,6 +166,67 @@ class ClientRequestRepositoryTest {
     }
 
     @Test
+    @DisplayName("countTotalDrinksInRequest returns client request drinks count of all users when successful")
+    void countTotalDrinksInRequest_ReturnsClientRequestDrinksCountOfAllUsers_WhenSuccessful() {
+        ClientRequest requestToBeSave = ClientRequestCreator.createClientRequestToBeSave();
+
+        ApplicationUser userSaved = applicationUserRepository.save(requestToBeSave.getUser());
+
+        List<Drink> drinksSaved = drinkRepository.saveAll(requestToBeSave.getDrinks());
+
+        Table tableSaved = tableRepository.save(requestToBeSave.getTable());
+
+        requestToBeSave.setUser(userSaved);
+        requestToBeSave.setDrinks(drinksSaved);
+        requestToBeSave.setTable(tableSaved);
+
+        clientRequestRepository.save(requestToBeSave);
+
+        List<ClientRequestDrinkCount> drinksFound = clientRequestRepository.countTotalDrinksInRequest(PageRequest.of(0, 1));
+
+        assertThat(drinksFound)
+                .isNotEmpty()
+                .hasSize(1);
+
+        assertThat(drinksFound.get(0)).isNotNull();
+
+        assertThat(drinksFound.get(0).getDrinkUUID())
+                .isNotNull()
+                .isEqualTo(drinksSaved.get(0).getUuid());
+    }
+
+    @Test
+    @DisplayName("mostCanceledDrinks returns client request drinks count of most canceled requests when successful")
+    void mostCanceledDrinks_ReturnsClientRequestDrinksCountOfMostCanceledRequests_WhenSuccessful() {
+        ClientRequest requestToBeSave = ClientRequestCreator.createClientRequestToBeSave();
+
+        ApplicationUser userSaved = applicationUserRepository.save(requestToBeSave.getUser());
+
+        List<Drink> drinksSaved = drinkRepository.saveAll(requestToBeSave.getDrinks());
+
+        Table tableSaved = tableRepository.save(requestToBeSave.getTable());
+
+        requestToBeSave.setUser(userSaved);
+        requestToBeSave.setDrinks(drinksSaved);
+        requestToBeSave.setTable(tableSaved);
+        requestToBeSave.setStatus(ClientRequestStatus.CANCELED);
+
+        clientRequestRepository.save(requestToBeSave);
+
+        List<ClientRequestDrinkCount> drinksFound = clientRequestRepository.mostCanceledDrinks(PageRequest.of(0, 1));
+
+        assertThat(drinksFound)
+                .isNotEmpty()
+                .hasSize(1);
+
+        assertThat(drinksFound.get(0)).isNotNull();
+
+        assertThat(drinksFound.get(0).getDrinkUUID())
+                .isNotNull()
+                .isEqualTo(drinksSaved.get(0).getUuid());
+    }
+
+    @Test
     @DisplayName("getAllDatesInRequests returns all dates in requests when successful")
     void getAllDatesInRequests_ReturnsAllDatesInRequests_WhenSuccessful() {
         ClientRequest requestToBeSave = ClientRequestCreator.createClientRequestToBeSave();

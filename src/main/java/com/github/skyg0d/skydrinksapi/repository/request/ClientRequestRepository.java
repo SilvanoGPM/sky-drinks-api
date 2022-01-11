@@ -32,6 +32,25 @@ public interface ClientRequestRepository extends JpaRepository<ClientRequest, UU
     )
     List<ClientRequestDrinkCount> countTotalDrinksInRequest(UUID userUUID, Pageable pageable);
 
+    @Query("SELECT new com.github.skyg0d.skydrinksapi.domain.ClientRequestDrinkCount(d.uuid, d.name, COUNT(d.name))"
+            + " FROM ClientRequest cr"
+            + " JOIN cr.drinks d"
+            + " JOIN cr.user u"
+            + " GROUP BY d.name, d.uuid"
+            + " ORDER BY COUNT(d.name) DESC"
+    )
+    List<ClientRequestDrinkCount> countTotalDrinksInRequest(Pageable pageable);
+
+    @Query("SELECT new com.github.skyg0d.skydrinksapi.domain.ClientRequestDrinkCount(d.uuid, d.name, COUNT(d.name))"
+            + " FROM ClientRequest cr"
+            + " JOIN cr.drinks d"
+            + " JOIN cr.user u"
+            + " WHERE cr.status = 'CANCELED'"
+            + " GROUP BY d.name, d.uuid"
+            + " ORDER BY COUNT(d.name) DESC"
+    )
+    List<ClientRequestDrinkCount> mostCanceledDrinks(Pageable pageable);
+
     @Query("SELECT new com.github.skyg0d.skydrinksapi.domain.ClientRequestAlcoholicDrinkCount(d.alcoholic, COUNT(d.alcoholic))"
             + " FROM ClientRequest cr"
             + " JOIN cr.drinks d"

@@ -46,6 +46,10 @@ class ClientRequestServiceTest {
     @Mock
     private DrinkService drinkServiceMock;
 
+    @Mock
+    private ApplicationUserService applicationUserServiceMock;
+
+
     @BeforeEach
     void setUp() {
         Page<ClientRequest> drinkPage = new PageImpl<>(List.of(ClientRequestCreator.createValidClientRequest()));
@@ -67,6 +71,14 @@ class ClientRequestServiceTest {
                 .thenReturn(List.of(ClientRequestDrinkCountCreator.createClientRequestDrinkCount()));
 
         BDDMockito
+                .when(clientRequestRepositoryMock.countTotalDrinksInRequest(ArgumentMatchers.any(Pageable.class)))
+                .thenReturn(List.of(ClientRequestDrinkCountCreator.createClientRequestDrinkCount()));
+
+        BDDMockito
+                .when(clientRequestRepositoryMock.mostCanceledDrinks(ArgumentMatchers.any(Pageable.class)))
+                .thenReturn(List.of(ClientRequestDrinkCountCreator.createClientRequestDrinkCount()));
+
+        BDDMockito
                 .when(clientRequestRepositoryMock.getAllDatesInRequests())
                 .thenReturn(List.of(ClientRequestDateCreator.createClientRequestDate()));
 
@@ -82,6 +94,10 @@ class ClientRequestServiceTest {
                 .doNothing()
                 .when(clientRequestRepositoryMock)
                 .delete(ArgumentMatchers.any(ClientRequest.class));
+
+        BDDMockito
+                .when(applicationUserServiceMock.findByIdOrElseThrowBadRequestException(ArgumentMatchers.any(UUID.class)))
+                .thenReturn(ApplicationUserCreator.createValidApplicationUser());
     }
 
     @Test
@@ -156,8 +172,8 @@ class ClientRequestServiceTest {
     }
 
     @Test
-    @DisplayName("countTotalDrinksInRequest returns client request drinks count when successful")
-    void countTotalDrinksInRequest_ReturnsClientRequestDrinksCount_WhenSuccessful() {
+    @DisplayName("getMyTopFiveDrinks returns client request drinks count when successful")
+    void getMyTopFiveDrinks_ReturnsClientRequestDrinksCount_WhenSuccessful() {
         ClientRequestDrinkCount expectedDrinksCount = ClientRequestDrinkCountCreator.createClientRequestDrinkCount();
 
         List<ClientRequestDrinkCount> myTopFiveDrinks = clientRequestService.getMyTopFiveDrinks(ApplicationUserCreator.createValidApplicationUser());
@@ -174,8 +190,62 @@ class ClientRequestServiceTest {
     }
 
     @Test
-    @DisplayName("countAlcoholicDrinksInRequests returns total of client requests grouped by alcoholic when successful")
-    void countAlcoholicDrinksInRequests_ReturnsTotalOfClientRequestsGroupedByAlcoholic_WhenSuccessful() {
+    @DisplayName("getTopFiveDrinks returns client request drinks count when successful")
+    void getTopFiveDrinks_ReturnsClientRequestDrinksCount_WhenSuccessful() {
+        ClientRequestDrinkCount expectedDrinksCount = ClientRequestDrinkCountCreator.createClientRequestDrinkCount();
+
+        List<ClientRequestDrinkCount> myTopFiveDrinks = clientRequestService.getTopFiveDrinks(UUID.randomUUID());
+
+        assertThat(myTopFiveDrinks)
+                .isNotEmpty()
+                .hasSize(1);
+
+        assertThat(myTopFiveDrinks.get(0)).isNotNull();
+
+        assertThat(myTopFiveDrinks.get(0).getDrinkUUID())
+                .isNotNull()
+                .isEqualTo(expectedDrinksCount.getDrinkUUID());
+    }
+
+    @Test
+    @DisplayName("getTopDrinksInRequests returns client request drinks count of all users when successful")
+    void getTopDrinksInRequests_ReturnsClientRequestDrinksCountOfAllUsers_WhenSuccessful() {
+        ClientRequestDrinkCount expectedDrinksCount = ClientRequestDrinkCountCreator.createClientRequestDrinkCount();
+
+        List<ClientRequestDrinkCount> topDrinks = clientRequestService.getTopDrinksInRequests(PageRequest.of(0, 1));
+
+        assertThat(topDrinks)
+                .isNotEmpty()
+                .hasSize(1);
+
+        assertThat(topDrinks.get(0)).isNotNull();
+
+        assertThat(topDrinks.get(0).getDrinkUUID())
+                .isNotNull()
+                .isEqualTo(expectedDrinksCount.getDrinkUUID());
+    }
+
+    @Test
+    @DisplayName("mostCanceledDrinks returns client request drinks count of most canceled requests when successful")
+    void mostCanceledDrinks_ReturnsClientRequestDrinksCountOfMostCanceledRequests_WhenSuccessful() {
+        ClientRequestDrinkCount expectedDrinksCount = ClientRequestDrinkCountCreator.createClientRequestDrinkCount();
+
+        List<ClientRequestDrinkCount> mostCanceledDrinks = clientRequestService.mostCanceledDrinks(PageRequest.of(0, 1));
+
+        assertThat(mostCanceledDrinks)
+                .isNotEmpty()
+                .hasSize(1);
+
+        assertThat(mostCanceledDrinks.get(0)).isNotNull();
+
+        assertThat(mostCanceledDrinks.get(0).getDrinkUUID())
+                .isNotNull()
+                .isEqualTo(expectedDrinksCount.getDrinkUUID());
+    }
+
+    @Test
+    @DisplayName("getTotalOfDrinksGroupedByAlcoholic returns total of client requests grouped by alcoholic when successful")
+    void getTotalOfDrinksGroupedByAlcoholic_ReturnsTotalOfClientRequestsGroupedByAlcoholic_WhenSuccessful() {
         List<ClientRequestAlcoholicDrinkCount> allDrinksOfRequests = clientRequestService.getTotalOfDrinksGroupedByAlcoholic(ApplicationUserCreator.createValidApplicationUser());
 
         assertThat(allDrinksOfRequests)
@@ -205,6 +275,13 @@ class ClientRequestServiceTest {
         assertThat(datesFound.get(0).getDate())
                 .isNotNull()
                 .isEqualTo(ClientRequestDateCreator.createClientRequestDate().getDate());
+    }
+
+    @Test
+    @DisplayName("getAllBlocked returns boolean of all users is blocked when successful")
+    void getAllBlocked_ReturnsBooleanOfAllUsersIsBlocked_WhenSuccessful() {
+        boolean allBlocked = clientRequestService.getAllBlocked();
+        assertThat(allBlocked).isFalse();
     }
 
     @Test

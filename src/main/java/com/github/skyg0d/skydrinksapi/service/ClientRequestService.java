@@ -33,6 +33,7 @@ public class ClientRequestService {
     private static final int MINORITY = 18;
 
     private final ClientRequestRepository clientRequestRepository;
+    private final ApplicationUserService applicationUserService;
     private final DrinkService drinkService;
     private final ClientRequestMapper mapper = ClientRequestMapper.INSTANCE;
 
@@ -59,6 +60,18 @@ public class ClientRequestService {
 
     public List<ClientRequestDrinkCount> getMyTopFiveDrinks(ApplicationUser user) {
         return clientRequestRepository.countTotalDrinksInRequest(user.getUuid(), PageRequest.of(0, 5));
+    }
+
+    public List<ClientRequestDrinkCount> getTopFiveDrinks(UUID uuid) {
+        return clientRequestRepository.countTotalDrinksInRequest(applicationUserService.findByIdOrElseThrowBadRequestException(uuid).getUuid(), PageRequest.of(0, 5));
+    }
+
+    public List<ClientRequestDrinkCount> getTopDrinksInRequests(Pageable pageable) {
+        return clientRequestRepository.countTotalDrinksInRequest(PageRequest.of(0, pageable.getPageSize()));
+    }
+
+    public List<ClientRequestDrinkCount> mostCanceledDrinks(Pageable pageable) {
+        return clientRequestRepository.mostCanceledDrinks(PageRequest.of(0, pageable.getPageSize()));
     }
 
     public List<ClientRequestAlcoholicDrinkCount> getTotalOfDrinksGroupedByAlcoholic(ApplicationUser user) {

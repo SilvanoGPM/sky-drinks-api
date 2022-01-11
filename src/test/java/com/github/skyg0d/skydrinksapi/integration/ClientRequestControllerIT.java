@@ -11,10 +11,7 @@ import com.github.skyg0d.skydrinksapi.requests.ClientRequestPostRequestBody;
 import com.github.skyg0d.skydrinksapi.requests.ClientRequestPutRequestBody;
 import com.github.skyg0d.skydrinksapi.util.TokenUtil;
 import com.github.skyg0d.skydrinksapi.util.drink.DrinkCreator;
-import com.github.skyg0d.skydrinksapi.util.request.ClientRequestCreator;
-import com.github.skyg0d.skydrinksapi.util.request.ClientRequestDateCreator;
-import com.github.skyg0d.skydrinksapi.util.request.ClientRequestPostRequestBodyCreator;
-import com.github.skyg0d.skydrinksapi.util.request.ClientRequestPutRequestBodyCreator;
+import com.github.skyg0d.skydrinksapi.util.request.*;
 import com.github.skyg0d.skydrinksapi.util.table.TableCreator;
 import com.github.skyg0d.skydrinksapi.util.user.ApplicationUserCreator;
 import com.github.skyg0d.skydrinksapi.wrapper.PageableResponse;
@@ -26,6 +23,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -267,8 +265,8 @@ class ClientRequestControllerIT {
     }
 
     @Test
-    @DisplayName("countTotalDrinksInRequest returns client request drinks count when successful")
-    void countTotalDrinksInRequest_ReturnsClientRequestDrinksCount_WhenSuccessful() {
+    @DisplayName("getMyTopFiveDrinks returns client request drinks count when successful")
+    void getMyTopFiveDrinks_ReturnsClientRequestDrinksCount_WhenSuccessful() {
         ClientRequest clientRequestSaved = persistClientRequest(applicationUserRepository.findByEmail(ApplicationUserCreator.createApplicationUser().getEmail()).get());
 
         ResponseEntity<List<ClientRequestDrinkCount>> entity = testRestTemplate.exchange(
@@ -297,8 +295,41 @@ class ClientRequestControllerIT {
     }
 
     @Test
-    @DisplayName("countAlcoholicDrinksInRequests returns total of client requests grouped by alcoholic when successful")
-    void countAlcoholicDrinksInRequests_ReturnsTotalOfClientRequestsGroupedByAlcoholic_WhenSuccessful() {
+    @DisplayName("getTopFiveDrinks returns client request drinks count when successful")
+    void getTopFiveDrinks_ReturnsClientRequestDrinksCount_WhenSuccessful() {
+        ApplicationUser applicationUser = applicationUserRepository.findByEmail(ApplicationUserCreator.createApplicationUser().getEmail()).get();
+
+        ClientRequest clientRequestSaved = persistClientRequest(applicationUser);
+
+        ResponseEntity<List<ClientRequestDrinkCount>> entity = testRestTemplate.exchange(
+                "/requests/admin/top-five-drinks/{uuid}",
+                HttpMethod.GET,
+                tokenUtil.createAdminAuthEntity(null),
+                new ParameterizedTypeReference<>() {
+                },
+                applicationUser.getUuid()
+        );
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.OK);
+
+        assertThat(entity.getBody())
+                .isNotEmpty()
+                .hasSize(1);
+
+        assertThat(entity.getBody().get(0)).isNotNull();
+
+        assertThat(entity.getBody().get(0).getDrinkUUID())
+                .isNotNull()
+                .isEqualTo(clientRequestSaved.getDrinks().get(0).getUuid());
+    }
+
+    @Test
+    @DisplayName("getTotalOfDrinksGroupedByAlcoholic returns total of client requests grouped by alcoholic when successful")
+    void getTotalOfDrinksGroupedByAlcoholic_ReturnsTotalOfClientRequestsGroupedByAlcoholic_WhenSuccessful() {
         ClientRequest clientRequestSaved = persistClientRequest(applicationUserRepository.findByEmail(ApplicationUserCreator.createApplicationUser().getEmail()).get());
 
         ResponseEntity<List<ClientRequestAlcoholicDrinkCount>> entity = testRestTemplate.exchange(
@@ -322,6 +353,71 @@ class ClientRequestControllerIT {
         assertThat(entity.getBody().get(0)).isNotNull();
 
         assertThat(entity.getBody().get(0).isAlcoholic()).isEqualTo(clientRequestSaved.getDrinks().get(0).isAlcoholic());
+    }
+
+    @Test
+    @DisplayName("getTopDrinksInRequests returns client request drinks count of all users when successful")
+    void getTopDrinksInRequests_ReturnsClientRequestDrinksCountOfAllUsers_WhenSuccessful() {
+        ClientRequest clientRequestSaved = persistClientRequest();
+
+        ResponseEntity<List<ClientRequestDrinkCount>> entity = testRestTemplate.exchange(
+                "/requests/admin/top-drinks",
+                HttpMethod.GET,
+                tokenUtil.createAdminAuthEntity(null),
+                new ParameterizedTypeReference<>() {
+                }
+        );
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.OK);
+
+        assertThat(entity.getBody())
+                .isNotEmpty()
+                .hasSize(1);
+
+        assertThat(entity.getBody().get(0)).isNotNull();
+
+        assertThat(entity.getBody().get(0).getDrinkUUID())
+                .isNotNull()
+                .isEqualTo(clientRequestSaved.getDrinks().get(0).getUuid());
+    }
+
+    @Test
+    @DisplayName("mostCanceledDrinks returns client request drinks count of most canceled requests when successful")
+    void mostCanceledDrinks_ReturnsClientRequestDrinksCountOfMostCanceledRequests_WhenSuccessful() {
+        ClientRequest clientRequestSaved = persistClientRequest();
+
+        clientRequestSaved.setStatus(ClientRequestStatus.CANCELED);
+
+        clientRequestSaved = clientRequestRepository.save(clientRequestSaved);
+
+        ResponseEntity<List<ClientRequestDrinkCount>> entity = testRestTemplate.exchange(
+                "/requests/admin/most-canceled",
+                HttpMethod.GET,
+                tokenUtil.createAdminAuthEntity(null),
+                new ParameterizedTypeReference<>() {
+                }
+        );
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.OK);
+
+
+        assertThat(entity.getBody())
+                .isNotEmpty()
+                .hasSize(1);
+
+        assertThat(entity.getBody().get(0)).isNotNull();
+
+        assertThat(entity.getBody().get(0).getDrinkUUID())
+                .isNotNull()
+                .isEqualTo(clientRequestSaved.getDrinks().get(0).getUuid());
     }
 
     @Test
@@ -391,6 +487,25 @@ class ClientRequestControllerIT {
         assertThat(entity).isNotNull();
 
         assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        assertThat(entity.getBody()).isFalse();
+    }
+
+    @Test
+    @DisplayName("getAllBlocked returns boolean of all users is blocked when successful")
+    void getAllBlocked_ReturnsBooleanOfAllUsersIsBlocked_WhenSuccessful() {
+        ResponseEntity<Boolean> entity = testRestTemplate.exchange(
+                "/requests/all/all-blocked",
+                HttpMethod.GET,
+                tokenUtil.createUserAuthEntity(null),
+                Boolean.class
+        );
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.OK);
 
         assertThat(entity.getBody()).isFalse();
     }

@@ -19,6 +19,7 @@ import org.mockito.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -82,6 +83,18 @@ class ClientRequestControllerTest {
                 .thenReturn(List.of(ClientRequestDrinkCountCreator.createClientRequestDrinkCount()));
 
         BDDMockito
+                .when(clientRequestServiceMock.getTopFiveDrinks(ArgumentMatchers.any(UUID.class)))
+                .thenReturn(List.of(ClientRequestDrinkCountCreator.createClientRequestDrinkCount()));
+
+        BDDMockito
+                .when(clientRequestServiceMock.getTopDrinksInRequests(ArgumentMatchers.any(Pageable.class)))
+                .thenReturn(List.of(ClientRequestDrinkCountCreator.createClientRequestDrinkCount()));
+
+        BDDMockito
+                .when(clientRequestServiceMock.mostCanceledDrinks(ArgumentMatchers.any(Pageable.class)))
+                .thenReturn(List.of(ClientRequestDrinkCountCreator.createClientRequestDrinkCount()));
+
+        BDDMockito
                 .when(clientRequestServiceMock.getAllDatesInRequests())
                 .thenReturn(List.of(ClientRequestDateCreator.createClientRequestDate()));
 
@@ -109,6 +122,10 @@ class ClientRequestControllerTest {
         BDDMockito
                 .when(clientRequestServiceMock.deliverRequest(ArgumentMatchers.any(UUID.class)))
                 .thenReturn(ClientRequestCreator.createClientRequestDelivered());
+
+        BDDMockito
+                .when(clientRequestServiceMock.getAllBlocked())
+                .thenReturn(false);
 
         BDDMockito
                 .doNothing()
@@ -228,13 +245,13 @@ class ClientRequestControllerTest {
     }
 
     @Test
-    @DisplayName("countTotalDrinksInRequest returns client request drinks count when successful")
-    void countTotalDrinksInRequest_ReturnsClientRequestDrinksCount_WhenSuccessful() {
+    @DisplayName("getMyTopFiveDrinks returns client request drinks count when successful")
+    void getMyTopFiveDrinks_ReturnsClientRequestDrinksCount_WhenSuccessful() {
         Principal principalMock = Mockito.mock(Principal.class);
 
         ClientRequestDrinkCount expectedDrinksCount = ClientRequestDrinkCountCreator.createClientRequestDrinkCount();
 
-        ResponseEntity<List<ClientRequestDrinkCount>> entity = clientRequestController.getMyTopFiveDrinks(principalMock);
+        ResponseEntity<List<ClientRequestDrinkCount>> entity = clientRequestController.getTopFiveDrinks(principalMock);
 
         assertThat(entity).isNotNull();
 
@@ -254,8 +271,32 @@ class ClientRequestControllerTest {
     }
 
     @Test
-    @DisplayName("countAlcoholicDrinksInRequests returns total of client requests grouped by alcoholic when successful")
-    void countAlcoholicDrinksInRequests_ReturnsTotalOfClientRequestsGroupedByAlcoholic_WhenSuccessful() {
+    @DisplayName("getTopFiveDrinks returns client request drinks count when successful")
+    void getTopFiveDrinks_ReturnsClientRequestDrinksCount_WhenSuccessful() {
+        ClientRequestDrinkCount expectedDrinksCount = ClientRequestDrinkCountCreator.createClientRequestDrinkCount();
+
+        ResponseEntity<List<ClientRequestDrinkCount>> entity = clientRequestController.getTopFiveDrinks(UUID.randomUUID());
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.OK);
+
+        assertThat(entity.getBody())
+                .isNotEmpty()
+                .hasSize(1);
+
+        assertThat(entity.getBody().get(0)).isNotNull();
+
+        assertThat(entity.getBody().get(0).getDrinkUUID())
+                .isNotNull()
+                .isEqualTo(expectedDrinksCount.getDrinkUUID());
+    }
+
+    @Test
+    @DisplayName("getTotalOfDrinksGroupedByAlcoholic returns total of client requests grouped by alcoholic when successful")
+    void getTotalOfDrinksGroupedByAlcoholic_ReturnsTotalOfClientRequestsGroupedByAlcoholic_WhenSuccessful() {
         Principal principalMock = Mockito.mock(Principal.class);
 
         ResponseEntity<List<ClientRequestAlcoholicDrinkCount>> entity = clientRequestController.getTotalOfDrinksGroupedByAlcoholic(principalMock);
@@ -280,6 +321,55 @@ class ClientRequestControllerTest {
     }
 
     @Test
+    @DisplayName("getTopDrinksInRequests returns client request drinks count of all users when successful")
+    void getTopDrinksInRequests_ReturnsClientRequestDrinksCountOfAllUsers_WhenSuccessful() {
+        ClientRequestDrinkCount expectedDrinksCount = ClientRequestDrinkCountCreator.createClientRequestDrinkCount();
+
+        ResponseEntity<List<ClientRequestDrinkCount>> entity = clientRequestController.getTopDrinksInRequests(PageRequest.of(0, 1));
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.OK);
+
+        assertThat(entity.getBody())
+                .isNotEmpty()
+                .hasSize(1);
+
+        assertThat(entity.getBody().get(0)).isNotNull();
+
+        assertThat(entity.getBody().get(0).getDrinkUUID())
+                .isNotNull()
+                .isEqualTo(expectedDrinksCount.getDrinkUUID());
+    }
+
+    @Test
+    @DisplayName("mostCanceledDrinks returns client request drinks count of most canceled requests when successful")
+    void mostCanceledDrinks_ReturnsClientRequestDrinksCountOfMostCanceledRequests_WhenSuccessful() {
+        ClientRequestDrinkCount expectedDrinksCount = ClientRequestDrinkCountCreator.createClientRequestDrinkCount();
+
+        ResponseEntity<List<ClientRequestDrinkCount>> entity = clientRequestController.mostCanceledDrinks(PageRequest.of(0, 1));
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.OK);
+
+
+        assertThat(entity.getBody())
+                .isNotEmpty()
+                .hasSize(1);
+
+        assertThat(entity.getBody().get(0)).isNotNull();
+
+        assertThat(entity.getBody().get(0).getDrinkUUID())
+                .isNotNull()
+                .isEqualTo(expectedDrinksCount.getDrinkUUID());
+    }
+
+    @Test
     @DisplayName("getAllDatesInRequests returns all dates in requests when successful")
     void getAllDatesInRequests_ReturnsAllDatesInRequests_WhenSuccessful() {
         ResponseEntity<List<ClientRequestDate>> entity = clientRequestController.getAllDatesInRequests();
@@ -299,6 +389,20 @@ class ClientRequestControllerTest {
         assertThat(entity.getBody().get(0).getDate())
                 .isNotNull()
                 .isEqualTo(ClientRequestDateCreator.createClientRequestDate().getDate());
+    }
+
+    @Test
+    @DisplayName("getAllBlocked returns boolean of all users is blocked when successful")
+    void getAllBlocked_ReturnsBooleanOfAllUsersIsBlocked_WhenSuccessful() {
+        ResponseEntity<Boolean> entity = clientRequestController.getAllBlocked();
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.OK);
+
+        assertThat(entity.getBody()).isFalse();
     }
 
     @Test
