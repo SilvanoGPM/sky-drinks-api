@@ -22,7 +22,11 @@ public abstract class ApplicationUserMapper {
 
     @Named("encodePassword")
     String encodePassword(String password) {
-        return new BCryptPasswordEncoder().encode(password);
+        if (password != null && !password.isEmpty()) {
+            return new BCryptPasswordEncoder().encode(password);
+        }
+
+        return password;
     }
 
 }
