@@ -32,6 +32,7 @@ public class ApplicationUserPostRequestBody {
     private String email;
 
     @NotBlank(message = "A senha do usuário não pode ficar vazia.")
+    @Size(min = 8, message = "A senha precisa ter pelo menos 8 caracteres")
     @Schema(description = "Senha do usuário", example = "roger123")
     private String password;
 

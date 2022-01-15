@@ -43,7 +43,7 @@ mvn clean package -P skip-tests // Para não executar nenhum teste.
 ```json
 {
   "email": "admin@mail.com",
-  "password": "admin",
+  "password": "admin123",
   "name": "Admin",
   "role": "USER,BARMEN,WAITER,ADMIN",
   "cpf": "878.711.897-19",

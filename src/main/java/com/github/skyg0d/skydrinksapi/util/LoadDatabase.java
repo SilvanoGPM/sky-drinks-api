@@ -25,7 +25,7 @@ public class LoadDatabase {
                         .builder()
                         .name("Admin")
                         .email("admin@mail.com")
-                        .password("$2a$10$BRlqrVhGnMHS.ZVi9D6VqeJsf0f2VzHJI16o6WHLR6LKckBAmcbOK")
+                        .password("$2a$10$RF0S4Bpk7YB487xhjObLPuEGdg7cV/U6mEyhHqble1H.IApmTqf6m")
                         .role("USER,BARMEN,WAITER,ADMIN")
                         .cpf("878.711.897-19")
                         .birthDay(LocalDate.of(2000, 4, 4))

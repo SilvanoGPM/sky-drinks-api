@@ -92,9 +92,14 @@ public class ApplicationUserService {
 
         verifyIfUserHasPermission(uuid, user);
 
-        findByIdOrElseThrowBadRequestException(uuid);
+        ApplicationUser userFound = findByIdOrElseThrowBadRequestException(uuid);
+        ApplicationUser userMapped = mapper.toApplicationUser(applicationUserPutRequestBody);
 
-        applicationUserRepository.save(mapper.toApplicationUser(applicationUserPutRequestBody));
+        if (userMapped.getPassword() == null || userMapped.getPassword().isEmpty()) {
+            userMapped.setPassword(userFound.getPassword());
+        }
+
+        applicationUserRepository.save(userMapped);
     }
 
     public ApplicationUser toggleLockRequests(UUID uuid) {

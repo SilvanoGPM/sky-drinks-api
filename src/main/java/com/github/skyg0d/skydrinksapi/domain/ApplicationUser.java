@@ -41,6 +41,7 @@ public class ApplicationUser extends BaseEntity {
     private String email;
 
     @NotBlank(message = "A senha do usuário não pode ficar vazia.")
+    @Size(min = 8, message = "A senha precisa ter pelo menos 8 caracteres")
     @ToString.Exclude
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
