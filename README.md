@@ -51,6 +51,8 @@ mvn clean package -P skip-tests // Para não executar nenhum teste.
 }
 ```
 
+Caso você precise de alguns dados de bebidas para testar, e não queria pensar em tudo, você pode pegar [aqui](https://github.com/SkyG0D/sky-drinks-api/releases/tag/v1.0.0).
+
 ## :rocket: Tecnologias
 
 * [Spring Boot](https://spring.io/projects/spring-boot) - Framework Java para criação de APIs REST.
@@ -68,3 +70,7 @@ mvn clean package -P skip-tests // Para não executar nenhum teste.
 * [MySQL](https://www.mysql.com/) - Banco de dados relacional(usado aqui no ambiente de desenvolvimento).
 
 * [Nimbus JOSE](https://mvnrepository.com/artifact/com.nimbusds/nimbus-jose-jwt) Biblioteca para uso de JSON Web Tokens.
+
+<h3 align="center">
+    <a href="https://github.com/SkyG0D/sky-drinks-ui">Repositório da parte do site</a>
+</h3>
