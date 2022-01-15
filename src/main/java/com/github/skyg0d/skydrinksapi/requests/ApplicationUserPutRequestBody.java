@@ -35,8 +35,6 @@ public class ApplicationUserPutRequestBody {
     @Schema(description = "Email do usuário", example = "roger@mail.com")
     private String email;
 
-    @NotBlank(message = "A senha do usuário não pode ficar vazia.")
-    @Size(min = 8, message = "A senha precisa ter pelo menos 8 caracteres")
     @Schema(description = "Senha do usuário", example = "roger123")
     private String password;
 
