@@ -37,39 +37,55 @@ public class ApplicationUserService {
     private final ApplicationUserMapper mapper = ApplicationUserMapper.INSTANCE;
 
     public Page<ApplicationUser> listAll(Pageable pageable) {
+        log.info("Retornando todos os usuários com os parametros \"{}\"", pageable);
+
         return applicationUserRepository.findAll(pageable);
     }
 
     public Page<ApplicationUser> search(ApplicationUserParameters applicationUserParameters, Pageable pageable) {
+        log.info("Pesquisando usuários com as determinadas características \"{}\"", applicationUserParameters);
+
         return applicationUserRepository.findAll(ApplicationUserSpecification.getSpecification(applicationUserParameters), pageable);
     }
 
     public ApplicationUser findByIdOrElseThrowBadRequestException(UUID uuid) {
+        log.info("Pesquisando usuário com uuid \"{}\"", uuid);
+
         return applicationUserRepository
                 .findById(uuid)
                 .orElseThrow(() -> new BadRequestException(String.format("Usuário com id: \"%s\" não foi encontrado!", uuid)));
     }
 
     public ApplicationUser findByEmail(String email) {
+        log.info("Pesquisando usuário com email \"{}\"", email);
+
         return applicationUserRepository
                 .findByEmail(email)
                 .orElseThrow(() -> new BadRequestException(String.format("Usuário com email: \"%s\" não foi encontrado!", email)));
     }
 
     public ApplicationUser findByCpf(String cpf) {
+        log.info("Pesquisando usuário com cpf \"{}\"", cpf);
+
         return applicationUserRepository
                 .findByCpf(cpf)
                 .orElseThrow(() -> new BadRequestException(String.format("Usuário com cpf: \"%s\" não foi encontrado!", cpf)));
     }
 
     public List<ApplicationUser> getStaffUsers() {
+        log.info("Pesquisando todos os mebros da staff");
+
         return applicationUserRepository.findAll(Specification.where(ApplicationUserSpecification.getStaffUsers()));
     }
 
     public ApplicationUser save(ApplicationUserPostRequestBody applicationUserPostRequestBody) {
+        log.info("Tentando criar um usuário. . .");
+
         String email = applicationUserPostRequestBody.getEmail();
 
         Optional<ApplicationUser> userFound = applicationUserRepository.findByEmail(email);
+
+        log.info("Verificando se o email \"{}\" já está sendo usado", email);
 
         if (userFound.isPresent()) {
             String message = String.format("Usuário com email: \"%s\" já existe", email);
@@ -80,16 +96,24 @@ public class ApplicationUserService {
 
         Optional<ApplicationUser> cpfFound = applicationUserRepository.findByCpf(cpf);
 
+        log.info("Verificando se o cpf \"{}\" já está sendo usado", cpf);
+
         if (cpfFound.isPresent()) {
             String message = String.format("Usuário com cpf: \"%s\" já existe", cpf);
             throw new UserUniqueFieldExistsException(message, "Cpf: " + cpf);
         }
 
-        return applicationUserRepository.save(mapper.toApplicationUser(applicationUserPostRequestBody));
+        ApplicationUser userToCreate = mapper.toApplicationUser(applicationUserPostRequestBody);
+
+        log.info("Criando o usuário, \"{}\"", userToCreate);
+
+        return applicationUserRepository.save(userToCreate);
     }
 
     public void replace(ApplicationUserPutRequestBody applicationUserPutRequestBody, ApplicationUser user) {
         UUID uuid = applicationUserPutRequestBody.getUuid();
+
+        log.info("Tentando atualizar usuário com uuid \"{}\". . .", uuid);
 
         verifyIfUserHasPermission(uuid, user);
 
@@ -100,11 +124,15 @@ public class ApplicationUserService {
             userMapped.setPassword(userFound.getPassword());
         }
 
+        log.info("Atualizando usuário com uuid \"{}\"", uuid);
+
         applicationUserRepository.save(userMapped);
     }
 
     public ApplicationUser toggleLockRequests(UUID uuid) {
         ApplicationUser userFound = findByIdOrElseThrowBadRequestException(uuid);
+
+        log.info("Invertendo o bloqueamento de pedidos do usuário com uuid \"{}\"", uuid);
 
         boolean isUserRequestsLockedNow = !userFound.isLockRequests();
         LocalDateTime lockedTimestamp = isUserRequestsLockedNow ? LocalDateTime.now() : null;
@@ -118,11 +146,15 @@ public class ApplicationUserService {
     public void delete(UUID uuid, ApplicationUser user) {
         verifyIfUserHasPermission(uuid, user);
 
+        log.info("Deletando usuário com uuid \"{}\"", uuid);
+
         ApplicationUser userFound = findByIdOrElseThrowBadRequestException(uuid);
 
         Set<ClientRequest> requests = userFound.getRequests();
 
         if (requests != null && !requests.isEmpty()) {
+            log.info("Deletando todos os pedidos do usuário");
+
             clientRequestRepository.deleteAll(requests);
         }
 
@@ -130,9 +162,13 @@ public class ApplicationUserService {
     }
 
     private void verifyIfUserHasPermission(UUID uuid, ApplicationUser user) {
+        log.info("Verificando se usuário possui permissão");
+
         if (!user.getRole().contains(Roles.ADMIN.getName()) && !user.getUuid().equals(uuid)) {
             throw new ActionNotAllowedException("Apenas o usuário original ou admins podem alterar dados.");
         }
+
+        log.info("Usuário possui permissão");
     }
 
 }
