@@ -19,9 +19,9 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.function.Predicate;
 
-@Log4j2
 @Service
 @RequiredArgsConstructor
+@Log4j2
 public class DrinkService {
 
     private final DrinkRepository drinkRepository;
@@ -29,31 +29,47 @@ public class DrinkService {
     private final DrinkMapper mapper = DrinkMapper.INSTANCE;
 
     public Page<Drink> listAll(Pageable pageable) {
+        log.info("Retornando todas as bebidas com os parametros \"{}\"", pageable);
+
         return drinkRepository.findAll(pageable);
     }
 
+    public Page<Drink> search(DrinkParameters drinkParameters, Pageable pageable) {
+        log.info("Pesquisando bebidas com as determinadas características \"{}\"", drinkParameters);
+
+        return drinkRepository.findAll(DrinkSpecification.getSpecification(drinkParameters), pageable);
+    }
+
     public Drink findByIdOrElseThrowBadRequestException(UUID uuid) {
+        log.info("Pesquisando bebida com uuid \"{}\"", uuid);
+
         return drinkRepository
                 .findById(uuid)
                 .orElseThrow(() -> new BadRequestException(String.format("Bebida com id: %s, não foi encontrada.", uuid)));
     }
 
     public List<Drink> findByPicture(String picture) {
+        log.info("Pesquisando bebida com imagem \"{}\"", picture);
+
         return drinkRepository.findByPicture(picture);
     }
 
-    public Page<Drink> search(DrinkParameters drinkParameters, Pageable pageable) {
-        return drinkRepository.findAll(DrinkSpecification.getSpecification(drinkParameters), pageable);
-    }
-
     public Drink save(DrinkPostRequestBody drinkPostRequestBody) {
-        return drinkRepository.save(mapper.toDrink(drinkPostRequestBody));
+        Drink drinkToCreate = mapper.toDrink(drinkPostRequestBody);
+
+        log.info("Salvando bebida \"{}\"", drinkToCreate);
+
+        return drinkRepository.save(drinkToCreate);
     }
 
     public void replace(DrinkPutRequestBody drinkPutRequestBody) {
         findByIdOrElseThrowBadRequestException(drinkPutRequestBody.getUuid());
 
-        drinkRepository.save(mapper.toDrink(drinkPutRequestBody));
+        Drink drinkToUpdate = mapper.toDrink(drinkPutRequestBody);
+
+        log.info("Atualizando bebida \"{}\"", drinkToUpdate);
+
+        drinkRepository.save(drinkToUpdate);
     }
 
     public void delete(UUID uuid) {
@@ -61,7 +77,11 @@ public class DrinkService {
 
         Set<ClientRequest> requests = drinkFound.getRequests();
 
+        log.info("Deletando bebida com uuid \"{}\"", uuid);
+
         if (requests != null && !requests.isEmpty()) {
+            log.info("Removendo bebida com uuid \"{}\" dos pedidos", uuid);
+
             Predicate<Drink> isDrinkFound = (drink) -> drink.equals(drinkFound);
 
             for (ClientRequest request : requests) {
