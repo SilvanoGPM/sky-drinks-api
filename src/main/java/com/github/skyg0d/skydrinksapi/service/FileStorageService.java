@@ -3,6 +3,7 @@ package com.github.skyg0d.skydrinksapi.service;
 import com.github.skyg0d.skydrinksapi.exception.CustomFileNotFoundException;
 import com.github.skyg0d.skydrinksapi.exception.FileStorageException;
 import com.github.skyg0d.skydrinksapi.property.FileStorageProperties;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.IOUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -28,6 +29,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
+@Log4j2
 public class FileStorageService {
 
     public static final List<String> IMAGES_TYPES = List.of(
@@ -66,11 +68,15 @@ public class FileStorageService {
 
         List<String> content = start < files.size() ? files.subList(start, end) : Collections.emptyList();
 
+        log.info("Retornando todos os arquivos com os parametros \"{}\"", pageable);
+
         return new PageImpl<>(content, pageable, files.size());
     }
 
     public List<String> listFiles() {
         try {
+            log.info("Retornando todos os arquivos");
+
             return Files.walk(this.fileStoragePath)
                     .filter(Files::isRegularFile)
                     .map(path -> path.toAbsolutePath().toString().replace(projectDir, ""))
@@ -82,6 +88,8 @@ public class FileStorageService {
     }
 
     public String storeImage(MultipartFile file) {
+        log.info("Verificando se o arquivo enviado contém o content-type válido.");
+
         if (!IMAGES_TYPES.contains(file.getContentType())) {
             throw new FileStorageException("Arquivo não é uma imagem.");
         }
@@ -130,25 +138,35 @@ public class FileStorageService {
         Path filePath = path.resolve(fileName).normalize();
         String fileNotFoundMessage = "Arquivo não encontrado: " + fileName;
 
+        log.info("Tentando deletar arquivo com nome \"{}\"", fileName);
+
         try {
             boolean deleted = Files.deleteIfExists(filePath);
 
             if (!deleted) {
                 throw new CustomFileNotFoundException(fileNotFoundMessage);
             }
+
+            log.info("Arquivo \"{}\" deletado com sucesso!", fileName);
         } catch (IOException ex) {
             throw new CustomFileNotFoundException(fileNotFoundMessage, ex);
         }
     }
 
     private Resource loadFileAsResource(String fileName, Path path) {
+        log.info("Pesquisando arquivo pelo nome \"{}\". . .", fileName);
+
         String fileNotFoundMessage = "Arquivo não encontrado: " + fileName;
 
         try {
             Path filePath = path.resolve(fileName).normalize();
             Resource resource = new UrlResource(filePath.toUri());
 
+            log.info("Verificando se o arquivo existe");
+
             if (resource.exists()) {
+                log.info("Retornando o arquivo existente");
+
                 return resource;
             } else {
                 throw new CustomFileNotFoundException(fileNotFoundMessage);
@@ -163,7 +181,11 @@ public class FileStorageService {
     private String storeFile(MultipartFile file, Path path) {
         String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
 
+        log.info("Tentando fazer o upload do arquivo \"{}\"", fileName);
+
         try {
+
+            log.info("Verificando se o nome do arquivo contém caracteres inválidos");
 
             if (fileName.contains("..")) {
                 throw new FileStorageException("Desculpa, mas o nome do arquivo possuí sequências de caminho inválidas: " + fileName);
@@ -171,6 +193,8 @@ public class FileStorageService {
 
             Path targetLocation = getTargetLocation(path, fileName);
             Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+
+            log.info("Upload realizado com sucesso!");
 
             return targetLocation.getFileName().toString();
         } catch (IOException ex) {
@@ -193,6 +217,8 @@ public class FileStorageService {
     }
 
     private void createStorageDir() {
+        log.info("Criando os diretórios necessários. . .");
+
         Path imagesPath = fileStoragePath.resolve(fileStorageProperties.getImagesDir());
 
         List.of(fileStoragePath, imagesPath).forEach((path) -> {
@@ -204,6 +230,8 @@ public class FileStorageService {
                 }
             }
         });
+
+        log.info("Diretórios foram criados com sucesso!");
     }
 
 }
