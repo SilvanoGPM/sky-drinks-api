@@ -12,4 +12,4 @@ jwt:
 
 my:
   cors:
-    origins: ["https://thirsty-curie-dca26d.netlify.app"]
+    origins: ["https://sky-drinks-ui.vercel.app"]

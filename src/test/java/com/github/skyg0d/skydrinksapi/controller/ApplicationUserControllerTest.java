@@ -28,7 +28,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
-@DisplayName("Tests for ApplicationUserControlle")
+@DisplayName("Tests for ApplicationUserController")
 class ApplicationUserControllerTest {
 
     @InjectMocks
