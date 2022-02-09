@@ -6,8 +6,8 @@ spring:
       ddl-auto: update
       dialect: org.hibernate.dialect.PostgreSQLDialect
   mail:
-    username: {MAIL_USERNAME}
-    password: {MAIL_PASSWORD}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
 
 jwt:
   config:
