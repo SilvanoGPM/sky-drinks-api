@@ -22,6 +22,11 @@
 2. Utilize o comando `docker-compose up`, para iniciar o container do MySQL.
 3. Utilize o comando `mvn clean package` para gerar um *.jar* do projeto.
 4. Utilize o comando `mvn spring-boot:run` para iniciar o servidor.
+5. Para o serviço de restauração de senhas funcionar, você deve configurar as credenciais corretamente:
+
+```bash
+mvn spring-boot:run -Dspring-boot.run.arguments="--spring.mail.username=SEU_USERNAME --spring.mail.password=SUA_SENHA"
+```
 
 Pronto, caso tudo tenha ocorrido com sucesso, o projeto funcionará normalmente!
 
