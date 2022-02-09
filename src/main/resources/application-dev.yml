@@ -1,3 +1,8 @@
+spring:
+  mail:
+    username: "oficialskydrinks@gmail.com"
+    password: "y5AwjCySBVZ3i6R"
+
 jwt:
   config:
     expiration: 604800 # One week
