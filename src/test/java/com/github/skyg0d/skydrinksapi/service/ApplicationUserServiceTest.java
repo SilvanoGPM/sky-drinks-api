@@ -7,6 +7,7 @@ import com.github.skyg0d.skydrinksapi.exception.UserUniqueFieldExistsException;
 import com.github.skyg0d.skydrinksapi.parameters.ApplicationUserParameters;
 import com.github.skyg0d.skydrinksapi.repository.request.ClientRequestRepository;
 import com.github.skyg0d.skydrinksapi.repository.user.ApplicationUserRepository;
+import com.github.skyg0d.skydrinksapi.requests.ApplicationUserPutRequestBody;
 import com.github.skyg0d.skydrinksapi.util.user.ApplicationUserCreator;
 import com.github.skyg0d.skydrinksapi.util.user.ApplicationUserPostRequestBodyCreator;
 import com.github.skyg0d.skydrinksapi.util.user.ApplicationUserPutRequestBodyCreator;
@@ -30,7 +31,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.assertj.core.api.Assertions.assertThatCode;
 
 @ExtendWith(SpringExtension.class)
 @DisplayName("Tests for ApplicationUserService")
@@ -206,6 +206,24 @@ class ApplicationUserServiceTest {
 
 
         assertThatCode(() -> applicationUserService.replace(ApplicationUserPutRequestBodyCreator.createApplicationUserPutRequestBodyToBeSave(), user))
+                .doesNotThrowAnyException();
+    }
+
+    @Test
+    @DisplayName("replace updates application user and not update password when null when successful")
+    void replace_UpdatedApplicationUserAndNotUpdatePasswordWhenNull_WhenSuccessful() {
+        ApplicationUser user = ApplicationUserCreator.createValidApplicationUser();
+
+        BDDMockito
+                .when(applicationUserRepositoryMock.save(ArgumentMatchers.any(ApplicationUser.class)))
+                .thenReturn(ApplicationUserCreator.createUpdatedApplicationUser());
+
+
+        ApplicationUserPutRequestBody userToReplace = ApplicationUserPutRequestBodyCreator.createApplicationUserPutRequestBodyToBeSave();
+
+        userToReplace.setPassword(null);
+
+        assertThatCode(() -> applicationUserService.replace(userToReplace, user))
                 .doesNotThrowAnyException();
     }
 
