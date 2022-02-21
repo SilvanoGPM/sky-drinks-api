@@ -8,6 +8,22 @@
     <img width="200" src="./SkyDrinksAPI.png" />
 </p>
 
+<p align="right">
+  <img alt="GitHub top language" src="https://img.shields.io/github/languages/top/SkyG0D/sky-drinks-api.svg" />
+  
+  <img alt="GitHub language count" src="https://img.shields.io/github/languages/count/SkyG0D/sky-drinks-api.svg" />
+  
+  <img alt="Repository size" src="https://img.shields.io/github/repo-size/SkyG0D/sky-drinks-api.svg" />
+
+  <a href="https://github.com/SkyG0D/sky-drinks-api/commits/main">
+    <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/SkyG0D/sky-drinks-api.svg" />
+  </a>
+  
+  <a href="https://github.com/SkyG0D/sky-drinks-api/issues">
+    <img alt="Repository issues" src="https://img.shields.io/github/issues/SkyG0D/sky-drinks-api.svg" />
+  </a>
+</p>
+
 ## :wrench: Como executar?
 
 ### :mag_right: Requisitos:
