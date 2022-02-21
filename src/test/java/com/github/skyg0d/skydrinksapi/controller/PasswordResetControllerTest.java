@@ -43,8 +43,8 @@ public class PasswordResetControllerTest {
     }
 
     @Test
-    @DisplayName("tokenIsValid returns password reset when successful")
-    void tokenIsValid_ReturnsPasswordReset_WhenSuccessful() {
+    @DisplayName("verifyToken returns password reset when successful")
+    void verifyToken_ReturnsPasswordReset_WhenSuccessful() {
         VerifyTokenPostRequestBody verifyTokenPostRequestBody = VerifyTokenPostRequestBodyCretor.createVerifyTokenPostRequestBody();
 
         ResponseEntity<Void> entity = passwordResetController.verifyToken(verifyTokenPostRequestBody);
@@ -57,8 +57,8 @@ public class PasswordResetControllerTest {
     }
 
     @Test
-    @DisplayName("resetPassword updates an user password when successful")
-    void resetPassword_UpdatesAnUserPassword_WhenSuccessful() {
+    @DisplayName("confirmPasswordReset updates an user password when successful")
+    void confirmPasswordReset_UpdatesAnUserPassword_WhenSuccessful() {
         NewPasswordPostRequestBody passwordResetToBeSave = NewPasswordPostRequestBodyCreator.createPasswordResetToBeSave();
 
         ResponseEntity<Void> entity = passwordResetController.confirmPasswordReset(passwordResetToBeSave);

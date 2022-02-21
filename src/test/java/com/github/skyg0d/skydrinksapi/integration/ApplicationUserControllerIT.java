@@ -9,7 +9,6 @@ import com.github.skyg0d.skydrinksapi.util.user.ApplicationUserCreator;
 import com.github.skyg0d.skydrinksapi.util.user.ApplicationUserPostRequestBodyCreator;
 import com.github.skyg0d.skydrinksapi.util.user.ApplicationUserPutRequestBodyCreator;
 import com.github.skyg0d.skydrinksapi.wrapper.PageableResponse;
-import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +29,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @AutoConfigureTestDatabase
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @DisplayName("Integration Tests for ApplicationUserController")
-@Log4j2
 class ApplicationUserControllerIT {
 
     @Autowired
