@@ -48,7 +48,7 @@ class FileStorageControllerTest {
 
     @Test
     @DisplayName("uploadImage returns name of uploaded file when successful")
-    void storageImage_ReturnsNameOfUploadedImage_WhenSuccessful() throws IOException {
+    void updloadImage_ReturnsFileResponse_WhenSuccessful() throws IOException {
         byte[] imageBytes = new FileInputStream("./test-files/drink.jpeg").readAllBytes();
 
         MockMultipartFile multipartFile = new MockMultipartFile("drink.jpeg", "drink.jpeg", MediaType.IMAGE_JPEG_VALUE, imageBytes);
@@ -70,7 +70,7 @@ class FileStorageControllerTest {
 
     @Test
     @DisplayName("uploadMultipleImages returns list of uploaded file when successful")
-    void storageImages_ReturnsListOfUploadedImage_WhenSuccessful() throws IOException {
+    void uploadMultipleImages_ReturnsFileResponse_WhenSuccessful() throws IOException {
         byte[] imageBytes = new FileInputStream("./test-files/drink.jpeg").readAllBytes();
         byte[] imageBytes2 = new FileInputStream("./test-files/drink2.jpg").readAllBytes();
 
