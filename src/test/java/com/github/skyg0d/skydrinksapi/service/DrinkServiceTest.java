@@ -162,7 +162,6 @@ class DrinkServiceTest {
                 .when(drinkRepositoryMock.save(ArgumentMatchers.any(Drink.class)))
                 .thenReturn(DrinkCreator.createValidUpdatedDrink());
 
-
         assertThatCode(() -> drinkService.replace(DrinkPutRequestBodyCreator.createDrinkPutRequestBodyToBeUpdate()))
                 .doesNotThrowAnyException();
     }

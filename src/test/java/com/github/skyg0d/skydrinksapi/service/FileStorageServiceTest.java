@@ -46,8 +46,8 @@ class FileStorageServiceTest {
     }
 
     @Test
-    @DisplayName("storageFile returns name of uploaded file when successful")
-    void storageFile_ReturnsNameOfUploadedFile_WhenSuccessful() {
+    @DisplayName("storeFile returns name of uploaded file when successful")
+    void storeFile_ReturnsNameOfUploadedFile_WhenSuccessful() {
         MockMultipartFile multipartFile = new MockMultipartFile("file.txt", "file.txt", MediaType.TEXT_PLAIN_VALUE, "SkyG0D".getBytes());
 
         String fileName = fileStorageService.storeFile(multipartFile);
@@ -58,8 +58,8 @@ class FileStorageServiceTest {
     }
 
     @Test
-    @DisplayName("storageFile returns name of uploaded file with additional number when file already exists")
-    void storageFile_ReturnsNameOfUploadedImageWithAdditionalNumber_WhenFileAlreadyExists() throws IOException {
+    @DisplayName("storeFile returns name of uploaded file with additional number when file already exists")
+    void storeFile_ReturnsNameOfUploadedImageWithAdditionalNumber_WhenFileAlreadyExists() throws IOException {
         InputStream inputStream1 = new FileInputStream("./test-files/drink.jpeg");
 
         MockMultipartFile multipartFile1 = new MockMultipartFile("drink.jpeg", "drink.jpeg", MediaType.IMAGE_JPEG_VALUE, inputStream1);
@@ -82,8 +82,8 @@ class FileStorageServiceTest {
     }
 
     @Test
-    @DisplayName("storageFiles returns map of uploaded files when successful")
-    void storageFiles_ReturnsMapOfUploadedFiles_WhenSuccessful() throws IOException {
+    @DisplayName("storeFiles returns map of uploaded files when successful")
+    void storeFiles_ReturnsMapOfUploadedFiles_WhenSuccessful() throws IOException {
         InputStream inputStream = new FileInputStream("./test-files/drink.jpeg");
         InputStream inputStream2 = new FileInputStream("./test-files/drink2.jpg");
 
@@ -257,8 +257,8 @@ class FileStorageServiceTest {
     }
 
     @Test
-    @DisplayName("storageFile throws FileStorageException when file path contains unsupported chars sequences")
-    void storageFile_ThrowsFileStorageException_WhenFilePathContainsUnsupportedCharsSequences() {
+    @DisplayName("storeImage throws FileStorageException when file path contains unsupported chars sequences")
+    void storeImage_ThrowsFileStorageException_WhenFilePathContainsUnsupportedCharsSequences() {
         MockMultipartFile multipartFile = new MockMultipartFile("../file.txt", "../file.txt", MediaType.TEXT_PLAIN_VALUE, "SkyG0D".getBytes());
 
         assertThatExceptionOfType(FileStorageException.class)
@@ -266,8 +266,8 @@ class FileStorageServiceTest {
     }
 
     @Test
-    @DisplayName("storageImage throws FileStorageException when file is not an image")
-    void storageImage_ThrowsFileStorageException_WhenFileIsNotAnImage() {
+    @DisplayName("storeImage throws FileStorageException when file is not an image")
+    void storeImage_ThrowsFileStorageException_WhenFileIsNotAnImage() {
         MockMultipartFile multipartFile = new MockMultipartFile("drink.txt", "drink.txt", MediaType.TEXT_PLAIN_VALUE, "SkyG0D".getBytes());
 
         assertThatExceptionOfType(FileStorageException.class)
