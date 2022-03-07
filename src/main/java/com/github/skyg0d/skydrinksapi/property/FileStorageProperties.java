@@ -13,6 +13,8 @@ public class FileStorageProperties {
 
     private String uploadDir = "./uploaded-files";
 
-    private String imagesDir = "images";
+    private String drinksDir = "drinks";
+
+    private String usersDir = "users";
 
 }

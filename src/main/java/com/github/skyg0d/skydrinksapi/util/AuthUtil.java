@@ -1,13 +1,17 @@
 package com.github.skyg0d.skydrinksapi.util;
 
 import com.github.skyg0d.skydrinksapi.domain.ApplicationUser;
+import com.github.skyg0d.skydrinksapi.enums.Roles;
+import com.github.skyg0d.skydrinksapi.exception.ActionNotAllowedException;
 import com.github.skyg0d.skydrinksapi.exception.BadRequestException;
 import com.github.skyg0d.skydrinksapi.repository.user.ApplicationUserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Component;
 
 import java.security.Principal;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor

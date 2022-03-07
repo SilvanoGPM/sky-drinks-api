@@ -2,6 +2,7 @@ package com.github.skyg0d.skydrinksapi.controller;
 
 import com.github.skyg0d.skydrinksapi.responses.FileResponse;
 import com.github.skyg0d.skydrinksapi.service.FileStorageService;
+import com.github.skyg0d.skydrinksapi.util.AuthUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -27,6 +29,7 @@ import java.util.stream.Collectors;
 public class FileStorageController {
 
     private final FileStorageService fileStorageService;
+    private final AuthUtil authUtil;
 
     @GetMapping
     @Operation(summary = "Mostra todos os arquivos com paginação", tags = "Files")
@@ -48,18 +51,28 @@ public class FileStorageController {
         return ResponseEntity.ok(fileStorageService.listFiles());
     }
 
-    @GetMapping(value = "/images/{fileName:.+}", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE})
-    @Operation(summary = "Mostra a imagem especificada", tags = "Files")
+    @GetMapping(value = "/drinks/{fileName:.+}", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE})
+    @Operation(summary = "Mostra a imagem da bebida especificada", tags = "Files")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
             @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
     })
-    public ResponseEntity<byte[]> getImage(@PathVariable String fileName) {
-        return ResponseEntity.ok(fileStorageService.getImage(fileName));
+    public ResponseEntity<byte[]> getDrinkImage(@PathVariable String fileName) {
+        return ResponseEntity.ok(fileStorageService.getDrinkImage(fileName));
     }
 
-    @PostMapping(value = "/barmen/images", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    @Operation(summary = "Armazena e retorna informações de uma imagem", tags = "Files")
+    @GetMapping(value = "/users/{fileName:.+}", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE})
+    @Operation(summary = "Mostra a imagem do usuário especificado", tags = "Files")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
+            @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
+    })
+    public ResponseEntity<byte[]> getUserImage(@PathVariable String fileName) {
+        return ResponseEntity.ok(fileStorageService.getUserImage(fileName));
+    }
+
+    @PostMapping(value = "/barmen/drinks", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @Operation(summary = "Armazena e retorna informações de uma imagem de bebida", tags = "Files")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
             @ApiResponse(responseCode = "401", description = "Quando o usuário não está autenticado"),
@@ -67,12 +80,12 @@ public class FileStorageController {
             @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
     })
     @SecurityRequirement(name = "bearerAuth")
-    public ResponseEntity<FileResponse> uploadImage(@RequestParam MultipartFile file) {
-        String fileName = fileStorageService.storeImage(file);
+    public ResponseEntity<FileResponse> uploadDrinkImage(@RequestParam MultipartFile file) {
+        String fileName = fileStorageService.storeDrinkImage(file);
 
         String fileDownloadUri = ServletUriComponentsBuilder
                 .fromCurrentContextPath()
-                .path("/files/images/")
+                .path("/files/drinks/")
                 .path(fileName)
                 .toUriString();
 
@@ -86,7 +99,35 @@ public class FileStorageController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @PostMapping(value = "/barmen/multiple-images", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PostMapping(value = "/all/user-picture", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @Operation(summary = "Armazena e retorna informações da foto do usuário", tags = "Files")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
+            @ApiResponse(responseCode = "401", description = "Quando o usuário não está autenticado"),
+            @ApiResponse(responseCode = "403", description = "Quando o usuário não possuí permissão"),
+            @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
+    })
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<FileResponse> uploadUserPicture(@RequestParam MultipartFile file, Principal principal) {
+        String fileName = fileStorageService.storeProfilePicture(file, authUtil.getUser(principal));
+
+        String fileDownloadUri = ServletUriComponentsBuilder
+                .fromCurrentContextPath()
+                .path("/files/users/")
+                .path(fileName)
+                .toUriString();
+
+        FileResponse response = FileResponse.builder()
+                .fileName(fileName)
+                .fileDownloadUri(fileDownloadUri)
+                .fileType(file.getContentType())
+                .size(file.getSize())
+                .build();
+
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @PostMapping(value = "/barmen/multiple-drinks", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @Operation(summary = "Armazena e retorna informações de várias imagens", tags = "Files")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
@@ -103,7 +144,7 @@ public class FileStorageController {
 
             String fileDownloadUri = ServletUriComponentsBuilder
                     .fromCurrentContextPath()
-                    .path("/files/images/")
+                    .path("/files/drinks/")
                     .path(fileName)
                     .toUriString();
 
@@ -118,8 +159,8 @@ public class FileStorageController {
         return new ResponseEntity<>(responses, HttpStatus.CREATED);
     }
 
-    @DeleteMapping("/barmen/images/{fileName:.+}")
-    @Operation(summary = "Delete uma imagem", tags = "Files")
+    @DeleteMapping("/barmen/drinks/{fileName:.+}")
+    @Operation(summary = "Deleta uma imagem de bebida", tags = "Files")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
             @ApiResponse(responseCode = "400", description = "Quando a imagem não existe no servidor"),
@@ -128,8 +169,23 @@ public class FileStorageController {
             @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
     })
     @SecurityRequirement(name = "bearerAuth")
-    public ResponseEntity<Void> deleteImage(@PathVariable String fileName) {
-        fileStorageService.deleteImage(fileName);
+    public ResponseEntity<Void> deleteDrinkImage(@PathVariable String fileName) {
+        fileStorageService.deleteDrinkImage(fileName);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @DeleteMapping("/barmen/all/{fileName:.+}")
+    @Operation(summary = "Deleta uma imagem de usuário", tags = "Files")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Quando a imagem não existe no servidor"),
+            @ApiResponse(responseCode = "401", description = "Quando o usuário não está autenticado"),
+            @ApiResponse(responseCode = "403", description = "Quando o usuário não possuí permissão"),
+            @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
+    })
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<Void> deleteUserImage(@PathVariable String fileName, Principal principal) {
+        fileStorageService.deleteUserImage(fileName, authUtil.getUser(principal));
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

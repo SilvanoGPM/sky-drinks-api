@@ -2,8 +2,6 @@ package com.github.skyg0d.skydrinksapi.service;
 
 import com.github.skyg0d.skydrinksapi.domain.ApplicationUser;
 import com.github.skyg0d.skydrinksapi.domain.ClientRequest;
-import com.github.skyg0d.skydrinksapi.enums.Roles;
-import com.github.skyg0d.skydrinksapi.exception.ActionNotAllowedException;
 import com.github.skyg0d.skydrinksapi.exception.BadRequestException;
 import com.github.skyg0d.skydrinksapi.exception.UserUniqueFieldExistsException;
 import com.github.skyg0d.skydrinksapi.mapper.ApplicationUserMapper;
@@ -13,12 +11,12 @@ import com.github.skyg0d.skydrinksapi.repository.user.ApplicationUserRepository;
 import com.github.skyg0d.skydrinksapi.repository.user.ApplicationUserSpecification;
 import com.github.skyg0d.skydrinksapi.requests.ApplicationUserPostRequestBody;
 import com.github.skyg0d.skydrinksapi.requests.ApplicationUserPutRequestBody;
+import com.github.skyg0d.skydrinksapi.util.RolesUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -115,7 +113,7 @@ public class ApplicationUserService {
 
         log.info("Tentando atualizar usuário com uuid \"{}\". . .", uuid);
 
-        verifyIfUserHasPermission(uuid, user);
+        RolesUtil.verifyIfUserHasPermission(uuid, user);
 
         ApplicationUser userFound = findByIdOrElseThrowBadRequestException(uuid);
         ApplicationUser userMapped = mapper.toApplicationUser(applicationUserPutRequestBody);
@@ -144,7 +142,7 @@ public class ApplicationUserService {
     }
 
     public void delete(UUID uuid, ApplicationUser user) {
-        verifyIfUserHasPermission(uuid, user);
+        RolesUtil.verifyIfUserHasPermission(uuid, user);
 
         log.info("Deletando usuário com uuid \"{}\"", uuid);
 
@@ -159,16 +157,6 @@ public class ApplicationUserService {
         }
 
         applicationUserRepository.delete(userFound);
-    }
-
-    private void verifyIfUserHasPermission(UUID uuid, ApplicationUser user) {
-        log.info("Verificando se usuário possui permissão");
-
-        if (!user.getRole().contains(Roles.ADMIN.getName()) && !user.getUuid().equals(uuid)) {
-            throw new ActionNotAllowedException("Apenas o usuário original ou admins podem alterar dados.");
-        }
-
-        log.info("Usuário possui permissão");
     }
 
 }

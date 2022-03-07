@@ -1,8 +1,10 @@
 package com.github.skyg0d.skydrinksapi.service;
 
+import com.github.skyg0d.skydrinksapi.domain.ApplicationUser;
 import com.github.skyg0d.skydrinksapi.exception.CustomFileNotFoundException;
 import com.github.skyg0d.skydrinksapi.exception.FileStorageException;
 import com.github.skyg0d.skydrinksapi.property.FileStorageProperties;
+import com.github.skyg0d.skydrinksapi.util.RolesUtil;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.IOUtils;
 import org.springframework.core.io.Resource;
@@ -22,10 +24,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,7 +38,8 @@ public class FileStorageService {
 
     private final FileStorageProperties fileStorageProperties;
     private final Path fileStoragePath;
-    private final Path imagesPath;
+    private final Path drinksPath;
+    private final Path usersPath;
     private final String projectDir;
 
     public FileStorageService(FileStorageProperties fileStorageProperties) {
@@ -50,7 +50,9 @@ public class FileStorageService {
                 .toAbsolutePath()
                 .normalize();
 
-        this.imagesPath = fileStoragePath.resolve(fileStorageProperties.getImagesDir());
+        this.drinksPath = fileStoragePath.resolve(fileStorageProperties.getDrinksDir());
+        this.usersPath = fileStoragePath.resolve(fileStorageProperties.getUsersDir());
+
 
         this.projectDir = Paths.get("")
                 .toAbsolutePath()
@@ -79,7 +81,9 @@ public class FileStorageService {
 
             return Files.walk(this.fileStoragePath)
                     .filter(Files::isRegularFile)
-                    .map(path -> path.toAbsolutePath().toString().replace(projectDir, ""))
+                    .map(path -> path.toAbsolutePath().toString()
+                            .replace(projectDir, "")
+                            .replace("\\", "/"))
                     .sorted()
                     .collect(Collectors.toList());
         } catch (IOException e) {
@@ -87,20 +91,21 @@ public class FileStorageService {
         }
     }
 
-    public String storeImage(MultipartFile file) {
-        log.info("Verificando se o arquivo enviado contém o content-type válido.");
+    public String storeProfilePicture(MultipartFile file, ApplicationUser user) {
+        String fileName = user.getUuid().toString() + ".png";
 
-        if (!IMAGES_TYPES.contains(file.getContentType())) {
-            throw new FileStorageException("Arquivo não é uma imagem.");
-        }
+        return storeFile(file, usersPath, fileName);
+    }
 
-        return storeFile(file, imagesPath);
+    public String storeDrinkImage(MultipartFile file) {
+        verifyIfIsAnImage(file);
+        return storeFile(file, drinksPath);
     }
 
     public Map<String, MultipartFile> storeImages(List<MultipartFile> files) {
         return files
                 .stream()
-                .collect(Collectors.toMap(this::storeImage, (file) -> file));
+                .collect(Collectors.toMap(this::storeDrinkImage, (file) -> file));
     }
 
     public String storeFile(MultipartFile file) {
@@ -113,9 +118,17 @@ public class FileStorageService {
                 .collect(Collectors.toMap(this::storeFile, (file) -> file));
     }
 
-    public byte[] getImage(String fileName) {
+    public byte[] getDrinkImage(String fileName) {
+        return getImage(fileName, drinksPath);
+    }
+
+    public byte[] getUserImage(String fileName) {
+        return getImage(fileName, usersPath);
+    }
+
+    public byte[] getImage(String fileName, Path path) {
         try {
-            InputStream inputStream = loadFileAsResource(fileName, imagesPath).getInputStream();
+            InputStream inputStream = loadFileAsResource(fileName, path).getInputStream();
             return IOUtils.toByteArray(inputStream);
         } catch (IOException ex) {
             throw new FileStorageException("Aconteceu um erro ao tentar carregar a imagem.", ex);
@@ -126,8 +139,13 @@ public class FileStorageService {
         return loadFileAsResource(fileName, fileStoragePath);
     }
 
-    public void deleteImage(String fileName) {
-        deleteFile(fileName, imagesPath);
+    public void deleteDrinkImage(String fileName) {
+        deleteFile(fileName, drinksPath);
+    }
+
+    public void deleteUserImage(String fileName, ApplicationUser user) {
+        RolesUtil.verifyIfUserHasPermission(UUID.fromString(fileName.replace(".png", "")), user);
+        deleteFile(fileName, usersPath);
     }
 
     public void deleteFile(String fileName) {
@@ -183,6 +201,10 @@ public class FileStorageService {
 
         log.info("Tentando fazer o upload do arquivo \"{}\"", fileName);
 
+        return storeFile(file, path, fileName);
+    }
+
+    private String storeFile(MultipartFile file, Path path, String fileName) {
         try {
 
             log.info("Verificando se o nome do arquivo contém caracteres inválidos");
@@ -219,19 +241,28 @@ public class FileStorageService {
     private void createStorageDir() {
         log.info("Criando os diretórios necessários. . .");
 
-        Path imagesPath = fileStoragePath.resolve(fileStorageProperties.getImagesDir());
+        Path drinksPath = fileStoragePath.resolve(fileStorageProperties.getDrinksDir());
 
-        List.of(fileStoragePath, imagesPath).forEach((path) -> {
+        List.of(fileStoragePath, drinksPath, usersPath).forEach((path) -> {
             if (!Files.exists(path)) {
                 try {
                     Files.createDirectory(path);
+                    log.info("Diretório foi criado: " + path);
                 } catch (IOException ex) {
-                    throw new FileStorageException("Não foi possível criar o diretório: " + this.fileStoragePath, ex);
+                    throw new FileStorageException("Não foi possível criar o diretório: " + path, ex);
                 }
             }
         });
 
         log.info("Diretórios foram criados com sucesso!");
+    }
+
+    private void verifyIfIsAnImage(MultipartFile file) {
+        log.info("Verificando se o arquivo enviado contém o content-type válido.");
+
+        if (!IMAGES_TYPES.contains(file.getContentType())) {
+            throw new FileStorageException("Arquivo não é uma imagem.");
+        }
     }
 
 }
