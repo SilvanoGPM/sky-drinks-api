@@ -99,7 +99,7 @@ public class FileStorageController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @PostMapping(value = "/all/user-picture", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PostMapping(value = "/all/users", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @Operation(summary = "Armazena e retorna informações da foto do usuário", tags = "Files")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
@@ -174,7 +174,7 @@ public class FileStorageController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @DeleteMapping("/barmen/all/{fileName:.+}")
+    @DeleteMapping("/all/users/{fileName:.+}")
     @Operation(summary = "Deleta uma imagem de usuário", tags = "Files")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
