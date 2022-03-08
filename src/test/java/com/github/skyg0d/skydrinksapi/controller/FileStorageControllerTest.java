@@ -4,11 +4,11 @@ import com.github.skyg0d.skydrinksapi.property.FileStorageProperties;
 import com.github.skyg0d.skydrinksapi.responses.FileResponse;
 import com.github.skyg0d.skydrinksapi.service.FileStorageService;
 import com.github.skyg0d.skydrinksapi.util.AuthUtil;
+import com.github.skyg0d.skydrinksapi.util.file.FileStoragePropertiesCreator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,7 +24,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Path;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,22 +38,18 @@ class FileStorageControllerTest {
     private AuthUtil authUtil;
 
     @BeforeEach
-    void setUp(@TempDir Path uploadDir, @TempDir Path drinksDir, @TempDir Path usersDir) {
+    void setUp() {
         MockHttpServletRequest request = new MockHttpServletRequest();
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
 
-        FileStorageProperties properties = new FileStorageProperties();
-
-        properties.setUploadDir(uploadDir.toAbsolutePath().toString());
-        properties.setDrinksDir(drinksDir.toAbsolutePath().toString());
-        properties.setUsersDir(usersDir.toAbsolutePath().toString());
+        FileStorageProperties properties = FileStoragePropertiesCreator.createFileStorageProperties();
 
         fileStorageController = new FileStorageController(new FileStorageService(properties), authUtil);
     }
 
     @Test
-    @DisplayName("uploadImage returns name of uploaded file when successful")
-    void uploadImage_ReturnsFileResponse_WhenSuccessful() throws IOException {
+    @DisplayName("uploadDrinkImage returns name of uploaded file when successful")
+    void uploadDrinkImage_ReturnsFileResponse_WhenSuccessful() throws IOException {
         byte[] imageBytes = new FileInputStream("./test-files/drink.jpeg").readAllBytes();
 
         MockMultipartFile multipartFile = new MockMultipartFile("drink.jpeg", "drink.jpeg", MediaType.IMAGE_JPEG_VALUE, imageBytes);
@@ -75,15 +70,15 @@ class FileStorageControllerTest {
     }
 
     @Test
-    @DisplayName("uploadMultipleImages returns list of uploaded file when successful")
-    void uploadMultipleImages_ReturnsFileResponse_WhenSuccessful() throws IOException {
+    @DisplayName("uploadMultipleDrinksImages returns list of uploaded file when successful")
+    void uploadMultipleDrinksImages_ReturnsFileResponse_WhenSuccessful() throws IOException {
         byte[] imageBytes = new FileInputStream("./test-files/drink.jpeg").readAllBytes();
         byte[] imageBytes2 = new FileInputStream("./test-files/drink2.jpg").readAllBytes();
 
         MockMultipartFile multipartFile = new MockMultipartFile("drink.jpeg", "drink.jpeg", MediaType.IMAGE_JPEG_VALUE, imageBytes);
         MockMultipartFile multipartFile2 = new MockMultipartFile("drink2.jpg", "drink2.jpg", MediaType.IMAGE_JPEG_VALUE, imageBytes2);
 
-        ResponseEntity<List<FileResponse>> entity = fileStorageController.uploadMultipleImages(List.of(multipartFile, multipartFile2));
+        ResponseEntity<List<FileResponse>> entity = fileStorageController.uploadMultipleDrinksImages(List.of(multipartFile, multipartFile2));
 
         assertThat(entity).isNotNull();
 
@@ -132,7 +127,7 @@ class FileStorageControllerTest {
         assertThat(entity.getBody())
                 .isNotEmpty()
                 .hasSize(1)
-                .contains("/" + response.getFileName());
+                .anyMatch((path) -> path.contains(response.getFileName()));
     }
 
     @Test
@@ -159,38 +154,38 @@ class FileStorageControllerTest {
         assertThat(entity.getBody())
                 .isNotEmpty()
                 .hasSize(1)
-                .contains("/" + response.getFileName());
+                .anyMatch((path) -> path.contains(response.getFileName()));
     }
 
-//    @Test
-//    @DisplayName("getImage returns bytes of image when successful")
-//    void getImage_ReturnsBytesOfImage_WhenSuccessful() throws IOException {
-//        byte[] imageBytes = new FileInputStream("./test-files/drink.jpeg").readAllBytes();
-//
-//        MockMultipartFile multipartFile = new MockMultipartFile("drink.jpeg", "drink.jpeg", MediaType.IMAGE_JPEG_VALUE, imageBytes);
-//
-//        FileResponse response = fileStorageController.uploadDrinkImage(multipartFile).getBody();
-//
-//        assertThat(response).isNotNull();
-//
-//        assertThat(response.getFileName()).isNotNull();
-//
-//        ResponseEntity<byte[]> entity = fileStorageController.getDrinkImage(response.getFileName());
-//
-//        assertThat(entity).isNotNull();
-//
-//        assertThat(entity.getStatusCode())
-//                .isNotNull()
-//                .isEqualTo(HttpStatus.OK);
-//
-//        assertThat(entity.getBody())
-//                .isNotEmpty()
-//                .isEqualTo(imageBytes);
-//    }
+    @Test
+    @DisplayName("getDrinkImage returns bytes of image when successful")
+    void getDrinkImage_ReturnsBytesOfImage_WhenSuccessful() throws IOException {
+        byte[] imageBytes = new FileInputStream("./test-files/drink.jpeg").readAllBytes();
+
+        MockMultipartFile multipartFile = new MockMultipartFile("drink.jpeg", "drink.jpeg", MediaType.IMAGE_JPEG_VALUE, imageBytes);
+
+        FileResponse response = fileStorageController.uploadDrinkImage(multipartFile).getBody();
+
+        assertThat(response).isNotNull();
+
+        assertThat(response.getFileName()).isNotNull();
+
+        ResponseEntity<byte[]> entity = fileStorageController.getDrinkImage(response.getFileName());
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.OK);
+
+        assertThat(entity.getBody())
+                .isNotEmpty()
+                .isEqualTo(imageBytes);
+    }
 
     @Test
-    @DisplayName("deleteImage removes image when successful")
-    void deleteImage_RemovesImage_WhenSuccessful() throws IOException {
+    @DisplayName("deleteDrinkImage removes image when successful")
+    void deleteDrinkImage_RemovesImage_WhenSuccessful() throws IOException {
         byte[] imageBytes = new FileInputStream("./test-files/drink.jpeg").readAllBytes();
 
         MockMultipartFile multipartFile = new MockMultipartFile("drink.jpeg", "drink.jpeg", MediaType.IMAGE_JPEG_VALUE, imageBytes);

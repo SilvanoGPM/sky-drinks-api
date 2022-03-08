@@ -109,7 +109,7 @@ public class FileStorageController {
     })
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<FileResponse> uploadUserPicture(@RequestParam MultipartFile file, Principal principal) {
-        String fileName = fileStorageService.storeProfilePicture(file, authUtil.getUser(principal));
+        String fileName = fileStorageService.storeUserImage(file, authUtil.getUser(principal));
 
         String fileDownloadUri = ServletUriComponentsBuilder
                 .fromCurrentContextPath()
@@ -136,8 +136,8 @@ public class FileStorageController {
             @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
     })
     @SecurityRequirement(name = "bearerAuth")
-    public ResponseEntity<List<FileResponse>> uploadMultipleImages(@RequestParam List<MultipartFile> files) {
-        Map<String, MultipartFile> filesName = fileStorageService.storeImages(files);
+    public ResponseEntity<List<FileResponse>> uploadMultipleDrinksImages(@RequestParam List<MultipartFile> files) {
+        Map<String, MultipartFile> filesName = fileStorageService.storeDrinksImages(files);
 
         List<FileResponse> responses = filesName.keySet().stream().map((fileName) -> {
             MultipartFile file = filesName.get(fileName);

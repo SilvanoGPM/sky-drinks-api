@@ -1,9 +1,14 @@
 package com.github.skyg0d.skydrinksapi.service;
 
+import com.github.skyg0d.skydrinksapi.domain.ApplicationUser;
+import com.github.skyg0d.skydrinksapi.exception.ActionNotAllowedException;
 import com.github.skyg0d.skydrinksapi.exception.CustomFileNotFoundException;
 import com.github.skyg0d.skydrinksapi.exception.FileStorageException;
 import com.github.skyg0d.skydrinksapi.property.FileStorageProperties;
+import com.github.skyg0d.skydrinksapi.util.file.FileStoragePropertiesCreator;
+import com.github.skyg0d.skydrinksapi.util.user.ApplicationUserCreator;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,6 +28,7 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -34,14 +40,8 @@ class FileStorageServiceTest {
     private FileStorageService fileStorageService;
 
     @BeforeEach
-    void setUp(@TempDir Path uploadDir, @TempDir Path drinksDir, @TempDir Path usersDir) {
-        FileStorageProperties properties = new FileStorageProperties();
-
-        properties.setUploadDir(uploadDir.toAbsolutePath().toString());
-        properties.setDrinksDir(drinksDir.toAbsolutePath().toString());
-        properties.setUsersDir(usersDir.toAbsolutePath().toString());
-
-        this.fileStorageService = new FileStorageService(properties);
+    void setUp() {
+        this.fileStorageService = new FileStorageService(FileStoragePropertiesCreator.createFileStorageProperties());
     }
 
     @Test
@@ -97,8 +97,8 @@ class FileStorageServiceTest {
     }
 
     @Test
-    @DisplayName("storageImage returns name of uploaded images when successful")
-    void storageImage_ReturnsNameOfUploadedImages_WhenSuccessful() throws IOException {
+    @DisplayName("storeDrinkImage returns name of uploaded images when successful")
+    void storeDrinkImage_ReturnsNameOfUploadedImages_WhenSuccessful() throws IOException {
         InputStream inputStream = new FileInputStream("./test-files/drink.jpeg");
 
         MockMultipartFile multipartFile = new MockMultipartFile("drink.jpeg", "drink.jpeg", MediaType.IMAGE_JPEG_VALUE, inputStream);
@@ -111,19 +111,37 @@ class FileStorageServiceTest {
     }
 
     @Test
-    @DisplayName("storageImages returns map of uploaded image when successful")
-    void storageImages_ReturnsMapOfUploadedImage_WhenSuccessful() throws IOException {
+    @DisplayName("storeDrinksImages returns map of uploaded image when successful")
+    void storeDrinksImages_ReturnsMapOfUploadedImage_WhenSuccessful() throws IOException {
         InputStream inputStream = new FileInputStream("./test-files/drink.jpeg");
         InputStream inputStream2 = new FileInputStream("./test-files/drink2.jpg");
 
         MockMultipartFile multipartFile = new MockMultipartFile("drink.jpg", "drink.jpeg", MediaType.IMAGE_JPEG_VALUE, inputStream);
         MockMultipartFile multipartFile2 = new MockMultipartFile("drink2.jpg", "drink2.jpg", MediaType.IMAGE_JPEG_VALUE, inputStream2);
 
-        Map<String, MultipartFile> filesName = fileStorageService.storeImages(List.of(multipartFile, multipartFile2));
+        Map<String, MultipartFile> filesName = fileStorageService.storeDrinksImages(List.of(multipartFile, multipartFile2));
 
         assertThat(filesName)
                 .isNotEmpty()
                 .containsKeys(multipartFile.getOriginalFilename(), multipartFile2.getOriginalFilename());
+    }
+
+    @Test
+    @DisplayName("storeUserImage returns name of uploaded images when successful")
+    void storeUserImage_ReturnsNameOfUploadedImages_WhenSuccessful() throws IOException {
+        byte[] imageBytes = new FileInputStream("./test-files/user.png").readAllBytes();
+
+        MockMultipartFile multipartFile = new MockMultipartFile("user.png", "user.png", MediaType.IMAGE_PNG_VALUE, imageBytes);
+
+        ApplicationUser validApplicationUser = ApplicationUserCreator.createValidApplicationUser();
+
+        String fileName = fileStorageService.storeUserImage(multipartFile, validApplicationUser);
+
+        String fileExtension = "." + FilenameUtils.getExtension(fileName);
+
+        assertThat(fileName)
+                .isNotNull()
+                .isEqualTo(validApplicationUser.getUuid().toString() + fileExtension);
     }
 
     @Test
@@ -172,22 +190,40 @@ class FileStorageServiceTest {
         assertThat(filesPage)
                 .isNotEmpty()
                 .hasSize(1)
-                .contains("/" + fileName);
+                .anyMatch((path) -> path.contains(fileName));
     }
 
-//    @Test
-//    @DisplayName("getImage returns bytes of image when successful")
-//    void getImage_ReturnsBytesOfImage_WhenSuccessful() throws IOException {
-//        byte[] imageBytes = new FileInputStream("./test-files/drink.jpeg").readAllBytes();
-//
-//        MockMultipartFile multipartFile = new MockMultipartFile("drink.jpeg", "drink.jpeg", MediaType.IMAGE_JPEG_VALUE, imageBytes);
-//
-//        String fileName = fileStorageService.storeProfilePicture(multipartFile, ApplicationUserCreator.createValidApplicationUser());
-//
-//        assertThat(image)
-//                .isNotEmpty()
-//                .isEqualTo(imageBytes);
-//    }
+    @Test
+    @DisplayName("getDrinkImage returns bytes of image when successful")
+    void getDrinkImage_ReturnsBytesOfImage_WhenSuccessful() throws IOException {
+        byte[] imageBytes = new FileInputStream("./test-files/drink.jpeg").readAllBytes();
+
+        MockMultipartFile multipartFile = new MockMultipartFile("drink.jpeg", "drink.jpeg", MediaType.IMAGE_JPEG_VALUE, imageBytes);
+
+        String fileName = fileStorageService.storeDrinkImage(multipartFile);
+
+        byte[] image = fileStorageService.getDrinkImage(fileName);
+
+        assertThat(image)
+                .isNotEmpty()
+                .isEqualTo(imageBytes);
+    }
+
+    @Test
+    @DisplayName("getUserImage returns bytes of image when successful")
+    void getUserImage_ReturnsBytesOfImage_WhenSuccessful() throws IOException {
+        byte[] imageBytes = new FileInputStream("./test-files/user.png").readAllBytes();
+
+        MockMultipartFile multipartFile = new MockMultipartFile("user.png", "user.png", MediaType.IMAGE_PNG_VALUE, imageBytes);
+
+        String fileName = fileStorageService.storeUserImage(multipartFile, ApplicationUserCreator.createValidApplicationUser());
+
+        byte[] image = fileStorageService.getUserImage(fileName);
+
+        assertThat(image)
+                .isNotEmpty()
+                .isEqualTo(imageBytes);
+    }
 
     @Test
     @DisplayName("loadFileAsResource returns an resource when successful")
@@ -242,19 +278,54 @@ class FileStorageServiceTest {
     }
 
     @Test
-    @DisplayName("deleteImage removes image when successful")
-    void deleteImage_RemovesImage_WhenSuccessful() throws IOException {
+    @DisplayName("deleteDrinkImage removes image when successful")
+    void deleteDrinkImage_RemovesImage_WhenSuccessful() throws IOException {
         byte[] imageBytes = new FileInputStream("./test-files/drink.jpeg").readAllBytes();
 
         MockMultipartFile multipartFile = new MockMultipartFile("drink.jpeg", "drink.jpeg", MediaType.IMAGE_JPEG_VALUE, imageBytes);
 
-        String fileName = fileStorageService.storeFile(multipartFile);
+        String fileName = fileStorageService.storeDrinkImage(multipartFile);
 
         fileStorageService.deleteDrinkImage(fileName);
 
         List<String> files = fileStorageService.listFiles();
 
         assertThat(files).isEmpty();
+    }
+
+    @Test
+    @DisplayName("deleteUserImage removes image when successful")
+    void deleteUserImage_RemovesImage_WhenSuccessful() throws IOException {
+        byte[] imageBytes = new FileInputStream("./test-files/user.png").readAllBytes();
+
+        MockMultipartFile multipartFile = new MockMultipartFile("user.png", "user.png", MediaType.IMAGE_PNG_VALUE, imageBytes);
+
+        ApplicationUser validApplicationUser = ApplicationUserCreator.createValidApplicationUser();
+
+        String fileName = fileStorageService.storeUserImage(multipartFile, validApplicationUser);
+
+        fileStorageService.deleteUserImage(fileName, validApplicationUser);
+
+        List<String> files = fileStorageService.listFiles();
+
+        assertThat(files).isEmpty();
+    }
+
+    @Test
+    @DisplayName("deleteUserImage throws ActionNotAllowedException when user does not have permission")
+    void deleteUserImage_ThrowsActionNotAllowedException_WhenUserDoesNotHavePermission() throws IOException {
+        byte[] imageBytes = new FileInputStream("./test-files/user.png").readAllBytes();
+
+        MockMultipartFile multipartFile = new MockMultipartFile("user.png", "user.png", MediaType.IMAGE_PNG_VALUE, imageBytes);
+
+        ApplicationUser validApplicationUser = ApplicationUserCreator.createValidApplicationUser();
+
+        String fileName = fileStorageService.storeUserImage(multipartFile, validApplicationUser);
+
+        validApplicationUser.setUuid(UUID.randomUUID());
+
+        assertThatExceptionOfType(ActionNotAllowedException.class)
+                .isThrownBy(() -> fileStorageService.deleteUserImage(fileName, validApplicationUser));
     }
 
     @Test

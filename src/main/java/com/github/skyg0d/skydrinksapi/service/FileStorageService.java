@@ -53,7 +53,6 @@ public class FileStorageService {
         this.drinksPath = fileStoragePath.resolve(fileStorageProperties.getDrinksDir());
         this.usersPath = fileStoragePath.resolve(fileStorageProperties.getUsersDir());
 
-
         this.projectDir = Paths.get("")
                 .toAbsolutePath()
                 .resolve(fileStoragePath)
@@ -91,7 +90,9 @@ public class FileStorageService {
         }
     }
 
-    public String storeProfilePicture(MultipartFile file, ApplicationUser user) {
+    public String storeUserImage(MultipartFile file, ApplicationUser user) {
+        verifyIfIsAnImage(file);
+
         String fileName = user.getUuid().toString() + ".png";
 
         return storeFile(file, usersPath, fileName);
@@ -102,7 +103,7 @@ public class FileStorageService {
         return storeFile(file, drinksPath);
     }
 
-    public Map<String, MultipartFile> storeImages(List<MultipartFile> files) {
+    public Map<String, MultipartFile> storeDrinksImages(List<MultipartFile> files) {
         return files
                 .stream()
                 .collect(Collectors.toMap(this::storeDrinkImage, (file) -> file));
