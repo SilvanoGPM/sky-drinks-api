@@ -5,11 +5,16 @@ import com.github.skyg0d.skydrinksapi.responses.FileResponse;
 import com.github.skyg0d.skydrinksapi.service.FileStorageService;
 import com.github.skyg0d.skydrinksapi.util.AuthUtil;
 import com.github.skyg0d.skydrinksapi.util.file.FileStoragePropertiesCreator;
+import com.github.skyg0d.skydrinksapi.util.user.ApplicationUserCreator;
+import org.apache.commons.io.FilenameUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
+import org.mockito.BDDMockito;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -24,6 +29,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.Principal;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,16 +41,20 @@ class FileStorageControllerTest {
     private FileStorageController fileStorageController;
 
     @Mock
-    private AuthUtil authUtil;
+    private AuthUtil authUtilMock;
 
     @BeforeEach
     void setUp() {
+        BDDMockito
+                .when(authUtilMock.getUser(ArgumentMatchers.any(Principal.class)))
+                .thenReturn(ApplicationUserCreator.createValidApplicationUser());
+
         MockHttpServletRequest request = new MockHttpServletRequest();
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
 
         FileStorageProperties properties = FileStoragePropertiesCreator.createFileStorageProperties();
 
-        fileStorageController = new FileStorageController(new FileStorageService(properties), authUtil);
+        fileStorageController = new FileStorageController(new FileStorageService(properties), authUtilMock);
     }
 
     @Test
@@ -101,6 +111,35 @@ class FileStorageControllerTest {
         assertThat(entity.getBody().get(1).getFileName())
                 .isNotNull()
                 .isEqualTo(multipartFile2.getOriginalFilename());
+    }
+
+    @Test
+    @DisplayName("uploadUserImage returns name of uploaded file when successful")
+    void uploadUserImage_ReturnsFileResponse_WhenSuccessful() throws IOException {
+        byte[] imageBytes = new FileInputStream("./test-files/user.png").readAllBytes();
+
+        MockMultipartFile multipartFile = new MockMultipartFile("user.png", "user.png", MediaType.IMAGE_PNG_VALUE, imageBytes);
+
+        Principal principalMock = Mockito.mock(Principal.class);
+
+        ResponseEntity<FileResponse> entity = fileStorageController.uploadUserImage(multipartFile, principalMock);
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getBody()).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.CREATED);
+
+        assertThat(entity.getBody().getFileName()).isNotNull();
+
+        String fileName = ApplicationUserCreator.createValidApplicationUser().getUuid().toString();
+
+        String fileExtension = "." + FilenameUtils.getExtension(entity.getBody().getFileName());
+
+        assertThat(entity.getBody().getFileName())
+                .isEqualTo(fileName + fileExtension);
     }
 
     @Test
@@ -184,6 +223,34 @@ class FileStorageControllerTest {
     }
 
     @Test
+    @DisplayName("getUserImage returns bytes of image when successful")
+    void getUserImage_ReturnsBytesOfImage_WhenSuccessful() throws IOException {
+        byte[] imageBytes = new FileInputStream("./test-files/user.png").readAllBytes();
+
+        MockMultipartFile multipartFile = new MockMultipartFile("user.png", "user.png", MediaType.IMAGE_PNG_VALUE, imageBytes);
+
+        Principal principalMock = Mockito.mock(Principal.class);
+
+        FileResponse response = fileStorageController.uploadUserImage(multipartFile, principalMock).getBody();
+
+        assertThat(response).isNotNull();
+
+        assertThat(response.getFileName()).isNotNull();
+
+        ResponseEntity<byte[]> entity = fileStorageController.getUserImage(response.getFileName());
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.OK);
+
+        assertThat(entity.getBody())
+                .isNotEmpty()
+                .isEqualTo(imageBytes);
+    }
+
+    @Test
     @DisplayName("deleteDrinkImage removes image when successful")
     void deleteDrinkImage_RemovesImage_WhenSuccessful() throws IOException {
         byte[] imageBytes = new FileInputStream("./test-files/drink.jpeg").readAllBytes();
@@ -197,6 +264,30 @@ class FileStorageControllerTest {
         assertThat(response.getFileName()).isNotNull();
 
         ResponseEntity<Void> entity = fileStorageController.deleteDrinkImage(response.getFileName());
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.NO_CONTENT);
+    }
+
+    @Test
+    @DisplayName("deleteUserImage removes image when successful")
+    void deleteUserImage_RemovesImage_WhenSuccessful() throws IOException {
+        byte[] imageBytes = new FileInputStream("./test-files/user.png").readAllBytes();
+
+        MockMultipartFile multipartFile = new MockMultipartFile("user.png", "user.png", MediaType.IMAGE_PNG_VALUE, imageBytes);
+
+        Principal principalMock = Mockito.mock(Principal.class);
+
+        FileResponse response = fileStorageController.uploadUserImage(multipartFile, principalMock).getBody();
+
+        assertThat(response).isNotNull();
+
+        assertThat(response.getFileName()).isNotNull();
+
+        ResponseEntity<Void> entity = fileStorageController.deleteUserImage(response.getFileName(), principalMock);
 
         assertThat(entity).isNotNull();
 

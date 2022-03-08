@@ -108,7 +108,7 @@ public class FileStorageController {
             @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
     })
     @SecurityRequirement(name = "bearerAuth")
-    public ResponseEntity<FileResponse> uploadUserPicture(@RequestParam MultipartFile file, Principal principal) {
+    public ResponseEntity<FileResponse> uploadUserImage(@RequestParam MultipartFile file, Principal principal) {
         String fileName = fileStorageService.storeUserImage(file, authUtil.getUser(principal));
 
         String fileDownloadUri = ServletUriComponentsBuilder
