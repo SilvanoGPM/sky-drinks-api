@@ -95,7 +95,7 @@ public class FileStorageService {
 
         String fileName = user.getUuid().toString() + ".png";
 
-        return storeFile(file, usersPath, fileName);
+        return storeFile(file, usersPath, fileName, true);
     }
 
     public String storeDrinkImage(MultipartFile file) {
@@ -202,10 +202,10 @@ public class FileStorageService {
 
         log.info("Tentando fazer o upload do arquivo \"{}\"", fileName);
 
-        return storeFile(file, path, fileName);
+        return storeFile(file, path, fileName, false);
     }
 
-    private String storeFile(MultipartFile file, Path path, String fileName) {
+    private String storeFile(MultipartFile file, Path path, String fileName, boolean replaceFile) {
         try {
 
             log.info("Verificando se o nome do arquivo contém caracteres inválidos");
@@ -214,7 +214,7 @@ public class FileStorageService {
                 throw new FileStorageException("Desculpa, mas o nome do arquivo possuí sequências de caminho inválidas: " + fileName);
             }
 
-            Path targetLocation = getTargetLocation(path, fileName);
+            Path targetLocation = getTargetLocation(path, fileName, replaceFile);
             Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
 
             log.info("Upload realizado com sucesso!");
@@ -226,7 +226,7 @@ public class FileStorageService {
         }
     }
 
-    private Path getTargetLocation(Path path, String fileName) {
+    private void incrementFileName(Path path, String fileName) {
         int files = 1;
 
         // Increments one in "files" while find fileName.
@@ -234,6 +234,12 @@ public class FileStorageService {
             String[] fileParts = fileName.split("\\.");
             fileName = String.format("%s_%d.%s", fileParts[0].replaceAll("_\\d", ""), files, fileParts[1]);
             files++;
+        }
+    }
+
+    private Path getTargetLocation(Path path, String fileName, boolean replaceFile) {
+        if (!replaceFile) {
+            incrementFileName(path, fileName);
         }
 
         return path.resolve(fileName);
