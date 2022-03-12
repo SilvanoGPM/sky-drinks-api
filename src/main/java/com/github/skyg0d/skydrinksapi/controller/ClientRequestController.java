@@ -97,7 +97,7 @@ public class ClientRequestController {
         return ResponseEntity.ok(clientRequestService.getTopFiveDrinks(uuid));
     }
 
-    @GetMapping("/admin/top-drinks")
+    @GetMapping("/top-drinks")
     @Operation(summary = "Retorna as bebidas que mais aparecem nos pedidos", tags = "Requests")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),

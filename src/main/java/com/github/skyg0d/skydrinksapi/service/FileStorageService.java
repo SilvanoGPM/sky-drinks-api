@@ -226,7 +226,7 @@ public class FileStorageService {
         }
     }
 
-    private void incrementFileName(Path path, String fileName) {
+    private String incrementFileName(Path path, String fileName) {
         int files = 1;
 
         // Increments one in "files" while find fileName.
@@ -235,14 +235,12 @@ public class FileStorageService {
             fileName = String.format("%s_%d.%s", fileParts[0].replaceAll("_\\d", ""), files, fileParts[1]);
             files++;
         }
+
+        return fileName;
     }
 
     private Path getTargetLocation(Path path, String fileName, boolean replaceFile) {
-        if (!replaceFile) {
-            incrementFileName(path, fileName);
-        }
-
-        return path.resolve(fileName);
+        return path.resolve(replaceFile ? fileName : incrementFileName(path, fileName));
     }
 
     private void createStorageDir() {

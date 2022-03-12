@@ -361,7 +361,7 @@ class ClientRequestControllerIT {
         ClientRequest clientRequestSaved = persistClientRequest();
 
         ResponseEntity<List<ClientRequestDrinkCount>> entity = testRestTemplate.exchange(
-                "/requests/admin/top-drinks",
+                "/requests/top-drinks",
                 HttpMethod.GET,
                 tokenUtil.createAdminAuthEntity(null),
                 new ParameterizedTypeReference<>() {
