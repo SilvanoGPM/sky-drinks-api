@@ -1,9 +1,12 @@
 package com.github.skyg0d.skydrinksapi.controller;
 
 import com.github.skyg0d.skydrinksapi.domain.ApplicationUser;
+import com.github.skyg0d.skydrinksapi.exception.BadRequestException;
 import com.github.skyg0d.skydrinksapi.parameters.ApplicationUserParameters;
+import com.github.skyg0d.skydrinksapi.property.JwtConfigurationProperties;
 import com.github.skyg0d.skydrinksapi.requests.ApplicationUserPostRequestBody;
 import com.github.skyg0d.skydrinksapi.requests.ApplicationUserPutRequestBody;
+import com.github.skyg0d.skydrinksapi.requests.LoginPostRequestBody;
 import com.github.skyg0d.skydrinksapi.service.ApplicationUserService;
 import com.github.skyg0d.skydrinksapi.util.AuthUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,15 +14,23 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.util.UriComponents;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.security.Principal;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -29,6 +40,41 @@ public class ApplicationUserController {
 
     private final ApplicationUserService applicationUserService;
     private final AuthUtil authUtil;
+    private final JwtConfigurationProperties jwtConfigurationProperties;
+
+    private final RestTemplate restTemplate = new RestTemplate();
+
+    @PostMapping("/login")
+    @Operation(summary = "Retorna um token para fazer requsições", tags = "Users")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
+            @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
+    })
+    public ResponseEntity<String> login(@Valid @RequestBody LoginPostRequestBody loginPostRequestBody, HttpServletRequest request) {
+        String loginPath = jwtConfigurationProperties
+                .getLoginUrl()
+                .replaceAll("\\*", "")
+                .replaceAll("/", "");
+
+        UriComponents url = ServletUriComponentsBuilder
+                .fromServletMapping(request)
+                .path("/" + loginPath)
+                .build();
+
+        try {
+            ResponseEntity<Void> entity = restTemplate.postForEntity(url.toString(), loginPostRequestBody, Void.class);
+
+            List<String> authorization = entity.getHeaders().get("Authorization");
+
+            String token = Optional
+                    .ofNullable(CollectionUtils.isEmpty(authorization) ? null : authorization.get(0))
+                    .orElse("Error");
+
+            return ResponseEntity.ok(token);
+        } catch (Exception error) {
+            throw new BadRequestException("Aconteceu um erro ao tentar retornar o token.");
+        }
+    }
 
     @GetMapping("/all/user-info")
     @Operation(summary = "Retorna as informações do usuário", tags = "Users")
