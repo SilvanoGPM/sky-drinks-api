@@ -181,7 +181,21 @@ class ApplicationUserControllerTest {
     }
 
     @Test
-    @DisplayName("findByIdEmail return application user when successful")
+    @DisplayName("verifyByEmail verify if user exists when successful")
+    void verifyByEmail_VerifyIfUserExists_WhenSuccessful() {
+        ApplicationUser expectedApplicationUser = ApplicationUserCreator.createValidApplicationUser();
+
+        ResponseEntity<Void> entity = applicationUserController.verifyByEmail(expectedApplicationUser.getEmail());
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    @DisplayName("findByEmail return application user when successful")
     void findByEmail_ReturnApplicationUser_WhenSuccessful() {
         ApplicationUser expectedApplicationUser = ApplicationUserCreator.createValidApplicationUser();
 
