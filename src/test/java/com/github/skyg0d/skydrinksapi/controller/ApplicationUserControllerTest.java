@@ -8,6 +8,7 @@ import com.github.skyg0d.skydrinksapi.util.AuthUtil;
 import com.github.skyg0d.skydrinksapi.util.user.ApplicationUserCreator;
 import com.github.skyg0d.skydrinksapi.util.user.ApplicationUserPostRequestBodyCreator;
 import com.github.skyg0d.skydrinksapi.util.user.ApplicationUserPutRequestBodyCreator;
+import com.github.skyg0d.skydrinksapi.util.user.LoginPostRequestBodyCreator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
 import java.util.List;
 import java.util.UUID;

@@ -14,7 +14,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -119,6 +118,18 @@ public class ApplicationUserController {
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<ApplicationUser> findById(@PathVariable UUID uuid) {
         return ResponseEntity.ok(applicationUserService.findByIdOrElseThrowBadRequestException(uuid));
+    }
+
+    @GetMapping("/verify-by-email/{email}")
+    @Operation(summary = "Verifica se um E-mail existe no servidor", tags = "Users")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Quando o usuário não existe no banco de dados"),
+            @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
+    })
+    public ResponseEntity<Void> verifyByEmail(@PathVariable String email) {
+        applicationUserService.findByEmail(email);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @GetMapping("/admin/find-by-email/{email}")
