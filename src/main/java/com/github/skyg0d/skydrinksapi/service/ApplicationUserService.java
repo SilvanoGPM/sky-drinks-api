@@ -2,6 +2,7 @@ package com.github.skyg0d.skydrinksapi.service;
 
 import com.github.skyg0d.skydrinksapi.domain.ApplicationUser;
 import com.github.skyg0d.skydrinksapi.domain.ClientRequest;
+import com.github.skyg0d.skydrinksapi.domain.TotalUsers;
 import com.github.skyg0d.skydrinksapi.exception.BadRequestException;
 import com.github.skyg0d.skydrinksapi.exception.UserUniqueFieldExistsException;
 import com.github.skyg0d.skydrinksapi.mapper.ApplicationUserMapper;
@@ -38,6 +39,12 @@ public class ApplicationUserService {
         log.info("Retornando todos os usuários com os parametros \"{}\"", pageable);
 
         return applicationUserRepository.findAll(pageable);
+    }
+
+    public TotalUsers countTotalUsers() {
+        log.info("Retornando a quantidade total de usuários.");
+
+        return applicationUserRepository.countTotalUsers();
     }
 
     public Page<ApplicationUser> search(ApplicationUserParameters applicationUserParameters, Pageable pageable) {

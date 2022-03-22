@@ -1,6 +1,7 @@
 package com.github.skyg0d.skydrinksapi.controller;
 
 import com.github.skyg0d.skydrinksapi.domain.ApplicationUser;
+import com.github.skyg0d.skydrinksapi.domain.TotalUsers;
 import com.github.skyg0d.skydrinksapi.exception.BadRequestException;
 import com.github.skyg0d.skydrinksapi.parameters.ApplicationUserParameters;
 import com.github.skyg0d.skydrinksapi.property.JwtConfigurationProperties;
@@ -45,29 +46,18 @@ public class ApplicationUserController {
 
     @PostMapping("/login")
     @Operation(summary = "Retorna um token para fazer requsições", tags = "Users")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
-            @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
-    })
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"), @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")})
     public ResponseEntity<String> login(@Valid @RequestBody LoginPostRequestBody loginPostRequestBody, HttpServletRequest request) {
-        String loginPath = jwtConfigurationProperties
-                .getLoginUrl()
-                .replaceAll("\\*", "")
-                .replaceAll("/", "");
+        String loginPath = jwtConfigurationProperties.getLoginUrl().replaceAll("\\*", "").replaceAll("/", "");
 
-        UriComponents url = ServletUriComponentsBuilder
-                .fromServletMapping(request)
-                .path("/" + loginPath)
-                .build();
+        UriComponents url = ServletUriComponentsBuilder.fromServletMapping(request).path("/" + loginPath).build();
 
         try {
             ResponseEntity<Void> entity = restTemplate.postForEntity(url.toString(), loginPostRequestBody, Void.class);
 
             List<String> authorization = entity.getHeaders().get("Authorization");
 
-            String token = Optional
-                    .ofNullable(CollectionUtils.isEmpty(authorization) ? null : authorization.get(0))
-                    .orElse("Error");
+            String token = Optional.ofNullable(CollectionUtils.isEmpty(authorization) ? null : authorization.get(0)).orElse("Error");
 
             return ResponseEntity.ok(token);
         } catch (Exception error) {
@@ -77,10 +67,7 @@ public class ApplicationUserController {
 
     @GetMapping("/all/user-info")
     @Operation(summary = "Retorna as informações do usuário", tags = "Users")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
-            @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
-    })
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"), @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")})
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<ApplicationUser> getUserInfo(Principal principal) {
         return ResponseEntity.ok(authUtil.getUser(principal));
@@ -88,21 +75,23 @@ public class ApplicationUserController {
 
     @GetMapping("/admin")
     @Operation(summary = "Retorna todos os usuários paginação", tags = "Users")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
-            @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
-    })
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"), @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")})
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Page<ApplicationUser>> listAll(@ParameterObject Pageable pageable) {
         return ResponseEntity.ok(applicationUserService.listAll(pageable));
     }
 
+    @GetMapping("/admin/total-users")
+    @Operation(summary = "Retorna a quantidade total de usuários", tags = "Users")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"), @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")})
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<TotalUsers> countTotalUsers() {
+        return ResponseEntity.ok(applicationUserService.countTotalUsers());
+    }
+
     @GetMapping("/admin/search")
     @Operation(summary = "Retorna os usuários encontrados paginação", tags = "Users")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
-            @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
-    })
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"), @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")})
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Page<ApplicationUser>> search(@ParameterObject ApplicationUserParameters applicationUserParameters, @ParameterObject Pageable pageable) {
         return ResponseEntity.ok(applicationUserService.search(applicationUserParameters, pageable));
@@ -110,11 +99,7 @@ public class ApplicationUserController {
 
     @GetMapping("/all/{uuid}")
     @Operation(summary = "Retorna um usuário especificado", tags = "Users")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Quando o usuário não existe no banco de dados"),
-            @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
-    })
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"), @ApiResponse(responseCode = "400", description = "Quando o usuário não existe no banco de dados"), @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")})
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<ApplicationUser> findById(@PathVariable UUID uuid) {
         return ResponseEntity.ok(applicationUserService.findByIdOrElseThrowBadRequestException(uuid));
@@ -122,11 +107,7 @@ public class ApplicationUserController {
 
     @GetMapping("/verify-by-email/{email}")
     @Operation(summary = "Verifica se um E-mail existe no servidor", tags = "Users")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Quando o usuário não existe no banco de dados"),
-            @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
-    })
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"), @ApiResponse(responseCode = "400", description = "Quando o usuário não existe no banco de dados"), @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")})
     public ResponseEntity<Void> verifyByEmail(@PathVariable String email) {
         applicationUserService.findByEmail(email);
         return new ResponseEntity<>(HttpStatus.OK);
@@ -134,11 +115,7 @@ public class ApplicationUserController {
 
     @GetMapping("/admin/find-by-email/{email}")
     @Operation(summary = "Retorna um usuário especificado", tags = "Users")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Quando o usuário não existe no banco de dados"),
-            @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
-    })
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"), @ApiResponse(responseCode = "400", description = "Quando o usuário não existe no banco de dados"), @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")})
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<ApplicationUser> findByEmail(@PathVariable String email) {
         return ResponseEntity.ok(applicationUserService.findByEmail(email));
@@ -146,11 +123,7 @@ public class ApplicationUserController {
 
     @GetMapping("/admin/find-by-cpf/{cpf}")
     @Operation(summary = "Retorna um usuário especificado", tags = "Users")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Quando o usuário não existe no banco de dados"),
-            @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
-    })
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"), @ApiResponse(responseCode = "400", description = "Quando o usuário não existe no banco de dados"), @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")})
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<ApplicationUser> findByCpf(@PathVariable String cpf) {
         return ResponseEntity.ok(applicationUserService.findByCpf(cpf));
@@ -158,13 +131,7 @@ public class ApplicationUserController {
 
     @PostMapping("/admin")
     @Operation(summary = "Cria um usuário e retorna os dados", tags = "Users")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Quando o usuário não possui a ROLE_USER"),
-            @ApiResponse(responseCode = "401", description = "Quando o usuário não está autenticado"),
-            @ApiResponse(responseCode = "403", description = "Quando o usuário não possuí permissão"),
-            @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
-    })
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"), @ApiResponse(responseCode = "400", description = "Quando o usuário não possui a ROLE_USER"), @ApiResponse(responseCode = "401", description = "Quando o usuário não está autenticado"), @ApiResponse(responseCode = "403", description = "Quando o usuário não possuí permissão"), @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")})
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<ApplicationUser> save(@Valid @RequestBody ApplicationUserPostRequestBody applicationUserPostRequestBody) {
         return new ResponseEntity<>(applicationUserService.save(applicationUserPostRequestBody), HttpStatus.CREATED);
@@ -172,13 +139,7 @@ public class ApplicationUserController {
 
     @PutMapping("/user")
     @Operation(summary = "Atualiza um usuário", tags = "Users")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Quando o usuário não existe no banco de dados"),
-            @ApiResponse(responseCode = "401", description = "Quando o usuário não está autenticado"),
-            @ApiResponse(responseCode = "403", description = "Quando o usuário não possuí permissão"),
-            @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
-    })
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"), @ApiResponse(responseCode = "400", description = "Quando o usuário não existe no banco de dados"), @ApiResponse(responseCode = "401", description = "Quando o usuário não está autenticado"), @ApiResponse(responseCode = "403", description = "Quando o usuário não possuí permissão"), @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")})
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Void> replace(@Valid @RequestBody ApplicationUserPutRequestBody applicationUserPutRequestBody, Principal principal) {
         applicationUserService.replace(applicationUserPutRequestBody, authUtil.getUser(principal));
@@ -187,12 +148,7 @@ public class ApplicationUserController {
 
     @PatchMapping("/admin/toggle-lock-requests/{uuid}")
     @Operation(summary = "Alterna se um usuário pode ou não realizar pedidos", tags = "Users")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Quando o usuário não existe no banco de dados"),
-            @ApiResponse(responseCode = "401", description = "Quando o usuário não está autenticado"),
-            @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
-    })
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"), @ApiResponse(responseCode = "400", description = "Quando o usuário não existe no banco de dados"), @ApiResponse(responseCode = "401", description = "Quando o usuário não está autenticado"), @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")})
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<ApplicationUser> toggleLockRequests(@PathVariable UUID uuid) {
         return ResponseEntity.ok(applicationUserService.toggleLockRequests(uuid));
@@ -200,13 +156,7 @@ public class ApplicationUserController {
 
     @DeleteMapping("/user/{uuid}")
     @Operation(summary = "Deleta um usuário", tags = "Users")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Quando o usuário não existe no banco de dados"),
-            @ApiResponse(responseCode = "401", description = "Quando o usuário não está autenticado"),
-            @ApiResponse(responseCode = "403", description = "Quando o usuário não possuí permissão"),
-            @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
-    })
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"), @ApiResponse(responseCode = "400", description = "Quando o usuário não existe no banco de dados"), @ApiResponse(responseCode = "401", description = "Quando o usuário não está autenticado"), @ApiResponse(responseCode = "403", description = "Quando o usuário não possuí permissão"), @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")})
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Void> delete(@PathVariable UUID uuid, Principal principal) {
         applicationUserService.delete(uuid, authUtil.getUser(principal));
