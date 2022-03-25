@@ -1,7 +1,7 @@
 package com.github.skyg0d.skydrinksapi.repository;
 
 import com.github.skyg0d.skydrinksapi.domain.ApplicationUser;
-import com.github.skyg0d.skydrinksapi.domain.ClientRequest;
+import com.github.skyg0d.skydrinksapi.domain.TotalUsers;
 import com.github.skyg0d.skydrinksapi.repository.user.ApplicationUserRepository;
 import com.github.skyg0d.skydrinksapi.util.user.ApplicationUserCreator;
 import org.junit.jupiter.api.DisplayName;
@@ -10,10 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import javax.validation.ConstraintViolationException;
-
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 @DataJpaTest
 @DisplayName("Tests for ApplicationUserRepository")
@@ -21,6 +21,30 @@ class ApplicationUserRepositoryTest {
 
     @Autowired
     private ApplicationUserRepository applicationUserRepository;
+
+    @Test
+    @DisplayName("countTotalUsers returns total of users when successful")
+    void countTotalUsers_ReturnsTotalOfUsers_WhenSuccessful() {
+        applicationUserRepository.save(ApplicationUserCreator.createAdminApplicationUser());
+
+        applicationUserRepository.save(ApplicationUserCreator.createApplicationUserWithRequestsLocked());
+
+        TotalUsers totalUsers = applicationUserRepository.countTotalUsers();
+
+        assertThat(totalUsers).isNotNull();
+
+        assertThat(totalUsers.getTotal())
+                .isNotNull()
+                .isEqualTo(2);
+
+        assertThat(totalUsers.getUnlocked())
+                .isNotNull()
+                .isEqualTo(1);
+
+        assertThat(totalUsers.getLocked())
+                .isNotNull()
+                .isEqualTo(1);
+    }
 
     @Test
     @DisplayName("save persist application user when successful")
