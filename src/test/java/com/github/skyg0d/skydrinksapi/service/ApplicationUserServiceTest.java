@@ -1,6 +1,7 @@
 package com.github.skyg0d.skydrinksapi.service;
 
 import com.github.skyg0d.skydrinksapi.domain.ApplicationUser;
+import com.github.skyg0d.skydrinksapi.domain.TotalUsers;
 import com.github.skyg0d.skydrinksapi.exception.ActionNotAllowedException;
 import com.github.skyg0d.skydrinksapi.exception.BadRequestException;
 import com.github.skyg0d.skydrinksapi.exception.UserUniqueFieldExistsException;
@@ -11,6 +12,7 @@ import com.github.skyg0d.skydrinksapi.requests.ApplicationUserPutRequestBody;
 import com.github.skyg0d.skydrinksapi.util.user.ApplicationUserCreator;
 import com.github.skyg0d.skydrinksapi.util.user.ApplicationUserPostRequestBodyCreator;
 import com.github.skyg0d.skydrinksapi.util.user.ApplicationUserPutRequestBodyCreator;
+import com.github.skyg0d.skydrinksapi.util.user.TotalUsersCreator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -48,6 +50,10 @@ class ApplicationUserServiceTest {
     @BeforeEach
     void setUp() {
         PageImpl<ApplicationUser> applicationUsersPage = new PageImpl<>(List.of(ApplicationUserCreator.createValidApplicationUser()));
+
+        BDDMockito
+                .when(applicationUserRepositoryMock.countTotalUsers())
+                .thenReturn(TotalUsersCreator.createTotalUsers());
 
         BDDMockito
                 .when(applicationUserRepositoryMock.findAll(ArgumentMatchers.any(Pageable.class)))
@@ -117,6 +123,28 @@ class ApplicationUserServiceTest {
                 .isNotEmpty()
                 .hasSize(1)
                 .contains(expectedApplicationUser);
+    }
+
+    @Test
+    @DisplayName("countTotalUsers returns total of users when successful")
+    void countTotalUsers_ReturnsTotalOfUsers_WhenSuccessful() {
+        TotalUsers expectedTotalUsers = TotalUsersCreator.createTotalUsers();
+
+        TotalUsers totalUsers = applicationUserService.countTotalUsers();
+
+        assertThat(totalUsers).isNotNull();
+
+        assertThat(totalUsers.getTotal())
+                .isNotNull()
+                .isEqualTo(expectedTotalUsers.getTotal());
+
+        assertThat(totalUsers.getUnlocked())
+                .isNotNull()
+                .isEqualTo(expectedTotalUsers.getUnlocked());
+
+        assertThat(totalUsers.getLocked())
+                .isNotNull()
+                .isEqualTo(expectedTotalUsers.getLocked());
     }
 
     @Test
