@@ -1,14 +1,12 @@
 package com.github.skyg0d.skydrinksapi.controller;
 
 import com.github.skyg0d.skydrinksapi.domain.ApplicationUser;
+import com.github.skyg0d.skydrinksapi.domain.TotalUsers;
 import com.github.skyg0d.skydrinksapi.parameters.ApplicationUserParameters;
 import com.github.skyg0d.skydrinksapi.requests.ApplicationUserPostRequestBody;
 import com.github.skyg0d.skydrinksapi.service.ApplicationUserService;
 import com.github.skyg0d.skydrinksapi.util.AuthUtil;
-import com.github.skyg0d.skydrinksapi.util.user.ApplicationUserCreator;
-import com.github.skyg0d.skydrinksapi.util.user.ApplicationUserPostRequestBodyCreator;
-import com.github.skyg0d.skydrinksapi.util.user.ApplicationUserPutRequestBodyCreator;
-import com.github.skyg0d.skydrinksapi.util.user.LoginPostRequestBodyCreator;
+import com.github.skyg0d.skydrinksapi.util.user.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -45,6 +43,10 @@ class ApplicationUserControllerTest {
     @BeforeEach
     void setUp() {
         PageImpl<ApplicationUser> applicationUsersPage = new PageImpl<>(List.of(ApplicationUserCreator.createValidApplicationUser()));
+
+        BDDMockito
+                .when(applicationUserServiceMock.countTotalUsers())
+                .thenReturn(TotalUsersCreator.createTotalUsers());
 
         BDDMockito
                 .when(authUtilMock.getUser(ArgumentMatchers.any(Principal.class)))
@@ -192,6 +194,34 @@ class ApplicationUserControllerTest {
         assertThat(entity.getStatusCode())
                 .isNotNull()
                 .isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    @DisplayName("countTotalUsers returns total of users when successful")
+    void countTotalUsers_ReturnsTotalOfUsers_WhenSuccessful() {
+        TotalUsers expectedTotalUsers = TotalUsersCreator.createTotalUsers();
+
+        ResponseEntity<TotalUsers> entity = applicationUserController.countTotalUsers();
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.OK);
+
+        assertThat(entity.getBody()).isNotNull();
+
+        assertThat(entity.getBody().getTotal())
+                .isNotNull()
+                .isEqualTo(expectedTotalUsers.getTotal());
+
+        assertThat(entity.getBody().getUnlocked())
+                .isNotNull()
+                .isEqualTo(expectedTotalUsers.getUnlocked());
+
+        assertThat(entity.getBody().getLocked())
+                .isNotNull()
+                .isEqualTo(expectedTotalUsers.getLocked());
     }
 
     @Test
