@@ -1,6 +1,7 @@
 package com.github.skyg0d.skydrinksapi.integration;
 
 import com.github.skyg0d.skydrinksapi.domain.ApplicationUser;
+import com.github.skyg0d.skydrinksapi.domain.TotalUsers;
 import com.github.skyg0d.skydrinksapi.repository.user.ApplicationUserRepository;
 import com.github.skyg0d.skydrinksapi.requests.ApplicationUserPostRequestBody;
 import com.github.skyg0d.skydrinksapi.requests.ApplicationUserPutRequestBody;
@@ -8,6 +9,7 @@ import com.github.skyg0d.skydrinksapi.util.TokenUtil;
 import com.github.skyg0d.skydrinksapi.util.user.ApplicationUserCreator;
 import com.github.skyg0d.skydrinksapi.util.user.ApplicationUserPostRequestBodyCreator;
 import com.github.skyg0d.skydrinksapi.util.user.ApplicationUserPutRequestBodyCreator;
+import com.github.skyg0d.skydrinksapi.util.user.TotalUsersCreator;
 import com.github.skyg0d.skydrinksapi.wrapper.PageableResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -201,6 +203,34 @@ class ApplicationUserControllerIT {
         assertThat(entity.getStatusCode())
                 .isNotNull()
                 .isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    @DisplayName("countTotalUsers returns total of users when successful")
+    void countTotalUsers_ReturnsTotalOfUsers_WhenSuccessful() {
+        ApplicationUser expectedApplicationUser = applicationUserRepository.save(ApplicationUserCreator.createApplicationUserToBeSave());
+
+        long totalUsers = applicationUserRepository.count();
+
+        ResponseEntity<TotalUsers> entity = testRestTemplate.exchange(
+                "/users/admin/total-users",
+                HttpMethod.GET,
+                tokenUtil.createAdminAuthEntity(null),
+                TotalUsers.class,
+                expectedApplicationUser.getEmail()
+        );
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.OK);
+
+        assertThat(entity.getBody()).isNotNull();
+
+        assertThat(entity.getBody().getTotal())
+                .isNotNull()
+                .isEqualTo(totalUsers);
     }
 
     @Test
