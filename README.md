@@ -41,7 +41,7 @@
 5. Para o serviço de restauração de senhas funcionar, você deve configurar as credenciais corretamente:
 
 ```bash
-./mvnw spring-boot:run -Dspring-boot.run.arguments="--spring.mail.username=SEU_USERNAME --spring.mail.password=SUA_SENHA"
+./mvnw spring-boot:run -D spring-boot.run.arguments="--spring.mail.username=SEU_USERNAME --spring.mail.password=SUA_SENHA"
 ```
 
 Pronto, caso tudo tenha ocorrido com sucesso, o projeto funcionará normalmente!
