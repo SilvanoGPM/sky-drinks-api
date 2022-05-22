@@ -221,6 +221,24 @@ public class ClientRequestController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @PatchMapping("/staff/start/{uuid}")
+    @Operation(summary = "Inicia um pedido", tags = "Requests")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operação foi realizada com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Quando o pedido não existe no banco de dados, ou o usuário não pode realizar essa ação"),
+            @ApiResponse(responseCode = "401", description = "Quando o usuário não está autenticado"),
+            @ApiResponse(responseCode = "403", description = "Quando o usuário não possuí permissão"),
+            @ApiResponse(responseCode = "500", description = "Quando acontece um erro no servidor")
+    })
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<ClientRequest> startRequest(@PathVariable UUID uuid) {
+        ClientRequest clientRequestFinished = clientRequestService.startRequest(uuid);
+
+        sendToUserRequestChanged(uuid, ClientRequestStatus.STARTED.toString());
+
+        return ResponseEntity.ok(clientRequestFinished);
+    }
+
     @PatchMapping("/staff/finish/{uuid}")
     @Operation(summary = "Finaliza um pedido", tags = "Requests")
     @ApiResponses(value = {

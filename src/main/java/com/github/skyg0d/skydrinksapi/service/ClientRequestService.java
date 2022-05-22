@@ -157,6 +157,16 @@ public class ClientRequestService {
         clientRequestRepository.save(requestToUpdate);
     }
 
+    public ClientRequest startRequest(UUID uuid) {
+        log.info("Tentando iniciar o pedido com uuid \"{}\". . .", uuid);
+
+        return setStatus(
+                ClientRequestStatus.STARTED,
+                uuid,
+                null
+        );
+    }
+
     public ClientRequest finishRequest(UUID uuid) {
         log.info("Tentando finalizar o pedido com uuid \"{}\". . .", uuid);
 
@@ -242,6 +252,8 @@ public class ClientRequestService {
                     : String.format("Pedido com id %s já foi cancelado!", uuid);
 
             throw new BadRequestException(message);
+        } else if (status.equals(ClientRequestStatus.STARTED) && !request.getStatus().equals(ClientRequestStatus.PROCESSING)) {
+            throw new BadRequestException(String.format("Pedido com id %s precisa estar sendo processado para ser iniciado!", uuid));
         }
 
         if (user != null) {

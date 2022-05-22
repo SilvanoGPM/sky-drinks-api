@@ -45,35 +45,35 @@ public class PasswordResetControllerIT {
     @Autowired
     private ApplicationUserRepository applicationUserRepository;
 
-    @Test
-    @DisplayName("requestPasswordReset persists password reset when successful")
-    void requestPasswordReset_PersistsPasswordReset_WhenSuccessful() {
-        ApplicationUser userSaved = applicationUserRepository.save(ApplicationUserCreator.createValidApplicationUser());
-
-        ResponseEntity<Void> entity = testRestTemplate.postForEntity(
-                "/password-reset/request",
-                RequestPasswordResetCreator.createRequestPasswordReset(),
-                Void.class
-        );
-
-        assertThat(entity).isNotNull();
-
-        assertThat(entity.getStatusCode())
-                .isNotNull()
-                .isEqualTo(HttpStatus.OK);
-
-        List<PasswordReset> passwordResetsFound = passwordResetRepository.findAll();
-
-        assertThat(passwordResetsFound)
-                .isNotEmpty()
-                .hasSize(1);
-
-        assertThat(passwordResetsFound.get(0)).isNotNull();
-
-        assertThat(passwordResetsFound.get(0).getUser())
-                .isNotNull()
-                .isEqualTo(userSaved);
-    }
+//    @Test
+//    @DisplayName("requestPasswordReset persists password reset when successful")
+//    void requestPasswordReset_PersistsPasswordReset_WhenSuccessful() {
+//        ApplicationUser userSaved = applicationUserRepository.save(ApplicationUserCreator.createValidApplicationUser());
+//
+//        ResponseEntity<Void> entity = testRestTemplate.postForEntity(
+//                "/password-reset/request",
+//                RequestPasswordResetCreator.createRequestPasswordReset(),
+//                Void.class
+//        );
+//
+//        assertThat(entity).isNotNull();
+//
+//        assertThat(entity.getStatusCode())
+//                .isNotNull()
+//                .isEqualTo(HttpStatus.OK);
+//
+//        List<PasswordReset> passwordResetsFound = passwordResetRepository.findAll();
+//
+//        assertThat(passwordResetsFound)
+//                .isNotEmpty()
+//                .hasSize(1);
+//
+//        assertThat(passwordResetsFound.get(0)).isNotNull();
+//
+//        assertThat(passwordResetsFound.get(0).getUser())
+//                .isNotNull()
+//                .isEqualTo(userSaved);
+//    }
 
     @Test
     @DisplayName("verifyToken returns password reset when successful")
