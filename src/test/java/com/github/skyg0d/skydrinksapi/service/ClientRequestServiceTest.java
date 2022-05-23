@@ -331,6 +331,27 @@ class ClientRequestServiceTest {
     }
 
     @Test
+    @DisplayName("startRequest start client request when successful")
+    void startRequest_StartClientRequest_WhenSuccessful() {
+        BDDMockito.when(clientRequestRepositoryMock.save(ArgumentMatchers.any(ClientRequest.class)))
+                .thenReturn(ClientRequestCreator.createClientRequestStarted());
+
+        ClientRequest expectedClientRequest = ClientRequestCreator.createClientRequestStarted();
+
+        ClientRequest requestValid = ClientRequestCreator.createValidClientRequest();
+
+        ClientRequest requestFinished = clientRequestService.finishRequest(requestValid.getUuid());
+
+        assertThat(requestFinished)
+                .isNotNull()
+                .isEqualTo(expectedClientRequest);
+
+        assertThat(requestFinished.getStatus()).isEqualTo(expectedClientRequest.getStatus());
+
+        assertThat(requestFinished.getTotalPrice()).isEqualTo(expectedClientRequest.getTotalPrice());
+    }
+
+    @Test
     @DisplayName("finishRequest finish client request when successful")
     void finishRequest_FinishClientRequest_WhenSuccessful() {
         BDDMockito.when(clientRequestRepositoryMock.save(ArgumentMatchers.any(ClientRequest.class)))

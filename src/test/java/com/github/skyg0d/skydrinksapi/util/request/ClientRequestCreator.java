@@ -61,6 +61,23 @@ public class ClientRequestCreator {
                 .build();
     }
 
+    public static ClientRequest createClientRequestStarted() {
+        ArrayList<Drink> drinks = new ArrayList<>(List.of(DrinkCreator.createValidDrink()));
+
+        double totalPrice = calculatePrice(drinks);
+
+        return ClientRequest
+                .builder()
+                .uuid(uuid)
+                .updatedAt(LocalDateTime.now())
+                .user(ApplicationUserCreator.createValidApplicationUser())
+                .drinks(drinks)
+                .table(TableCreator.createValidTable())
+                .totalPrice(totalPrice)
+                .status(ClientRequestStatus.STARTED)
+                .build();
+    }
+
     public static ClientRequest createClientRequestFinished() {
         ArrayList<Drink> drinks = new ArrayList<>(List.of(DrinkCreator.createValidDrink()));
 

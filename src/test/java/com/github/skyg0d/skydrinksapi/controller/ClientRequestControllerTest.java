@@ -112,6 +112,10 @@ class ClientRequestControllerTest {
                 .thenReturn(true);
 
         BDDMockito
+                .when(clientRequestServiceMock.startRequest(ArgumentMatchers.any(UUID.class)))
+                .thenReturn(ClientRequestCreator.createClientRequestStarted());
+
+        BDDMockito
                 .when(clientRequestServiceMock.finishRequest(ArgumentMatchers.any(UUID.class)))
                 .thenReturn(ClientRequestCreator.createClientRequestFinished());
 
@@ -487,6 +491,28 @@ class ClientRequestControllerTest {
         assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
 
         assertThat(entity.getBody()).isFalse();
+    }
+
+    @Test
+    @DisplayName("startRequest start client request when successful")
+    void startRequest_StartClientRequest_WhenSuccessful() {
+        ClientRequest expectedClientRequest = ClientRequestCreator.createClientRequestStarted();
+
+        ResponseEntity<ClientRequest> entity = clientRequestController.startRequest(ClientRequestCreator.createValidClientRequest().getUuid());
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.OK);
+
+        assertThat(entity.getBody())
+                .isNotNull()
+                .isEqualTo(expectedClientRequest);
+
+        assertThat(entity.getBody().getStatus()).isEqualTo(expectedClientRequest.getStatus());
+
+        assertThat(entity.getBody().getTotalPrice()).isEqualTo(expectedClientRequest.getTotalPrice());
     }
 
     @Test

@@ -689,6 +689,76 @@ class ClientRequestControllerIT {
     }
 
     @Test
+    @DisplayName("startRequest start client request when successful")
+    void startRequest_StartClientRequest_WhenSuccessful() {
+        ClientRequest clientRequestSaved = persistClientRequest();
+
+        ResponseEntity<ClientRequest> entity = testRestTemplate.exchange(
+                "/requests/staff/start/{uuid}",
+                HttpMethod.PATCH,
+                tokenUtil.createWaiterAuthEntity(null),
+                ClientRequest.class,
+                clientRequestSaved.getUuid()
+        );
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.OK);
+
+        assertThat(entity.getBody()).isNotNull();
+
+        assertThat(entity.getBody().getUuid())
+                .isNotNull()
+                .isEqualTo(clientRequestSaved.getUuid());
+
+        assertThat(entity.getBody().getStatus()).isEqualTo(ClientRequestStatus.STARTED);
+    }
+
+    @Test
+    @DisplayName("startRequest returns 400 BadRequest when client request is not processing")
+    void startRequest_Returns400BadRequest_WhenClientRequestIsNotProcessing() {
+        ClientRequest clientRequestSaved = persistClientRequest();
+
+        clientRequestSaved.setStatus(ClientRequestStatus.STARTED);
+
+        ClientRequest clientRequestStarted = clientRequestRepository.save(clientRequestSaved);
+
+        ResponseEntity<BadRequestExceptionDetails> entity = testRestTemplate.exchange(
+                "/requests/staff/start/{uuid}",
+                HttpMethod.PATCH,
+                tokenUtil.createWaiterAuthEntity(null),
+                BadRequestExceptionDetails.class,
+                clientRequestStarted.getUuid()
+        );
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    @DisplayName("startRequest returns 400 BadRequest when client request not exists")
+    void startRequest_Returns400BadRequest_WhenClientRequestNotExists() {
+        ResponseEntity<BadRequestExceptionDetails> entity = testRestTemplate.exchange(
+                "/requests/staff/start/{uuid}",
+                HttpMethod.PATCH,
+                tokenUtil.createWaiterAuthEntity(null),
+                BadRequestExceptionDetails.class,
+                UUID.randomUUID()
+        );
+
+        assertThat(entity).isNotNull();
+
+        assertThat(entity.getStatusCode())
+                .isNotNull()
+                .isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
     @DisplayName("finishRequest finish client request when successful")
     void finishRequest_FinishClientRequest_WhenSuccessful() {
         ClientRequest clientRequestSaved = persistClientRequest();
