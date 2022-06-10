@@ -36,12 +36,12 @@
 
 1. Clone este repositório para sua máquina e abra o terminal já no diretório do projeto. 
 2. Utilize o comando `docker-compose up`, para iniciar o container do MySQL.
-3. Utilize o comando `mvn clean package` para gerar um *.jar* do projeto.
-4. Utilize o comando `mvn spring-boot:run` para iniciar o servidor.
+3. Utilize o comando `./mvnw clean package` para gerar um *.jar* do projeto.
+4. Utilize o comando `./mvnw spring-boot:run` para iniciar o servidor.
 5. Para o serviço de restauração de senhas funcionar, você deve configurar as credenciais corretamente:
 
 ```bash
-mvn spring-boot:run -Dspring-boot.run.arguments="--spring.mail.username=SEU_USERNAME --spring.mail.password=SUA_SENHA"
+./mvnw spring-boot:run -D spring-boot.run.arguments="--spring.mail.username=SEU_USERNAME --spring.mail.password=SUA_SENHA"
 ```
 
 Pronto, caso tudo tenha ocorrido com sucesso, o projeto funcionará normalmente!
@@ -51,10 +51,10 @@ Pronto, caso tudo tenha ocorrido com sucesso, o projeto funcionará normalmente!
 * Durante a geração do *.jar*, você pode escolher se quer executar todos os testes, os testes unitários, os testes de integração ou nenhum teste:
 
 ```bash
-mvn clean package -P all-tests // Para executar todos os testes.
-mvn clean package -P unit-tests // Para executar os testes unitários.
-mvn clean package -P integration-tests // Para executar os testes de integração. 
-mvn clean package -P skip-tests // Para não executar nenhum teste.
+./mvnw clean package -P all-tests // Para executar todos os testes.
+./mvnw clean package -P unit-tests // Para executar os testes unitários.
+./mvnw clean package -P integration-tests // Para executar os testes de integração. 
+./mvnw clean package -P skip-tests // Para não executar nenhum teste.
 ```
 
 * Caso precise mudar de banco de dados, você pode alterar a configuração do *docker-compsose.yml*
