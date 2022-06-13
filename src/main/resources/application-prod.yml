@@ -15,4 +15,4 @@ jwt:
 
 my:
   cors:
-    origins: ["https://sky-drinks-ui.vercel.app", "https://sky-drinks-ui.vercel.app", "https://sky-drinks*.vercel.app"]
+    origins: ["https://sky-drinks-ui.vercel.app", "https://sky-drinks.vercel.app", "https://sky-drinks*.vercel.app"]
