@@ -2,11 +2,10 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-      dialect: org.hibernate.dialect.PostgreSQLDialect
   datasource:
-    url: {MYSQL_URL}
-    username: {MYSQLUSER}
-    password: {MYSQLPASSWORD}
+    url: ${MYSQL_URL}
+    username: ${MYSQLUSER}
+    password: ${MYSQLPASSWORD}
   mail:
     username: ${MAIL_USERNAME}
     password: ${MAIL_PASSWORD}
@@ -14,7 +13,7 @@ spring:
 jwt:
   config:
     expiration: 604800 # One week
-    privateKey: {JWT_PRIVATE_KEY}
+    privateKey: ${JWT_PRIVATE_KEY}
 
 my:
   cors:
