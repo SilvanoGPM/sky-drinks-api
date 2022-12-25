@@ -4,9 +4,9 @@ spring:
       ddl-auto: update
       dialect: org.hibernate.dialect.PostgreSQLDialect
   datasource:
-    url: {DATABASE_URL}
-    username: {PGUSER}
-    password: {PGPASSWORD}
+    url: {MYSQL_URL}
+    username: {MYSQLUSER}
+    password: {MYSQLPASSWORD}
   mail:
     username: ${MAIL_USERNAME}
     password: ${MAIL_PASSWORD}
