@@ -3,9 +3,7 @@ spring:
     hibernate:
       ddl-auto: update
   datasource:
-    url: jdbc:mysql://${MYSQLHOST}:${MYSQLPORT}/skydrinks?createDatabaseIfNotExist=true
-    username: ${MYSQLUSER}
-    password: ${MYSQLPASSWORD}
+    url: ${DATABASE_URL}
   mail:
     username: ${MAIL_USERNAME}
     password: ${MAIL_PASSWORD}
